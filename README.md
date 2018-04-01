@@ -47,9 +47,9 @@ All of these endpoints are currently auth protected using JWT tokens (Except /us
 
 | Path | Method | Description | Sample Body |
 | --- | --- | --- | --- |
-| /users/login/ldap | POST | Login via LDAP and get a JWT | { "username" : "jamf", "password" : "jamf1234" } |
-| /users/login/basic | POST | Login via username/password and get a JWT | { "email" : "jamf@jamf.com", "password" : "jamf1234" } |
-| /users/create | POST | Creates a new user in the database | { "email" : "jamf@jamf.com", "password" : "jamf1234", "register_pin" : "jamf1234" } |
+| /users/login/ldap | POST | Login via LDAP and get a JWT | { "username" : "admin", "password" : "test" } |
+| /users/login/basic | POST | Login via username/password and get a JWT | { "email" : "admin@admin.com", "password" : "test" } |
+| /users/create | POST | Creates a new user in the database | { "email" : "admin@admin.com", "password" : "test", "register_pin" : "pin1234" } |
 | /webhooks/devices | POST | Handles POST requests for device events from the JPS | See JPS webhook docs |
 | /webhooks/servers | POST | Handles POST requests for server events from the JPS | See JPS webhook docs |
 | /devices | GET | Gets all devices in the server | N/A |
@@ -59,7 +59,7 @@ All of these endpoints are currently auth protected using JWT tokens (Except /us
 | /devices/count/(mobile/computer) | GET | Gets a count of the mobile devices or computers in the server | N/A |
 | /devices/paged/(mobile/computer) | POST | Gets all mobile devices or computers paginated. Also supports searching. | Conforms to datables [standard described here.](https://datatables.net/manual/server-side) |
 | /devices/server/:orgName | GET | Gets all devices for the org server specified | N/A |
-| /servers/add | POST | Adds a JPS Server to the DB | { "url" : "https://jamfcloud.com", "username" : "admin", "password" : "jamf1234", "cron_string" : "\* \* \* \* \*" } |
+| /servers/add | POST | Adds a JPS Server to the DB | { "url" : "https://jamfcloud.com", "username" : "admin", "password" : "test", "cron_string" : "\* \* \* \* \*" } |
 | /servers/ | GET | Returns all of the servers in the Database | N/A |
 | /servers/delete/id | DELETE | Deletes a server by id | N/A |
 

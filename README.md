@@ -92,13 +92,7 @@ You can find the JSSId in the database table. This is required to properly link 
 
 
  # TODO:
- - Allow a server export a csv report by email every time and update is made
- - Sort tvOS devices out from the iOS Devices
- - Expanded inventory for specific/all devices (API Call Heavy)
- - Allow MDM commands to be sent in the webapp for the mobile devices using the JPS API
- - Check for deleted devices upon update
- - Ability to edit server information in the table and reorder/configure the table
- - Integration with other MDMs, specifically In Tune for non Apple Devices
+- View my kanban board for the most recent updates here!! https://github.com/jacobschultz/scout-public/projects/1
 
  # Software Used
  - node.js, mysql and express for the server

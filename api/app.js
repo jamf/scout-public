@@ -48,6 +48,7 @@ app.use(function (err, req, res, next) {
 app.use('/servers', require('./controllers/servers'));
 app.use('/devices', require('./controllers/devices'));
 app.use('/webhooks', require('./controllers/webhooks'));
+app.use('/patches', require('./controllers/patches'));
 app.use('/users', require('./controllers/users'));
 
 //Serve the web app

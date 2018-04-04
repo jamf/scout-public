@@ -13,12 +13,39 @@ function addServerToDatabase(url,username,password,cron){
   })
 }
 
+function addPatchServerToDatabase(url,cron){
+  var serverObject = { "url" : url, "cron" : cron};
+  //send it to the server
+  var post = getRequestObject('/patches/create', serverObject, 'POST');
+  post.done(function(res){
+    $('#add-patch-server-modal').modal('hide');
+    swal('Server Added', 'The server has been addded to the database successfully.', 'success');
+    loadServerTable();
+  })
+  .fail(function(xhr){
+    swal('Server Upload Failed', 'The server has not been added to the database, please check the console for more details.', 'error');
+    console.log(xhr);
+  })
+}
+
 function updateComputers(){
   var computerTable = $("#computers-table").DataTable(getDataTablesRequest('computer'));
   var computers = getRequestObject('/devices/count/computer', null, 'GET');
   //Get a count of the total devices seperate since data tables can't handle success functions
   computers.done(function(computers){
     $("#macos-device-count").html(computers.size);
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+  });
+}
+
+function updateTvs(){
+  var tvsTable = $("#tvs-table").DataTable(getDataTablesRequest('tv'));
+  var tvs = getRequestObject('/devices/count/tv', null, 'GET');
+  //Get a count of the total devices seperate since data tables can't handle success functions
+  tvs.done(function(tvs){
+    $("#tvos-device-count").html(tvs.size);
   })
   .fail(function(xhr){
     console.log(xhr);
@@ -71,7 +98,41 @@ function loadServerTable(){
   .fail(function(xhr) {
     console.log(xhr);
   })
-  $("#tvos-device-count").html(0);
+}
+
+function loadPatchesTable(){
+  var patchesTable = $("#patches-table").DataTable();
+  patchesTable.clear();
+  var patches = getRequestObject('/patches/software', null, 'GET');
+  //render the table after the servers are loaded from the DB
+  patches.done(function(patchList){
+    //Add to the server table
+    for (i = 0; i < patchList.length; i++){
+      patchesTable.row.add([patchList[i].name, patchList[i].publisher,patchList[i].id,patchList[i].currentVersion,patchList[i].lastModified]);
+    }
+    patchesTable.draw();
+  })
+  .fail(function(xhr) {
+    console.log(xhr);
+  })
+}
+
+function loadPatchServersTable(){
+  var patchServersTable = $("#patch-servers-table").DataTable();
+  patchServersTable.clear();
+  var patchServers = getRequestObject('/patches/servers', null, 'GET');
+  //render the table after the servers are loaded from the DB
+  patchServers.done(function(patchServerList){
+    console.log(patchServerList);
+    //Add to the server table
+    for (i = 0; i < patchServerList.length; i++){
+      patchServersTable.row.add([patchServerList[i].base_url, patchServerList[i].cron_update]);
+    }
+    patchServersTable.draw();
+  })
+  .fail(function(xhr) {
+    console.log(xhr);
+  })
 }
 
 function doLoginLDAP(){
@@ -124,14 +185,25 @@ function renderPage(){
   loadServerTable();
   updateComputers();
   updateMobileDevices();
+  updateTvs();
+  loadPatchesTable();
+  loadPatchServersTable();
   //Setup button listeners
   $("#add-server-button").click(function(){
     addServerToDatabase($("#add-server-url").val(), $("#add-server-username").val(), $("#add-server-password").val(), $("#add-server-cron").val());
+  });
+  $("#add-patch-server-button").click(function(){
+    addPatchServerToDatabase($("#add-patch-server-url").val(), $("#add-patch-server-cron").val());
   });
   $("#servers-table-div").show();
   $('#cron-selector').cron({
     onChange: function() {
         $('#add-server-cron').val($(this).cron("value"));
+    }
+  }); // apply cron with default options
+  $('#patch-cron-selector').cron({
+    onChange: function() {
+        $('#add-patch-server-cron').val($(this).cron("value"));
     }
   }); // apply cron with default options
 }

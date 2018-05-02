@@ -16,6 +16,8 @@ var isPatch = false;
 if (process.argv.length > 3){
   isPatch = process.argv[3];
 }
+
+
 //Connect to the db and start updating
 db.connect(function(err) {
   if (err) {
@@ -23,18 +25,13 @@ db.connect(function(err) {
     process.exit(1);
   } else {
     if (isPatch){
-      console.log('Getting all patches for: ' + serverURL);
-      patch.getAllPatchesFromServer(serverURL)
-      .then(function(patches){
-        var objList = JSON.parse(JSON.stringify(patches));
-        Promise.all(objList.map(p => patch.writePatchFromServer(serverURL,p.id))).then(function(result){
-          console.log(result.length + ' patches written to files');
-          process.exit(0);
-        });
+      patch.handleWorkerUpdates(serverURL)
+      .then(function(result){
+        console.log(result.length + ' patches updated!');
       })
       .catch(function(error){
+        console.log('Unable to update patches for server.');
         console.log(error);
-        console.log('Unable to get patches from server');
         process.exit(1);
       });
     } else {
@@ -58,32 +55,18 @@ db.connect(function(err) {
             //Update exapnded inventory devices
             console.log(expandedInventoryDevices.length + ' expanded inventory devices will be updated');
             if (expandedInventoryDevices.length > 0){
-              //Call the API for each device to update them
-              Promise.all(expandedInventoryDevices.map(device => devices.getExpandedInventory(serverURL,serverDetails[0].username, db.decryptString(serverDetails[0].password),device))).then(function(results){
-                //Build a record for each of the devices to insert
-                Promise.all(results.map(jssResponse => inventory.buildExpandedInventoryRecord(jssResponse))).then(function(inventoryRecords){
-                  //insert to the database
-                  Promise.all(inventoryRecords.map(record => inventory.insertInventoryRecords(record))).then(function(results){
-                    process.exit(0);
-                  })
-                  .catch(function(error){
-                    console.log('Error Inserting Expanded Inventory');
-                    console.log(error);
-                    process.exit(1);
-                  });
-                })
-                .catch(function(error){
-                  console.log('Error Building Expanded Inventory');
-                  console.log(error);
-                  process.exit(1);
-                });
+              //There are expanded inventory devices, so insert them
+              inventory.handleWorkerRecords(expandedInventoryDevices, serverURL,serverDetails[0].username, serverDetails[0].password)
+              .then(function(result){
+                //Update complete, finish the process
+                process.exit(0);
               })
               .catch(function(error){
-                console.log('Error Inserting Devices');
                 console.log(error);
                 process.exit(1);
               });
             } else {
+              console.log('No Expanded Inevntory Devices to Update');
               process.exit(0);
             }
           })

@@ -9,6 +9,21 @@ const axiosInstance = axios.create({
 var db = require('../common/db.js');
 var path = require('path');
 
+exports.handleWorkerUpdates = function(serverURL){
+  return new Promise((resolve, reject) => {
+    console.log('Getting all patches for: ' + serverURL);
+    exports.getAllPatchesFromServer(serverURL)
+    .then(function(patches){
+      var objList = JSON.parse(JSON.stringify(patches));
+      Promise.all(objList.map(p => exports.writePatchFromServer(serverURL,p.id))).then(function(result){
+        resolve(result);
+      });
+    })
+    .catch(function(error){
+      reject(error);
+    });
+  });
+}
 
 exports.getFilesInDirectory = function(path){
   return new Promise((resolve, reject) => {

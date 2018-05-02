@@ -1,4 +1,48 @@
 var db = require('../common/db.js');
+var devices = require('./models/device.js');
+
+//This method handles updating all of the devices via the worker
+exports.handleWorkerRecords = function(listOfDevices, serverURL, username, password){
+  return new Promise(function(resolve,reject) {
+    //First call the JSS API to get records
+    Promise.all(listOfDevices.map(device => devices.getExpandedInventory(serverURL,username, db.decryptString(password),device))).then(function(responseFromJSSList){
+      return responseFromJSSList;
+    })
+    //Now build records ready for the database
+    .then(function(responseFromJSS){
+      return exports.buildExpandedInventoryRecords(responseFromJSS);
+    })
+    //Now insert these to the database
+    .then(function(databaseReadyRecords){
+      Promise.all(databaseReadyRecords.map(record => exports.insertInventoryRecords(record))).then(function(results){
+        resolve(results);
+      })
+      .catch(function(error){
+        console.log('Error inserting expanded inventory devices');
+        console.log(error);
+        reject(error);
+      });
+    })
+    .catch(function(error){
+      console.log('Error getting devices from the JSS Inventory');
+      console.log(error);
+      reject(error);
+    });
+  });
+}
+
+exports.buildExpandedInventoryRecords = function(listOfDevicesFromJPSAPI){
+  return new Promise(function(resolve,reject) {
+    Promise.all(results.map(jssDevice => exports.buildExpandedInventoryRecord(jssDevice))).then(function(databaseReadyRecords){
+      resolve(databaseReadyRecords);
+    })
+    .catch(function(error){
+      console.log('Error Building Expanded Inventory');
+      console.log(error);
+      reject(error);
+    });
+  });
+}
 
 exports.buildExpandedInventoryRecord = function(jssResponse){
   console.log(jssResponse);

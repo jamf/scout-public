@@ -36,39 +36,41 @@ db.connect(function(err) {
       });
     } else {
       console.log('Getting all devices for: ' + serverURL);
+      var serverId;
       //Get the server details from the database
       servers.getServerFromURL(serverURL)
       .then(function(serverDetails){
         //get all of the devices for that server
+        serverId = serverDetails[0].id;
         servers.getAllDevices(serverURL, serverDetails[0].id, serverDetails[0].username, db.decryptString(serverDetails[0].password))
         .then(function(allDevicesList){
           //Update each device in the database
           Promise.all(allDevicesList.map(deviceData => devices.upsertDevice(deviceData))).then(function(result){
             console.log(result.length + ' devices updated in the database');
-            //Check for expanded inventory Devices
-            var expandedInventoryDevices = [];
-            allDevicesList.forEach(function(d) {
-              if (d.expanded_inventory == true || d.expanded_inventory == 1){
-                expandedInventoryDevices.push(d);
-              }
-            });
-            //Update exapnded inventory devices
-            console.log(expandedInventoryDevices.length + ' expanded inventory devices will be updated');
-            if (expandedInventoryDevices.length > 0){
-              //There are expanded inventory devices, so insert them
-              inventory.handleWorkerRecords(expandedInventoryDevices, serverURL,serverDetails[0].username, serverDetails[0].password)
-              .then(function(result){
-                //Update complete, finish the process
+            //Now check for expanded inventory devices
+            devices.getExpandedDevicesByJSS(serverId)
+            .then(function(expandedInventoryDevices){
+              console.log(expandedInventoryDevices.length + ' expanded inventory devices will be updated');
+              if (expandedInventoryDevices.length > 0){
+                //There are expanded inventory devices, so insert them
+                inventory.handleWorkerRecords(expandedInventoryDevices, serverURL,serverDetails[0].username, serverDetails[0].password)
+                .then(function(result){
+                  //Update complete, finish the process
+                  process.exit(0);
+                })
+                .catch(function(error){
+                  console.log(error);
+                  process.exit(1);
+                });
+              } else {
                 process.exit(0);
-              })
-              .catch(function(error){
-                console.log(error);
-                process.exit(1);
-              });
-            } else {
-              console.log('No Expanded Inevntory Devices to Update');
-              process.exit(0);
-            }
+              }
+            })
+            .catch(function(error){
+              console.log('Error Getting Expanded Inventory Devices');
+              console.log(error);
+              process.exit(1);
+            });
           })
           .catch(function(error){
             console.log('Error Inserting Devices');
@@ -87,6 +89,7 @@ db.connect(function(err) {
         console.log(error);
         process.exit(1);
       });
+
     }
   }
 });

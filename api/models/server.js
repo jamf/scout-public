@@ -119,7 +119,7 @@ function translateAPIDeviceToDatabaseObject(device, serverId, type){
   }
   var dbObject = {"server_id" : serverId, "device_type" : type, "jss_id" : device.id, "jss_name" : device.name,
                   "jss_serial" : device.serial_number, "jss_last_inventory" : lastDate,
-                  "jss_model" : device.model, "jss_managed" : device.managed, "jss_udid" : device.udid, "expanded_inventory" : true};
+                  "jss_model" : device.model, "jss_managed" : device.managed, "jss_udid" : device.udid};
   return dbObject;
 }
 

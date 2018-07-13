@@ -1,5 +1,5 @@
 var db = require('../common/db.js');
-var devices = require('./models/device.js');
+var devices = require('./device.js');
 
 //This method handles updating all of the devices via the worker
 exports.handleWorkerRecords = function(listOfDevices, serverURL, username, password){
@@ -33,7 +33,7 @@ exports.handleWorkerRecords = function(listOfDevices, serverURL, username, passw
 
 exports.buildExpandedInventoryRecords = function(listOfDevicesFromJPSAPI){
   return new Promise(function(resolve,reject) {
-    Promise.all(results.map(jssDevice => exports.buildExpandedInventoryRecord(jssDevice))).then(function(databaseReadyRecords){
+    Promise.all(listOfDevicesFromJPSAPI.map(jssDevice => exports.buildExpandedInventoryRecord(jssDevice))).then(function(databaseReadyRecords){
       resolve(databaseReadyRecords);
     })
     .catch(function(error){
@@ -45,7 +45,6 @@ exports.buildExpandedInventoryRecords = function(listOfDevicesFromJPSAPI){
 }
 
 exports.buildExpandedInventoryRecord = function(jssResponse){
-  console.log(jssResponse);
   return new Promise(function(resolve,reject) {
     exports.getExpandedInventoryTables()
     .then(function(result){
@@ -79,7 +78,7 @@ exports.buildExpandedInventoryRecord = function(jssResponse){
 
 exports.getExpandedInventoryTables = function(){
   return new Promise(function(resolve,reject) {
-    db.get().query('SHOW COLUMNS FROM inventories', function(error, results, fields) {
+    db.get().query('SHOW COLUMNS FROM computer_inventory', function(error, results, fields) {
       if (error) {
         reject(error);
       } else {
@@ -87,15 +86,31 @@ exports.getExpandedInventoryTables = function(){
         for (i = 0; i < results.length; i++){
           fields.push(results[i].Field);
         }
-        resolve(fields);
+        //Now get the mobile devices
+        db.get().query('SHOW COLUMNS FROM mobiledevice_inventory', function(error, results, fields) {
+          if (error) {
+            reject(error);
+          } else {
+            for (i = 0; i < results.length; i++){
+              fields.push(results[i].Field);
+            }
+            resolve(fields);
+          }
+        });
       }
     });
   });
 }
 
 exports.insertInventoryRecords = function(inventory){
+  var query = '';
+  if (inventory.os_type == 'iOS'){
+    query = 'INSERT INTO mobiledevice_inventory SET ?';
+  } else {
+    query = 'INSERT INTO computer_inventory SET ?';
+  }
   return new Promise(function(resolve,reject) {
-    db.get().query('INSERT INTO inventories SET ?', [inventory], function(error, results, fields) {
+    db.get().query(query, [inventory], function(error, results, fields) {
       if (error) {
         reject(error);
       } else {

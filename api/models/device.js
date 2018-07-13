@@ -62,7 +62,19 @@ exports.getExpandedInventory = function(url, username, password, device) {
   });
 }
 
-exports.getDeviceByUDID= function(udid) {
+exports.getExpandedDevicesByJSS = function(jssId){
+  return new Promise(function(resolve,reject) {
+    db.get().query('SELECT devices.*, servers.org_name FROM devices JOIN servers ON devices.server_id = servers.id WHERE devices.expanded_inventory = 1 AND servers.id = ?', [jssId], function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
+exports.getDeviceByUDID = function(udid) {
   return new Promise(function(resolve,reject) {
     db.get().query('SELECT devices.*, servers.org_name FROM devices JOIN servers ON devices.server_id = servers.id WHERE jss_udid = ?', udid, function(error, results, fields) {
       if (error) {

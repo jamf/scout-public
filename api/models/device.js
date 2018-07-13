@@ -1,4 +1,12 @@
 var db = require('../common/db.js');
+var https = require('https');
+var axios = require('axios')
+//Allow self signed certs
+const axiosInstance = axios.create({
+  httpsAgent: new https.Agent({
+    rejectUnauthorized: false
+  })
+});
 
 exports.upsertDevice = function(deviceData){
   return new Promise(function(resolve,reject) {
@@ -9,7 +17,7 @@ exports.upsertDevice = function(deviceData){
       if (results.length == 0){
         exports.insertNewDevice(deviceData)
         .then(function(data){
-          resolve(data);
+          resolve(data.insertId);
         })
         .catch(error => {
           reject(error);
@@ -17,7 +25,7 @@ exports.upsertDevice = function(deviceData){
       } else {
         exports.updateDevice(deviceData, deviceData.jss_id, deviceData.device_type)
         .then(function(data){
-          resolve(data);
+          resolve(results[0].id);
         })
         .catch(error => {
           reject(error);
@@ -30,7 +38,43 @@ exports.upsertDevice = function(deviceData){
   });
 }
 
-exports.getDeviceByUDID= function(udid) {
+exports.getExpandedInventory = function(url, username, password, device) {
+  return new Promise(function(resolve,reject) {
+    //First translate mobile device to what the JPS API expects
+    var scoutDeviceType = device.device_type;
+    if (device.device_type == 'mobile'){
+      device.device_type = 'mobiledevice';
+    }
+    //Get the device information
+    axiosInstance.get(url + '/JSSResource/' + device.device_type + 's/id/'+device.jss_id, {
+      auth: {
+        username: username,
+        password: password
+      }
+    })
+    .then(function (response) {
+      resolve(response.data);
+    })
+    .catch(function (error) {
+      console.log(error);
+      reject(error);
+    });
+  });
+}
+
+exports.getExpandedDevicesByJSS = function(jssId){
+  return new Promise(function(resolve,reject) {
+    db.get().query('SELECT devices.*, servers.org_name FROM devices JOIN servers ON devices.server_id = servers.id WHERE devices.expanded_inventory = 1 AND servers.id = ?', [jssId], function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
+exports.getDeviceByUDID = function(udid) {
   return new Promise(function(resolve,reject) {
     db.get().query('SELECT devices.*, servers.org_name FROM devices JOIN servers ON devices.server_id = servers.id WHERE jss_udid = ?', udid, function(error, results, fields) {
       if (error) {

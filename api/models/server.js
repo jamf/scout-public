@@ -112,14 +112,14 @@ exports.getDeviceByTypeFromJPS = function(url,type,username,password){
 
 function translateAPIDeviceToDatabaseObject(device, serverId, type){
   var lastDate;
-  if (type == "mobile"){
+  if (type == "mobile" || type == "tv"){
     lastDate = device.last_inventory_update_utc;
   } else {
     lastDate = device.report_date_utc;
   }
   var dbObject = {"server_id" : serverId, "device_type" : type, "jss_id" : device.id, "jss_name" : device.name,
                   "jss_serial" : device.serial_number, "jss_last_inventory" : lastDate,
-                  "jss_model" : device.model, "jss_managed" : device.managed, "jss_udid" : device.udid };
+                  "jss_model" : device.model, "jss_managed" : device.managed, "jss_udid" : device.udid};
   return dbObject;
 }
 
@@ -139,7 +139,12 @@ exports.getAllDevices = function(url, serverId, username, password){
         } else if ('mobile_devices' in deviceObjList){
           var unparsedList = deviceObjList.mobile_devices;
           unparsedList.forEach(function(d) {
-            parsedDeviceObjects.push(translateAPIDeviceToDatabaseObject(d, serverId, 'mobile'));
+            //sort out tvos devices since they are stored as 'mobiledevices' in the jss
+            if (d.model.includes('Apple TV')){
+              parsedDeviceObjects.push(translateAPIDeviceToDatabaseObject(d, serverId, 'tv'));
+            } else {
+              parsedDeviceObjects.push(translateAPIDeviceToDatabaseObject(d, serverId, 'mobile'));
+            }
           });
         }
       }

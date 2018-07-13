@@ -1,0 +1,486 @@
+{
+ "name": "Jamf Remote",
+ "publisher": "Jamf",
+ "appName": "Jamf Remote.app",
+ "bundleId": "com.jamfsoftware.JamfRemote",
+ "lastModified": "2018-03-26T23:20:21Z",
+ "currentVersion": "10.3.0",
+ "requirements": [
+  {
+   "name": "Application Bundle ID",
+   "operator": "is",
+   "value": "com.jamfsoftware.JamfRemote",
+   "type": "recon",
+   "and": false
+  },
+  {
+   "name": "Application Bundle ID",
+   "operator": "is",
+   "value": "com.jamfsoftware.CasperRemote",
+   "type": "recon",
+   "and": false
+  }
+ ],
+ "patches": [
+  {
+   "version": "10.3.0",
+   "releaseDate": "2018-03-26T16:00:00.270Z",
+   "standalone": true,
+   "minimumOperatingSystem": "10.9",
+   "reboot": false,
+   "killApps": [
+    {
+     "bundleId": "com.jamfsoftware.CasperRemote",
+     "appName": "Casper Remote.app"
+    },
+    {
+     "bundleId": "com.jamfsoftware.JamfRemote",
+     "appName": "Jamf Remote.app"
+    }
+   ],
+   "components": [
+    {
+     "name": "Jamf Remote",
+     "version": "10.3.0",
+     "criteria": [
+      {
+       "name": "Application Bundle ID",
+       "operator": "is",
+       "value": "com.jamfsoftware.JamfRemote",
+       "type": "recon",
+       "and": true
+      },
+      {
+       "name": "Application Version",
+       "operator": "is",
+       "value": "10.3.0",
+       "type": "recon"
+      }
+     ]
+    }
+   ],
+   "capabilities": [
+    {
+     "name": "Operating System Version",
+     "operator": "greater than or equal",
+     "value": "10.9",
+     "type": "recon"
+    }
+   ],
+   "dependencies": []
+  },
+  {
+   "version": "10.2.2",
+   "releaseDate": "2018-03-09T09:30:00.270Z",
+   "standalone": true,
+   "minimumOperatingSystem": "10.9",
+   "reboot": false,
+   "killApps": [
+    {
+     "bundleId": "com.jamfsoftware.CasperRemote",
+     "appName": "Casper Remote.app"
+    },
+    {
+     "bundleId": "com.jamfsoftware.JamfRemote",
+     "appName": "Jamf Remote.app"
+    }
+   ],
+   "components": [
+    {
+     "name": "Jamf Remote",
+     "version": "10.2.2",
+     "criteria": [
+      {
+       "name": "Application Bundle ID",
+       "operator": "is",
+       "value": "com.jamfsoftware.JamfRemote",
+       "type": "recon",
+       "and": true
+      },
+      {
+       "name": "Application Version",
+       "operator": "is",
+       "value": "10.2.2",
+       "type": "recon"
+      }
+     ]
+    }
+   ],
+   "capabilities": [
+    {
+     "name": "Operating System Version",
+     "operator": "greater than or equal",
+     "value": "10.9",
+     "type": "recon"
+    }
+   ],
+   "dependencies": []
+  },
+  {
+   "version": "10.2.1",
+   "releaseDate": "2018-02-26T10:15:00.270Z",
+   "standalone": true,
+   "minimumOperatingSystem": "10.9",
+   "reboot": false,
+   "killApps": [
+    {
+     "bundleId": "com.jamfsoftware.CasperRemote",
+     "appName": "Casper Remote.app"
+    },
+    {
+     "bundleId": "com.jamfsoftware.JamfRemote",
+     "appName": "Jamf Remote.app"
+    }
+   ],
+   "components": [
+    {
+     "name": "Jamf Remote",
+     "version": "10.2.1",
+     "criteria": [
+      {
+       "name": "Application Bundle ID",
+       "operator": "is",
+       "value": "com.jamfsoftware.JamfRemote",
+       "type": "recon",
+       "and": true
+      },
+      {
+       "name": "Application Version",
+       "operator": "is",
+       "value": "10.2.1",
+       "type": "recon"
+      }
+     ]
+    }
+   ],
+   "capabilities": [
+    {
+     "name": "Operating System Version",
+     "operator": "greater than or equal",
+     "value": "10.9",
+     "type": "recon"
+    }
+   ],
+   "dependencies": []
+  },
+  {
+   "version": "10.2.0",
+   "releaseDate": "2018-02-13T16:15:00.270Z",
+   "standalone": true,
+   "minimumOperatingSystem": "10.9",
+   "reboot": false,
+   "killApps": [
+    {
+     "bundleId": "com.jamfsoftware.CasperRemote",
+     "appName": "Casper Remote.app"
+    },
+    {
+     "bundleId": "com.jamfsoftware.JamfRemote",
+     "appName": "Jamf Remote.app"
+    }
+   ],
+   "components": [
+    {
+     "name": "Jamf Remote",
+     "version": "10.2.0",
+     "criteria": [
+      {
+       "name": "Application Bundle ID",
+       "operator": "is",
+       "value": "com.jamfsoftware.JamfRemote",
+       "type": "recon",
+       "and": true
+      },
+      {
+       "name": "Application Version",
+       "operator": "is",
+       "value": "10.2.0",
+       "type": "recon"
+      }
+     ]
+    }
+   ],
+   "capabilities": [
+    {
+     "name": "Operating System Version",
+     "operator": "greater than or equal",
+     "value": "10.9",
+     "type": "recon"
+    }
+   ],
+   "dependencies": []
+  },
+  {
+   "version": "10.1.1",
+   "releaseDate": "2017-12-20T10:00:00.270Z",
+   "standalone": true,
+   "minimumOperatingSystem": "10.9",
+   "reboot": false,
+   "killApps": [
+    {
+     "bundleId": "com.jamfsoftware.CasperRemote",
+     "appName": "Casper Remote.app"
+    },
+    {
+     "bundleId": "com.jamfsoftware.JamfRemote",
+     "appName": "Jamf Remote.app"
+    }
+   ],
+   "components": [
+    {
+     "name": "Jamf Remote",
+     "version": "10.1.1",
+     "criteria": [
+      {
+       "name": "Application Bundle ID",
+       "operator": "is",
+       "value": "com.jamfsoftware.JamfRemote",
+       "type": "recon",
+       "and": true
+      },
+      {
+       "name": "Application Version",
+       "operator": "is",
+       "value": "10.1.1",
+       "type": "recon"
+      }
+     ]
+    }
+   ],
+   "capabilities": [
+    {
+     "name": "Operating System Version",
+     "operator": "greater than or equal",
+     "value": "10.9",
+     "type": "recon"
+    }
+   ],
+   "dependencies": []
+  },
+  {
+   "version": "10.1.0",
+   "releaseDate": "2017-12-14T12:53:00.270Z",
+   "standalone": true,
+   "minimumOperatingSystem": "10.9",
+   "reboot": false,
+   "killApps": [
+    {
+     "bundleId": "com.jamfsoftware.CasperRemote",
+     "appName": "Casper Remote.app"
+    },
+    {
+     "bundleId": "com.jamfsoftware.JamfRemote",
+     "appName": "Jamf Remote.app"
+    }
+   ],
+   "components": [
+    {
+     "name": "Jamf Remote",
+     "version": "10.1.0",
+     "criteria": [
+      {
+       "name": "Application Bundle ID",
+       "operator": "is",
+       "value": "com.jamfsoftware.JamfRemote",
+       "type": "recon",
+       "and": true
+      },
+      {
+       "name": "Application Version",
+       "operator": "is",
+       "value": "10.1.0",
+       "type": "recon"
+      }
+     ]
+    }
+   ],
+   "capabilities": [
+    {
+     "name": "Operating System Version",
+     "operator": "greater than or equal",
+     "value": "10.9",
+     "type": "recon"
+    }
+   ],
+   "dependencies": []
+  },
+  {
+   "version": "10.0.0",
+   "releaseDate": "2017-10-31T12:00:00.270Z",
+   "standalone": true,
+   "minimumOperatingSystem": "10.9",
+   "reboot": false,
+   "killApps": [
+    {
+     "bundleId": "com.jamfsoftware.CasperRemote",
+     "appName": "Casper Remote.app"
+    },
+    {
+     "bundleId": "com.jamfsoftware.JamfRemote",
+     "appName": "Jamf Remote.app"
+    }
+   ],
+   "components": [
+    {
+     "name": "Jamf Remote",
+     "version": "10.0.0",
+     "criteria": [
+      {
+       "name": "Application Bundle ID",
+       "operator": "is",
+       "value": "com.jamfsoftware.JamfRemote",
+       "type": "recon",
+       "and": true
+      },
+      {
+       "name": "Application Version",
+       "operator": "is",
+       "value": "10.0.0",
+       "type": "recon"
+      }
+     ]
+    }
+   ],
+   "capabilities": [
+    {
+     "name": "Operating System Version",
+     "operator": "greater than or equal",
+     "value": "10.9",
+     "type": "recon"
+    }
+   ],
+   "dependencies": []
+  },
+  {
+   "version": "9.101.0",
+   "releaseDate": "2017-9-12T14:19:38.270Z",
+   "standalone": true,
+   "minimumOperatingSystem": "10.9",
+   "reboot": false,
+   "killApps": [
+    {
+     "bundleId": "com.jamfsoftware.CasperRemote",
+     "appName": "Casper Remote.app"
+    }
+   ],
+   "components": [
+    {
+     "name": "Jamf Remote",
+     "version": "9.101.0",
+     "criteria": [
+      {
+       "name": "Application Bundle ID",
+       "operator": "is",
+       "value": "com.jamfsoftware.CasperRemote",
+       "type": "recon",
+       "and": true
+      },
+      {
+       "name": "Application Version",
+       "operator": "is",
+       "value": "9.101.0",
+       "type": "recon"
+      }
+     ]
+    }
+   ],
+   "capabilities": [
+    {
+     "name": "Operating System Version",
+     "operator": "greater than or equal",
+     "value": "10.9",
+     "type": "recon"
+    }
+   ],
+   "dependencies": []
+  },
+  {
+   "version": "9.100.0",
+   "releaseDate": "2017-7-20T16:54:29.814Z",
+   "standalone": true,
+   "minimumOperatingSystem": "10.9",
+   "reboot": false,
+   "killApps": [
+    {
+     "bundleId": "com.jamfsoftware.CasperRemote",
+     "appName": "Casper Remote.app"
+    }
+   ],
+   "components": [
+    {
+     "name": "Jamf Remote",
+     "version": "9.100.0",
+     "criteria": [
+      {
+       "name": "Application Bundle ID",
+       "operator": "is",
+       "value": "com.jamfsoftware.CasperRemote",
+       "type": "recon",
+       "and": true
+      },
+      {
+       "name": "Application Version",
+       "operator": "is",
+       "value": "9.100.0",
+       "type": "recon"
+      }
+     ]
+    }
+   ],
+   "capabilities": [
+    {
+     "name": "Operating System Version",
+     "operator": "greater than or equal",
+     "value": "10.9",
+     "type": "recon"
+    }
+   ],
+   "dependencies": []
+  },
+  {
+   "version": "9.99.0",
+   "releaseDate": "2017-05-23T18:09:29.814Z",
+   "standalone": true,
+   "minimumOperatingSystem": "10.9",
+   "reboot": false,
+   "killApps": [
+    {
+     "bundleId": "com.jamfsoftware.CasperRemote",
+     "appName": "Casper Remote.app"
+    }
+   ],
+   "components": [
+    {
+     "name": "Jamf Remote",
+     "version": "9.99.0",
+     "criteria": [
+      {
+       "name": "Application Bundle ID",
+       "operator": "is",
+       "value": "com.jamfsoftware.CasperRemote",
+       "type": "recon",
+       "and": true
+      },
+      {
+       "name": "Application Version",
+       "operator": "is",
+       "value": "9.99.0",
+       "type": "recon"
+      }
+     ]
+    }
+   ],
+   "capabilities": [
+    {
+     "name": "Operating System Version",
+     "operator": "greater than or equal",
+     "value": "10.9",
+     "type": "recon"
+    }
+   ],
+   "dependencies": []
+  }
+ ],
+ "extensionAttributes": [],
+ "id": "JamfRemote"
+}

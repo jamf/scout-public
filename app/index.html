@@ -47,6 +47,7 @@
                   </a>
                   <ul class="dropdown-menu dropdown-gear">
                      <li onclick="$('#add-server-modal').modal('show');"><a href="#"><i class="fa fa-plus fa-fw"></i> Add New Server</a>
+                          <li onclick="$('#add-patch-server-modal').modal('show');"><a href="#"><i class="fa fa-plus fa-fw"></i> Add Patch Server</a>
                        <li><a href="#"><i class="fa fa-bar-chart fa-fw"></i> Export Report</a></li>
                      <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a></li>
                      <li class="divider"></li>
@@ -140,7 +141,7 @@
                            </div>
                            <div class="col-xs-9 text-right">
                               <div class="huge"><span id="tvos-device-count"></span></div>
-                              <div>tvOS Devices</div>
+                              <div>TVs</div>
                            </div>
                         </div>
                      </div>
@@ -170,6 +171,12 @@
                            <li class=""><a href="#computers-pane" data-toggle="tab" aria-expanded="false">Computers</a>
                            </li>
                            <li class=""><a href="#mobiledevices-pane" data-toggle="tab" aria-expanded="false">Mobile Devices</a>
+                           </li>
+                           <li class=""><a href="#tvs-pane" data-toggle="tab" aria-expanded="false">TVs</a>
+                           </li>
+                           <li class=""><a href="#patches-pane" data-toggle="tab" aria-expanded="false">Patches</a>
+                           </li>
+                           <li class=""><a href="#patch-servers-pane" data-toggle="tab" aria-expanded="false">Patch Servers</a>
                            </li>
                         </ul>
                         <!-- Tab panes -->
@@ -224,6 +231,53 @@
                                     </tr>
                                  </thead>
                                  <tbody id="mobiledevices-table-body">
+                                 </tbody>
+                              </table>
+                           </div>
+                           <div class="tab-pane fade" id="tvs-pane">
+                             <br/>
+                              <table id="tvs-table" class="table table-striped table-bordered table-hover" style="width:100%">
+                                 <thead>
+                                    <tr>
+                                       <th>Name</th>
+                                       <th>JPS Name</th>
+                                       <th>Model</th>
+                                       <th>Serial</th>
+                                       <th>Last Inventory</th>
+                                       <th>UDID</th>
+                                       <th>Managed</th>
+                                    </tr>
+                                 </thead>
+                                 <tbody id="tvs-table-body">
+                                 </tbody>
+                              </table>
+                           </div>
+                           <div class="tab-pane fade" id="patches-pane">
+                             <br/>
+                              <table id="patches-table" class="table table-striped table-bordered table-hover" style="width:100%">
+                                 <thead>
+                                    <tr>
+                                       <th>Name</th>
+                                       <th>Publisher</th>
+                                       <th>Id</th>
+                                       <th>Current Version</th>
+                                       <th>Last Modified</th>
+                                    </tr>
+                                 </thead>
+                                 <tbody id="patches-table-body">
+                                 </tbody>
+                              </table>
+                           </div>
+                           <div class="tab-pane fade" id="patch-servers-pane">
+                             <br/>
+                              <table id="patch-servers-table" class="table table-striped table-bordered table-hover" style="width:100%">
+                                 <thead>
+                                    <tr>
+                                       <th>URL</th>
+                                       <th>Cron Update</th>
+                                    </tr>
+                                 </thead>
+                                 <tbody id="patch-servers-table-body">
                                  </tbody>
                               </table>
                            </div>
@@ -382,8 +436,39 @@
          </div>
          <!-- /.modal-dialog -->
       </div>
+      <div class="modal fade in" id="add-patch-server-modal" tabindex="-1" role="dialog" aria-labelledby="Add Patch Server" aria-hidden="true">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                  <h4 class="modal-title" id="myModalLabel">Add Jamf Pro Patch Server</h4>
+               </div>
+               <div class="modal-body">
+                 Please enter the base URL for the patch server, and how often it should be updated.
+                  <div class="row">
+                     <div class="col-md-12">
+                       <div class="form-group">
+                          <label>Server URL</label>
+                          <input class="form-control" id="add-patch-server-url" type="text" placeholder="https://jamfcloud.com">
+                       </div>
+                       <div id="patch-cron-selector" class="form-group">
 
-
+                       </div>
+                       <div class="form-group">
+                          <label>Update Frequency (Cron)</label>
+                          <input class="form-control" id="add-patch-server-cron" type="text" placeholder="* * * * *">
+                       </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="modal-footer">
+                 <button id="add-patch-server-button" class="btn btn-default">Add Patch Server</button>
+               </div>
+            </div>
+            <!-- /.modal-content -->
+         </div>
+         <!-- /.modal-dialog -->
+      </div>
       <div class="modal fade in" id="add-server-modal" tabindex="-1" role="dialog" aria-labelledby="Add Server" aria-hidden="true">
          <div class="modal-dialog">
             <div class="modal-content">

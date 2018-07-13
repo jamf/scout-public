@@ -103,6 +103,20 @@ devices.get('/mobiledevices', function(req,res) {
   });
 });
 
+devices.get('/tvs', function(req,res) {
+  device.getDeviceByPlatform('tv')
+  .then(function(deviceList){
+    res.status(200).send({
+      devices : deviceList
+    });
+  })
+  .catch(error => {
+    res.status(500).send({
+      error: "Unable to get devices"
+    });
+  });
+});
+
 devices.get('/count/:deviceType', function(req,res) {
   device.getDeviceByPlatform(req.params.deviceType)
   .then(function(deviceList){

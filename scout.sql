@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.6.37)
 # Database: scout
-# Generation Time: 2018-04-04 03:58:30 +0000
+# Generation Time: 2018-07-13 22:25:32 +0000
 # ************************************************************
 
 
@@ -20,30 +20,6 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 
-# Dump of table devices
-# ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `devices`;
-
-CREATE TABLE `devices` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `server_id` int(11) DEFAULT NULL,
-  `device_type` varchar(128) DEFAULT NULL,
-  `jss_id` int(11) DEFAULT NULL,
-  `jss_name` varchar(255) DEFAULT NULL,
-  `jss_serial` varchar(255) DEFAULT NULL,
-  `jss_last_inventory` varchar(512) DEFAULT NULL,
-  `jss_udid` varchar(512) DEFAULT NULL,
-  `jss_os_version` varchar(255) DEFAULT NULL,
-  `jss_managed` tinyint(1) DEFAULT NULL,
-  `jss_Model` varchar(255) DEFAULT NULL,
-  `last_update_epoch` int(11) DEFAULT NULL,
-  `expanded_inventory` tinyint(1) DEFAULT '1',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-
-
 # Dump of table computer_inventory
 # ------------------------------------------------------------
 
@@ -52,6 +28,7 @@ DROP TABLE IF EXISTS `computer_inventory`;
 CREATE TABLE `computer_inventory` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `jss_device_id` int(11) DEFAULT NULL,
+  `scout_device_id` int(11) DEFAULT NULL,
   `mac_address` varchar(255) DEFAULT NULL,
   `ip_address` varchar(255) DEFAULT NULL,
   `last_reported_ip` varchar(255) DEFAULT NULL,
@@ -109,6 +86,87 @@ CREATE TABLE `computer_inventory` (
   `boot_ smart_status` varchar(255) DEFAULT NULL,
   `boot_partition_encrypted` varchar(255) DEFAULT NULL,
   `mapped_printer_count` int(11) DEFAULT NULL,
+  `initial_entry_date_epoch` int(255) DEFAULT NULL,
+  `last_cloud_backup_date_epoch` int(255) DEFAULT NULL,
+  `phone_number` int(11) DEFAULT NULL,
+  `model_identifier` varchar(255) DEFAULT NULL,
+  `os_version` int(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+
+# Dump of table devices
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `devices`;
+
+CREATE TABLE `devices` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `server_id` int(11) DEFAULT NULL,
+  `device_type` varchar(128) DEFAULT NULL,
+  `jss_id` int(11) DEFAULT NULL,
+  `jss_name` varchar(255) DEFAULT NULL,
+  `jss_serial` varchar(255) DEFAULT NULL,
+  `jss_last_inventory` varchar(512) DEFAULT NULL,
+  `jss_udid` varchar(512) DEFAULT NULL,
+  `jss_os_version` varchar(255) DEFAULT NULL,
+  `jss_managed` tinyint(1) DEFAULT NULL,
+  `jss_Model` varchar(255) DEFAULT NULL,
+  `last_update_epoch` int(11) DEFAULT NULL,
+  `expanded_inventory` tinyint(1) DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+
+# Dump of table mobiledevice_inventory
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `mobiledevice_inventory`;
+
+CREATE TABLE `mobiledevice_inventory` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `jss_id` int(11) DEFAULT NULL,
+  `scout_device_id` int(11) DEFAULT NULL,
+  `display_name` varchar(255) DEFAULT NULL,
+  `device_name` varchar(255) DEFAULT NULL,
+  `last_inventory_update` varchar(255) DEFAULT NULL,
+  `last_inventory_update_epcoh` int(128) DEFAULT NULL,
+  `capacity` int(12) DEFAULT NULL,
+  `available` int(12) DEFAULT NULL,
+  `os_type` varchar(255) DEFAULT NULL,
+  `os_version` varchar(255) DEFAULT NULL,
+  `os_build` varchar(255) DEFAULT NULL,
+  `serial_number` varchar(255) DEFAULT NULL,
+  `udid` varchar(255) DEFAULT NULL,
+  `initial_entry_date_epoch` int(12) DEFAULT NULL,
+  `phone_number` varchar(255) DEFAULT NULL,
+  `ip_address` varchar(255) DEFAULT NULL,
+  `wifi_mac_address` varchar(255) DEFAULT NULL,
+  `bluetooth_mac_address` varchar(255) DEFAULT NULL,
+  `modem_firmware` varchar(255) DEFAULT NULL,
+  `model` varchar(255) DEFAULT NULL,
+  `model_identifier` varchar(255) DEFAULT NULL,
+  `model_number` varchar(255) DEFAULT NULL,
+  `model_display` varchar(255) DEFAULT NULL,
+  `device_ownership_level` varchar(255) DEFAULT NULL,
+  `last_enrollment_epoch` int(12) DEFAULT NULL,
+  `model_numberCopyCopyCopyCopy` varchar(255) DEFAULT NULL,
+  `managed` tinyint(1) DEFAULT NULL,
+  `supervised` tinyint(255) DEFAULT NULL,
+  `exchange_activesync_device_identifier` varchar(255) DEFAULT NULL,
+  `ble_capable` tinyint(1) DEFAULT NULL,
+  `device_locator_service_enabled` tinyint(1) DEFAULT NULL,
+  `cloud_backup_enabled` tinyint(1) DEFAULT NULL,
+  `last_cloud_backup_date_epoch` int(12) DEFAULT NULL,
+  `location_services_enabled` tinyint(1) DEFAULT NULL,
+  `itunes_store_account_is_active` varchar(255) DEFAULT NULL,
+  `exchange_activesync_device_identifierCopyCopyCopy` varchar(255) DEFAULT NULL,
+  `exchange_activesync_device_identifierCopyCopyCopyCopy` varchar(255) DEFAULT NULL,
+  `exchange_activesync_device_identifierCopyCopyCopyCopyCopy` varchar(255) DEFAULT NULL,
+  `exchange_activesync_device_identifierCopyCopyCopyCopyCopyCopy` varchar(255) DEFAULT NULL,
+  `jss_device_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

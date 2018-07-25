@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<account>
+	<id>1</id>
+	<name>ScoutAdmin</name>
+	<directory_user>false</directory_user>
+	<full_name>Scout User</full_name>
+	<email>scout.user@org.com</email>
+	<email_address>scout.user@org.com</email_address>
+	<password></password>
+	<enabled>Enabled</enabled>
+	<ldap_server>
+	</ldap_server>
+	<force_password_change>false</force_password_change>
+	<access_level>Full Access</access_level>
+	<privilege_set>Administrator</privilege_set>
+	<privileges>
+		<jss_objects>
+			<privilege>Create Accounts</privilege>
+      		<privilege>Read Accounts</privilege>
+      		<privilege>Update Accounts</privilege>
+      	</jss_objects>
+	</privileges>
+</account>

@@ -1,5 +1,6 @@
 var servers = require('express').Router();
 var server = require('../models/server.js');
+var db = require('../common/db.js');
 var device = require('../models/device.js');
 var schedule = require('node-schedule');
 var exec = require('child_process').exec;
@@ -30,6 +31,40 @@ servers.post('/add', function(req,res) {
     console.log(error);
     res.status(500).send({
       error: "Unable to add server"
+    });
+  });
+});
+
+servers.post('/access/', function(req,res){
+  //Make sure this user has access to view passwords
+  console.log(req.user);
+  //First make sure there is a password that hasn't been destroyed
+  server.getServerFromURL(req.body.url)
+  .then(function(serverDetails){
+    var encryptedPassword = serverDetails[0].scout_admin_password;
+    if (encryptedPassword != '' && encryptedPassword != null){
+      var resObj = { password : db.decryptString(encryptedPassword) };
+      //destroy the password from the database
+      server.setScoutAdminPassword(req.body.url, null)
+      .then(function(result){
+        res.status(200).send(resObj);
+      })
+      .catch(error => {
+        console.log(error);
+        res.status(500).send({
+          error: "Unable to destory password, refusing to return password"
+        });
+      });
+    } else {
+      return res.status(400).send({
+        error: "No emergency admin password has been setup for this server"
+      });
+    }
+  })
+  .catch(error => {
+    console.log(error);
+    res.status(400).send({
+      error: "Unable to find server"
     });
   });
 });

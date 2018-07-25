@@ -35,6 +35,14 @@ db.connect(function(err) {
         process.exit(1);
       });
     } else {
+       //Update the ScoutAdmin user's password to a new string
+      servers.updateScoutAdminUserPassword(serverURL)
+      .then(function(result){
+        console.log('ScoutAdmin user password has been updated');
+      })
+      .catch(function(error){
+        console.log('Error updating scout admin user');
+      });
       console.log('Getting all devices for: ' + serverURL);
       var serverId;
       //Get the server details from the database
@@ -89,7 +97,6 @@ db.connect(function(err) {
         console.log(error);
         process.exit(1);
       });
-
     }
   }
 });

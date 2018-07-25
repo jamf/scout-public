@@ -76,8 +76,13 @@ function deleteServer(id){
   });
 }
 
-function getServerButtons(id){
-  return '<button type="button" id="edit_'+id+'" class="edit_server btn btn-info btn-circle"><i class="fa fa-pencil"></i></button>&nbsp;&nbsp;<button type="button" id="delete_'+id+'" onclick="deleteServer(\''+id+'\')" class="btn btn-danger delete_server btn-circle"><i class="fa fa-times"></i></button>';
+function getServerAccess(id,url){
+  $("#get-server-access-key").modal('show');
+  $("#backup_password_url").val(url);
+}
+
+function getServerButtons(id,url){
+  return '<button type="button" id="edit_'+id+'" class="edit_server btn btn-info btn-circle"><i class="fa fa-pencil"></i></button>&nbsp;&nbsp;<button type="button" id="delete_'+id+'" onclick="deleteServer(\''+id+'\')" class="btn btn-danger delete_server btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;<button type="button" id="access'+id+'" onclick="getServerAccess(\''+id+'\',\''+url+'\')" class="btn btn-success delete_server btn-circle"><i class="fa fa-key"></i></button>';
 }
 
 function loadServerTable(){
@@ -91,7 +96,7 @@ function loadServerTable(){
     for (i = 0; i < servers.servers.length; i++){
       var s = servers.servers[i];
       console.log(s);
-      serverTable.row.add( [s.url, s.username, s.org_name, s.ac, s.cron,getServerButtons(s.id) ] );
+      serverTable.row.add( [s.url, s.username, s.org_name, s.ac, s.cron,getServerButtons(s.id,s.url) ] );
     }
     serverTable.draw();
   })
@@ -145,6 +150,19 @@ function doLoginLDAP(){
   })
   .fail(function(xhr){
     $(".login-group").addClass("has-error");
+  })
+}
+
+function doBackupPasswordRequest(){
+  var body = { "url" : $("#backup_password_url").val()};
+  var backupRequest = getRequestObject('/servers/access/', body, 'POST');
+  //render the table after the servers are loaded from the DB
+  backupRequest.done(function(response){
+    swal('Password Retrieved', 'Your emergency password is: ' + response.password + ' . Do not loose this, as it has now been removed from the database and can no longer be returned.', 'warning');
+    $('#get-server-access-key').modal('hide');
+  })
+  .fail(function(xhr) {
+    swal('Password Retrieve Failed', 'Unable to retrieve emergency password. If this a real emergency, get the password from the database and decrypt it using your private key set upon Scout setup.', 'error');
   })
 }
 

@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.6.37)
 # Database: scout
-# Generation Time: 2018-07-13 22:25:32 +0000
+# Generation Time: 2018-07-25 19:12:27 +0000
 # ************************************************************
 
 
@@ -200,6 +200,8 @@ CREATE TABLE `servers` (
   `org_name` varchar(255) DEFAULT NULL,
   `activation_code` varchar(255) DEFAULT NULL,
   `expanded_inventory` tinyint(1) DEFAULT NULL,
+  `scout_admin_id` int(1) DEFAULT NULL,
+  `scout_admin_password` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

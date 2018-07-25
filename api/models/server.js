@@ -1,6 +1,12 @@
 var db = require('../common/db.js');
 var https = require('https');
-var axios = require('axios')
+var axios = require('axios');
+//Used to read XML config file for JPS User Object
+var fs = require('fs');
+const path = require("path");
+var xml2js = require('xml2js');
+
+
 //Allow self signed certs
 const axiosInstance = axios.create({
   httpsAgent: new https.Agent({
@@ -27,7 +33,23 @@ exports.addNewServer = function(url, username, password, cron){
         if (error) {
           reject(error);
         } else {
-          resolve(results);
+          //Now try to add the scout user
+          exports.addScoutAdminuser(url, username, password)
+          .then(function(res){
+            //Parse the id and update the server database for future updates
+            xml2js.parseString(res, function (err, result) {
+              var userId = parseInt(result.account.id[0]);
+              //Now update the database
+              exports.setScoutAdminUser(url,userId)
+              .then(function(result){
+                resolve(result);
+              })
+              .catch(function(error){
+                console.log(error);
+                reject(error);
+              });
+            });
+          })
         }
       });
     })
@@ -36,6 +58,66 @@ exports.addNewServer = function(url, username, password, cron){
       reject(error);
     });
   });
+}
+
+exports.addScoutAdminuser = function(url, username, password){
+  var data = fs.readFileSync(path.resolve(__dirname, '../common/scout-user-template.xml'), 'utf-8');
+  return new Promise(function(resolve,reject) {
+    axiosInstance.post(url + '/JSSResource/accounts/userid/0', data, {
+      auth: {
+        username: username,
+        password: password
+      },
+      headers: {'Content-Type': 'text/xml'}
+    })
+    .then(function (response) {
+      resolve(response.data);
+    })
+    .catch(function (error) {
+      console.log(error);
+      reject(error);
+    });
+  });
+}
+
+exports.updateScoutAdminUserPassword = function(url){
+  return new Promise(function(resolve,reject) {
+  //First get the server so we can find the admin user id
+  exports.getServerFromURL(url)
+  .then(function(serverDetails){
+    var scoutAdminId = serverDetails[0].scout_admin_id;
+    var username = serverDetails[0].username;
+    var password = db.decryptString(serverDetails[0].password);
+    //Now get the user model and assign a new password
+    var data = fs.readFileSync(path.resolve(__dirname, '../common/scout-user-template.xml'), 'utf-8');
+    //Replace the password with a good one
+    var newPassword = db.getRandomString(15);
+    data = data.replace("<password></password>", "<password>"+newPassword+"</password>");
+    axiosInstance.put(url + '/JSSResource/accounts/userid/' + scoutAdminId, data, {
+        auth: {
+          username: username,
+          password: password
+        },
+        headers: {'Content-Type': 'text/xml'}
+      })
+      .then(function (response) {
+        //Now update the password in the database
+        exports.setScoutAdminPassword(url,db.encryptString(newPassword))
+        .then(function(result){
+          resolve(result);
+        })
+        .catch(function (error) {
+          reject('Unable to update password in database, last known password: ' + newPassword);
+        });
+      })
+      .catch(function (error) {
+        reject(error);
+      });
+    })
+    .catch(function (error) {
+      reject(error);
+    });
+  })
 }
 
 exports.checkConnection = function(url, username, password){
@@ -71,6 +153,30 @@ exports.getAllServers = function(){
 exports.deleteServer = function(id) {
   return new Promise(function(resolve,reject) {
     db.get().query('DELETE FROM servers WHERE id = ?',id, function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
+exports.setScoutAdminUser = function(url, userId) {
+  return new Promise(function(resolve,reject) {
+    db.get().query('UPDATE servers SET scout_admin_id = ? WHERE url = ?',[userId,url], function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
+exports.setScoutAdminPassword = function(url, passwordEncrypted) {
+  return new Promise(function(resolve,reject) {
+    db.get().query('UPDATE servers SET scout_admin_password = ? WHERE url = ?',[passwordEncrypted,url], function(error, results, fields) {
       if (error) {
         reject(error);
       } else {

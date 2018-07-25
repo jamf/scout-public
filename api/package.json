@@ -29,6 +29,7 @@
     "lodash": "^4.17.5",
     "mysql": "^2.15.0",
     "node-constants": "0.0.2",
-    "node-schedule": "^1.3.0"
+    "node-schedule": "^1.3.0",
+    "xml2js": "^0.4.19"
   }
 }

@@ -35,3 +35,12 @@ exports.decryptString = function(text){
   dec += decipher.final('utf8');
   return dec;
 }
+
+exports.getRandomString = function(length){
+  var text = "";
+  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  for (var i = 0; i < length; i++){
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
+}

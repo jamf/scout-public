@@ -477,7 +477,7 @@
                   <h4 class="modal-title" id="myModalLabel">Add Jamf Pro Server</h4>
                </div>
                <div class="modal-body">
-                  A sample request will be made to the JSS to verify that credentials are valid and to get the Org Name and Activation Code. <br/><br/>
+                  A sample request will be made to the JSS to verify that credentials are valid and to get the Org Name and Activation Code. A 'ScoutAdmin' user will also be added to this JPS for emergency server access. This users password is changed every time Scout pulls inventory, and is randomly set.<br/><br/>
                   <div class="row">
                      <div class="col-md-12">
                        <div class="form-group">
@@ -504,6 +504,32 @@
                </div>
                <div class="modal-footer">
                  <button id="add-server-button" class="btn btn-default">Add Server</button>
+               </div>
+            </div>
+            <!-- /.modal-content -->
+         </div>
+         <!-- /.modal-dialog -->
+      </div>
+      <div class="modal fade in" id="get-server-access-key" tabindex="-1" role="dialog" aria-labelledby="Get emergency server access" aria-hidden="true">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                  <h4 class="modal-title" id="myModalLabel">Get Emergency Server Access</h4>
+               </div>
+               <div class="modal-body">
+                 If your user has access to get emergency server passwords, you can use the following button to have it returned.
+                 <ul><li>This password will be <b>destroyed from the database after being returned in this application one time.</b></li>
+                   <li>The next time this server is scheduled to update, it will update the ScoutAdmin password to a new random password. At that point, this will not longer be valid.</li>
+                   <li>If you loose this returned password, you will <b>not</b> be able to get emergency access to this server again until next time it updates. </li>
+                   <li>This password is only good for around 24 hours</li>
+                 </ul>
+                   <br/>
+                   <span id="get_backup_password" onclick="doBackupPasswordRequest();"><a href="#">If you have read and understand the above conditions, click here to get the password.</a></span>
+                   <input type="text" id="backup_password_url" style="display:none;"/>
+               </div>
+               <div class="modal-footer">
+                 <button class="btn btn-default" data-dismiss="modal" >Close</button>
                </div>
             </div>
             <!-- /.modal-content -->

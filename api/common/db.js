@@ -1,12 +1,18 @@
 var mysql = require('mysql');
+var MongoClient = require('mongodb').MongoClient;
 var crypto = require('crypto'),
     algorithm = 'aes-256-ctr',
     password = process.env.ENC_KEY;
 
+//Stores the MySQL Connection Pool
 var state = {
   pool: null
 }
 
+//Stores the connection to mongoDB
+var mongoDBO;
+
+//Called at least once in the app or worker scripts
 exports.connect = function(callback) {
   state.pool = mysql.createPool({
     host     : process.env.MYSQL_HOST,
@@ -14,12 +20,22 @@ exports.connect = function(callback) {
     password : process.env.MYSQL_PASS,
     database : process.env.MYSQL_DB
   });
-
   callback();
 }
-
+//Returns the MySQL connection pool
 exports.get = function() {
   return state.pool;
+}
+//handles connecting to the mongodb
+exports.connectNoSQL = function(callback){
+  MongoClient.connect(process.env.NOSQL_HOST, function(err, db) {
+    mongoDBO = db.db(process.env.NOSQL_DB);
+    callback();
+  });
+}
+//Returns the NoSQL connection object
+exports.getNoSQL = function (){
+  return mongoDBO;
 }
 
 exports.encryptString = function(text){

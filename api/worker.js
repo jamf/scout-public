@@ -55,30 +55,31 @@ db.connect(function(err) {
           //Update each device in the database
           Promise.all(allDevicesList.map(deviceData => devices.upsertDevice(deviceData))).then(function(result){
             console.log(result.length + ' devices updated in the database');
-            //Now check for expanded inventory devices
-            devices.getExpandedDevicesByJSS(serverId)
-            .then(function(expandedInventoryDevices){
-              console.log(expandedInventoryDevices.length + ' expanded inventory devices will be updated');
-              if (expandedInventoryDevices.length > 0){
-                //There are expanded inventory devices, so insert them
-                inventory.handleWorkerRecords(expandedInventoryDevices, serverURL,serverDetails[0].username, serverDetails[0].password)
-                .then(function(result){
-                  //Update complete, finish the process
-                  process.exit(0);
-                })
-                .catch(function(error){
-                  console.log(error);
-                  process.exit(1);
-                });
-              } else {
-                process.exit(0);
-              }
-            })
-            .catch(function(error){
-              console.log('Error Getting Expanded Inventory Devices');
-              console.log(error);
-              process.exit(1);
-            });
+            process.exit(0);
+            // //Now check for expanded inventory devices
+            // devices.getExpandedDevicesByJSS(serverId)
+            // .then(function(expandedInventoryDevices){
+            //   console.log(expandedInventoryDevices.length + ' expanded inventory devices will be updated');
+            //   if (expandedInventoryDevices.length > 0){
+            //     //There are expanded inventory devices, so insert them
+            //     inventory.handleWorkerRecords(expandedInventoryDevices, serverURL,serverDetails[0].username, serverDetails[0].password)
+            //     .then(function(result){
+            //       //Update complete, finish the process
+            //       process.exit(0);
+            //     })
+            //     .catch(function(error){
+            //       console.log(error);
+            //       process.exit(1);
+            //     });
+            //   } else {
+            //     process.exit(0);
+            //   }
+            //})
+            // .catch(function(error){
+            //   console.log('Error Getting Expanded Inventory Devices');
+            //   console.log(error);
+            //   process.exit(1);
+            // });
           })
           .catch(function(error){
             console.log('Error Inserting Devices');

@@ -1,16 +1,17 @@
 # scout
-Scout is a easy to use webapp that allows you to aggregate multiple Devices from Jamf Pro Servers. It's built on lightweight and proven tech like node.js, mysql and more. When the web server starts up, a few things occur:
+Scout is a easy to use webapp that allows you to aggregate multiple Devices from Jamf Pro Servers. It's built on lightweight and proven tech like node.js, mysql, mongo and more. When the web server starts up, a few things occur:
 
  - An Express application is created, which exposes endpoints like /servers, /devices to get information stored in the database for the various Jamf Pro Servers. Full documentation is below.
  - After the express app starts, the node app gets all of the servers in the database and looks at the cron string of when then should update. It then schedules a worker to run and do those updates.
  - The worker file will exec in a child process, when scheduled. It runs via the command 'node worker.js JPSSERVERURL'. This can be run at anytime independent of the server as well. It handles getting devices from the Jamf Pro Instance provided and then updating them in the database.
  - All of the website files are location in /app and can be swapped out for anything you'd like. The front end is pretty basic and uses jQuery to load in everything with DataTables being used to render the tables.
+ - Scout is also a fully functional Patch server that can even aggregate patches from multiple other servers!
  - View complete install instructions below
 
 # Running Server (Required)
  - Start by running the install script in the root of the project. This will write your .env settings file, create and import the database, install the required node modules, then start the server.
  - After you have run the install script, to start the server again or restart it you'll need to run 'npm start' in the /api directory
- - To run just the worker for an item that is already in the database run in the api directory : 'node worker.js SERVER URL'
+ - To run just the worker for an item that is already in the database run in the api directory : 'node worker.js SERVER URL (limited/expanded)'
 
 # Viewing the Data
  - The server will automatically serve the app from the /app directory. Simply navigate to the hostname in your browser. (This is http://localhost:3000 by default). You could also put the files in any web server you'd like. You'll need to configure the host name whenever it changes in app/js/server-url.js. (You must run the installer once to get this file).
@@ -40,6 +41,11 @@ MYSQL_DB=scout (Default)
 
 REG_PIN=school1234 (Used to register users in the DB)
 
+PATCH_DIR=/Users/username/scout-public/api/patches/ (The directory in which patch definition json files are stored)
+
+NOSQL_HOST=mongodb://localhost:27017 (The NoSQL database is used for bulk data storage of inventory records)
+
+NOSQL_DB=scout
 
 # API Endpoints Currently Implemented
 
@@ -56,10 +62,14 @@ All of these endpoints are currently auth protected using JWT tokens (Except /us
 | /devices/csv | GET | Gets all devices and writes them to a csv file. It will then return the server URL of this file. | N/A |
 | /devices/computers | GET | Gets all computers in the server | N/A |
 | /devices/mobiledevices | GET | Gets all mobiledevices in the server | N/A |
+| /devices/tvs | GET | Gets all tvs in the server | N/A |
 | /devices/count/(mobile/computer) | GET | Gets a count of the mobile devices or computers in the server | N/A |
 | /devices/paged/(mobile/computer) | POST | Gets all mobile devices or computers paginated. Also supports searching. | Conforms to datables [standard described here.](https://datatables.net/manual/server-side) |
 | /devices/server/:orgName | GET | Gets all devices for the org server specified | N/A |
+| /devices/(mobile/computer)/:id | GET | Gets the most recent expanded inventory record from NoSQL storage by Scout Device Id | N/A |
+| /devices/live/(mobile/computer)/:id | GET | Gets the entire device record live from the JPS API | N/A |
 | /servers/add | POST | Adds a JPS Server to the DB | { "url" : "https://jamfcloud.com", "username" : "admin", "password" : "test", "cron_string" : "\* \* \* \* \*" } |
+| /servers/access | POST | Gets emergency server access to the JPS server | { "url" : "https://jamfcloud.com" } |
 | /servers/ | GET | Returns all of the servers in the Database | N/A |
 | /servers/delete/id | DELETE | Deletes a server by id | N/A |
 
@@ -81,8 +91,9 @@ You can find the JSSId in the database table. This is required to properly link 
 
 1. Clone or download the repository
 2. Install node.js and npm on your server of choice
-5. Install MySQL and create the scout database. import the scout.sql file.
-4. In the /api directory run 'npm install'. This will install of the web server's dependencies.
+3. Install MySQL and create the scout database. import the scout.sql file.
+4. Install Mongo or find a host for it - the scout db will be automatically created
+5. In the /api directory run 'npm install'. This will install of the web server's dependencies.
 6. In the root of the /api directory create a new .env file. (touch .env)
 7. Edit the .env file and **include ALL VARIABLES in the above env variables section**
 8. Navigate to /app/js and create a new file called 'server-url.js'.
@@ -95,5 +106,5 @@ You can find the JSSId in the database table. This is required to properly link 
 - View my kanban board for the most recent updates here!! https://github.com/jacobschultz/scout-public/projects/1
 
  # Software Used
- - node.js, mysql and express for the server
+ - node.js, mysql, mongo and express for the server
  - SBAdmin2, jQuery and jQuery Cron for the front end 

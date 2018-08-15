@@ -50,13 +50,14 @@ exports.getExpandedInventory = function(url, username, password, device) {
       auth: {
         username: username,
         password: password
-      }
+      },
+      headers: {'Accept': 'application/json'}
     })
     .then(function (response) {
       resolve(response.data);
     })
     .catch(function (error) {
-      console.log(error);
+      console.log('Failed to get a device!');
       reject(error);
     });
   });
@@ -157,6 +158,18 @@ exports.getDevicesByOrg = function(orgName) {
   });
 }
 
+exports.getStoredDevicesByServer = function(jssURL) {
+  return new Promise(function(resolve,reject) {
+    db.get().query('SELECT devices.*, servers.org_name FROM devices JOIN servers ON devices.server_id = servers.id WHERE server_id IN (SELECT id FROM servers WHERE url = ?)', jssURL, function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
 exports.insertNewDevice = function(deviceData){
   return new Promise(function(resolve,reject) {
     db.get().query('INSERT INTO devices SET ?', deviceData, function(error, results, fields) {
@@ -176,6 +189,24 @@ exports.updateDevice = function(deviceData, deviceId, type){
         reject(error);
       } else {
         resolve(results);
+      }
+    });
+  });
+}
+
+exports.insertFullInventory = function(deviceObj){
+  var collectionName = 'computer';
+  if ('mobile_device' in deviceObj){
+    collectionName = 'mobile_device';
+  }
+  //Add the jss id to the top of the object to make searching easier
+  deviceObj.jss_id = deviceObj[collectionName].general.id;
+  return new Promise(function(resolve,reject) {
+    db.getNoSQL().collection(collectionName).insertOne(deviceObj, function(err, result) {
+      if (err){
+        reject(err);
+      } else {
+        resolve(result);
       }
     });
   });

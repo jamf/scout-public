@@ -1,5 +1,28 @@
 var db = require('../common/db.js');
 var devices = require('./device.js');
+var Throttle = require('promise-parallel-throttle');
+//Feel free to edit this if your server has low availablity
+const jpsMaxConnections = 10;
+
+//This function handles getting inventory data for every device and storing it in mongo nosqldb
+exports.getFullInventory = function(serverUrl, username, password){
+  return new Promise(function(resolve,reject) {
+    //Get all of the devices for this server
+    devices.getStoredDevicesByServer(serverUrl)
+    .then(function(devicesList){
+      //Create a list of promises to be executed, but throttled to not overwhelm the JPS
+      const queue = devicesList.map(device => () => devices.getExpandedInventory(serverUrl,username, password,device));
+      //In my tests, five devices seems to be fast enough, but still has never crashed a server
+      var opts = { maxInProgress : jpsMaxConnections, failFast : false};
+      //Returns a list of promise results just like promise.all
+      resolve(Throttle.all(queue, opts));
+    })
+    .catch(error => {
+      console.log(error);
+      reject(error);
+    });
+  });
+}
 
 //This method handles updating all of the devices via the worker
 exports.handleWorkerRecords = function(listOfDevices, serverURL, username, password){
@@ -8,7 +31,7 @@ exports.handleWorkerRecords = function(listOfDevices, serverURL, username, passw
     Promise.all(listOfDevices.map(device => devices.getExpandedInventory(serverURL,username, db.decryptString(password),device))).then(function(responseFromJSSList){
       return responseFromJSSList;
     })
-    //Now build records ready for the database
+    //Now insert all of the computer records into our mongo nosql database.
     .then(function(responseFromJSS){
       return exports.buildExpandedInventoryRecords(responseFromJSS);
     })

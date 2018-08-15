@@ -86,7 +86,7 @@ if (!module.parent) {
           //Create and schedule a new job and bind the server url
           var j = schedule.scheduleJob(serverList[i].url,serverList[i].cron_update, function(serverURL){
             //Update the servers in a new thread
-            exec('node ./worker.js ' + serverURL, function(error, stdout, stderr) {
+            exec('node ./worker.js ' + serverURL + ' limited', function(error, stdout, stderr) {
               console.log('Background worker: ', stdout);
               if (error !== null) {
                 console.log('exec error: ', error);
@@ -95,8 +95,20 @@ if (!module.parent) {
           }.bind(null,serverList[i].url));
           //Add it to our list of jobs
           scheduledJobs.push(j);
+          //Now create a schedule job to get exapnded device inventory
+          var e = schedule.scheduleJob(serverList[i].url,serverList[i].cron_update, function(serverURL){
+            //Update the servers in a new thread
+            exec('node ./worker.js ' + serverURL + ' expanded', function(error, stdout, stderr) {
+              console.log('Background worker: ', stdout);
+              if (error !== null) {
+                console.log('exec error: ', error);
+              }
+            });
+          }.bind(null,serverList[i].url));
+          //Add it to our list of jobs
+          scheduledJobs.push(e);
         }
-        console.log(scheduledJobs.length + ' servers are scheduled to update');
+        console.log((scheduledJobs.length / 2) + ' servers are scheduled to update');
       })
       .catch(function(error){
         console.log(error);

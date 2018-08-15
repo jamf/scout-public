@@ -11,20 +11,18 @@ var crypto = require('crypto'),
     password = process.env.ENC_KEY;
 //Get the url passed in for this server to update
 var serverURL = process.argv[2];
-//check if it's a patch server that is updating
-var isPatch = false;
+//Check if we are updating a batch server or the mongo db
+var serverType = 'limited';
 if (process.argv.length > 3){
-  isPatch = process.argv[3];
+  serverType = process.argv[3];
 }
-
-
 //Connect to the db and start updating
 db.connect(function(err) {
   if (err) {
     console.log('Unable to connect to database.');
     process.exit(1);
   } else {
-    if (isPatch){
+    if (serverType == 'patch'){
       patch.handleWorkerUpdates(serverURL)
       .then(function(result){
         console.log(result.length + ' patches updated!');
@@ -34,7 +32,32 @@ db.connect(function(err) {
         console.log(error);
         process.exit(1);
       });
-    } else {
+    //Expanded records are inserted into a nosql mongo database for bulk storage
+    } else if (serverType == 'expanded'){
+      //Connect to the NoSQL database
+      db.connectNoSQL(function(err){
+        if (err){
+          console.log('Unable to connect to database.');
+          process.exit(1);
+        }
+        //Get all of the devices from the database
+        servers.getServerFromURL(serverURL)
+        .then(function(serverDetails){
+          return inventory.getFullInventory(serverURL,serverDetails[0].username, db.decryptString(serverDetails[0].password))
+        })
+        .then(function(fullApiDevices){
+          //After getting all of the devices from the jss insert them
+          Promise.all(fullApiDevices.map(deviceObj => devices.insertFullInventory(deviceObj))).then(function(results){
+            console.log('Inserted ' + results.length + ' expanded inventories');
+            process.exit(0);
+          });
+        })
+        .catch(error => {
+          console.log('Unable to insert all inventory');
+          process.exit(1);
+        });
+      });
+    } else if (serverType == 'limited'){
        //Update the ScoutAdmin user's password to a new string
       servers.updateScoutAdminUserPassword(serverURL)
       .then(function(result){
@@ -56,30 +79,6 @@ db.connect(function(err) {
           Promise.all(allDevicesList.map(deviceData => devices.upsertDevice(deviceData))).then(function(result){
             console.log(result.length + ' devices updated in the database');
             process.exit(0);
-            // //Now check for expanded inventory devices
-            // devices.getExpandedDevicesByJSS(serverId)
-            // .then(function(expandedInventoryDevices){
-            //   console.log(expandedInventoryDevices.length + ' expanded inventory devices will be updated');
-            //   if (expandedInventoryDevices.length > 0){
-            //     //There are expanded inventory devices, so insert them
-            //     inventory.handleWorkerRecords(expandedInventoryDevices, serverURL,serverDetails[0].username, serverDetails[0].password)
-            //     .then(function(result){
-            //       //Update complete, finish the process
-            //       process.exit(0);
-            //     })
-            //     .catch(function(error){
-            //       console.log(error);
-            //       process.exit(1);
-            //     });
-            //   } else {
-            //     process.exit(0);
-            //   }
-            //})
-            // .catch(function(error){
-            //   console.log('Error Getting Expanded Inventory Devices');
-            //   console.log(error);
-            //   process.exit(1);
-            // });
           })
           .catch(function(error){
             console.log('Error Inserting Devices');

@@ -43,7 +43,7 @@ db.connect(function(err) {
         //Get all of the devices from the database
         servers.getServerFromURL(serverURL)
         .then(function(serverDetails){
-          return inventory.getFullInventory(serverURL,serverDetails[0].username, db.decryptString(serverDetails[0].password))
+          return inventory.getFullInventory(serverURL,serverDetails[0].username, db.decryptString(serverDetails[0].password), serverDetails[0].id)
         })
         .then(function(fullApiDevices){
           //After getting all of the devices from the jss insert them

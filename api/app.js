@@ -77,6 +77,13 @@ if (!module.parent) {
         console.log("                       ");
         console.log('Express started on port ' + port);
       });
+      //Connect to the mongo database
+      db.connectNoSQL(function(err){
+        if (err){
+          console.log('Unable to connect to mongo database.');
+          process.exit(1);
+        }
+      });
       //For every server in the database, we should schedule the updates for them
       servers.getAllServers()
       .then(function(serverList){

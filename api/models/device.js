@@ -38,7 +38,7 @@ exports.upsertDevice = function(deviceData){
   });
 }
 
-exports.getExpandedInventory = function(url, username, password, device) {
+exports.getExpandedInventory = function(url, username, password, device, jssServerId) {
   return new Promise(function(resolve,reject) {
     //First translate mobile device to what the JPS API expects
     var scoutDeviceType = device.device_type;
@@ -54,6 +54,8 @@ exports.getExpandedInventory = function(url, username, password, device) {
       headers: {'Accept': 'application/json'}
     })
     .then(function (response) {
+      //add the server id to the returned object
+      response.data.jss_server_id = jssServerId;
       resolve(response.data);
     })
     .catch(function (error) {
@@ -63,9 +65,9 @@ exports.getExpandedInventory = function(url, username, password, device) {
   });
 }
 
-exports.getExpandedDevicesByJSS = function(jssId){
+exports.getDeviceById = function(scoutDeviceId){
   return new Promise(function(resolve,reject) {
-    db.get().query('SELECT devices.*, servers.org_name FROM devices JOIN servers ON devices.server_id = servers.id WHERE devices.expanded_inventory = 1 AND servers.id = ?', [jssId], function(error, results, fields) {
+    db.get().query('SELECT * FROM devices JOIN servers ON devices.server_id = servers.id WHERE devices.id = ?', [scoutDeviceId], function(error, results, fields) {
       if (error) {
         reject(error);
       } else {

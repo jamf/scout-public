@@ -1,13 +1,17 @@
 function addServerToDatabase(url,username,password,cron){
   var serverObject = { "url" : url, "username" : username, "password" : password, "cron" : cron};
+  $("#loading-modal").modal('show');
+  $('#add-server-modal').modal('hide');
+
   //send it to the server
   var post = getRequestObject('/servers/add', serverObject, 'POST');
   post.done(function(res){
-    $('#add-server-modal').modal('hide');
+    $("#loading-modal").modal('hide');
     swal('Server Added', 'The server has been addded to the database successfully.', 'success');
     loadServerTable();
   })
   .fail(function(xhr){
+    $("#loading-modal").modal('hide');
     swal('Server Upload Failed', 'The server has not been added to the database, please check the console for more details.', 'error');
     console.log(xhr);
   })

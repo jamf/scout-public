@@ -361,6 +361,24 @@
          <!-- /.modal-dialog -->
       </div>
 
+      <div class="modal fade in" id="loading-modal" tabindex="-1" role="dialog" aria-labelledby="Login" aria-hidden="true">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                  <h4 class="modal-title" id="myModalLabel">Checking connection...</h4>
+               </div>
+               <div class="modal-body">
+                  We are checking the connection to your Jamf Pro Server, this could take a few seconds. This modal will automatically close.
+                  <br/><br/>
+                  <center><img src="https://thumbs.gfycat.com/ChubbySelfreliantGarpike-size_restricted.gif"></center>
+               </div>
+            </div>
+            <!-- /.modal-content -->
+         </div>
+         <!-- /.modal-dialog -->
+      </div>
+
       <div class="modal fade in" id="login-user-modal" tabindex="-1" role="dialog" aria-labelledby="Login" aria-hidden="true">
          <div class="modal-dialog">
             <div class="modal-content">
@@ -528,6 +546,7 @@
                    <span id="get_backup_password" onclick="doBackupPasswordRequest();"><a href="#">If you have read and understand the above conditions, click here to get the password.</a></span>
                    <input type="text" id="backup_password_url" style="display:none;"/>
                </div>
+
                <div class="modal-footer">
                  <button class="btn btn-default" data-dismiss="modal" >Close</button>
                </div>

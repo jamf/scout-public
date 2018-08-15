@@ -38,7 +38,7 @@ exports.upsertDevice = function(deviceData){
   });
 }
 
-exports.getExpandedInventory = function(url, username, password, device) {
+exports.getExpandedInventory = function(url, username, password, device, jssServerId) {
   return new Promise(function(resolve,reject) {
     //First translate mobile device to what the JPS API expects
     var scoutDeviceType = device.device_type;
@@ -50,21 +50,24 @@ exports.getExpandedInventory = function(url, username, password, device) {
       auth: {
         username: username,
         password: password
-      }
+      },
+      headers: {'Accept': 'application/json'}
     })
     .then(function (response) {
+      //add the server id to the returned object
+      response.data.jss_server_id = jssServerId;
       resolve(response.data);
     })
     .catch(function (error) {
-      console.log(error);
+      console.log('Failed to get a device!');
       reject(error);
     });
   });
 }
 
-exports.getExpandedDevicesByJSS = function(jssId){
+exports.getDeviceById = function(scoutDeviceId){
   return new Promise(function(resolve,reject) {
-    db.get().query('SELECT devices.*, servers.org_name FROM devices JOIN servers ON devices.server_id = servers.id WHERE devices.expanded_inventory = 1 AND servers.id = ?', [jssId], function(error, results, fields) {
+    db.get().query('SELECT * FROM devices JOIN servers ON devices.server_id = servers.id WHERE devices.id = ?', [scoutDeviceId], function(error, results, fields) {
       if (error) {
         reject(error);
       } else {
@@ -157,6 +160,18 @@ exports.getDevicesByOrg = function(orgName) {
   });
 }
 
+exports.getStoredDevicesByServer = function(jssURL) {
+  return new Promise(function(resolve,reject) {
+    db.get().query('SELECT devices.*, servers.org_name FROM devices JOIN servers ON devices.server_id = servers.id WHERE server_id IN (SELECT id FROM servers WHERE url = ?)', jssURL, function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
 exports.insertNewDevice = function(deviceData){
   return new Promise(function(resolve,reject) {
     db.get().query('INSERT INTO devices SET ?', deviceData, function(error, results, fields) {
@@ -176,6 +191,24 @@ exports.updateDevice = function(deviceData, deviceId, type){
         reject(error);
       } else {
         resolve(results);
+      }
+    });
+  });
+}
+
+exports.insertFullInventory = function(deviceObj){
+  var collectionName = 'computer';
+  if ('mobile_device' in deviceObj){
+    collectionName = 'mobile_device';
+  }
+  //Add the jss id to the top of the object to make searching easier
+  deviceObj.jss_id = deviceObj[collectionName].general.id;
+  return new Promise(function(resolve,reject) {
+    db.getNoSQL().collection(collectionName).insertOne(deviceObj, function(err, result) {
+      if (err){
+        reject(err);
+      } else {
+        resolve(result);
       }
     });
   });

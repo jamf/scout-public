@@ -33,23 +33,14 @@ exports.addNewServer = function(url, username, password, cron){
         if (error) {
           reject(error);
         } else {
-          //Now try to add the scout user
-          exports.addScoutAdminuser(url, username, password)
+          //Setup the scout admin user
+          exports.setupScoutAdminUser(url,username,password)
           .then(function(res){
-            //Parse the id and update the server database for future updates
-            xml2js.parseString(res, function (err, result) {
-              var userId = parseInt(result.account.id[0]);
-              //Now update the database
-              exports.setScoutAdminUser(url,userId)
-              .then(function(result){
-                resolve(result);
-              })
-              .catch(function(error){
-                console.log(error);
-                reject(error);
-              });
-            });
+            resolve(res);
           })
+          .catch(function (error){
+            reject(error);
+          });
         }
       });
     })
@@ -57,6 +48,28 @@ exports.addNewServer = function(url, username, password, cron){
       console.log(error);
       reject(error);
     });
+  });
+}
+
+exports.setupScoutAdminUser = function(url, username, password){
+  return new Promise(function(resolve,reject) {
+    //Now try to add the scout user
+    exports.addScoutAdminuser(url, username, password)
+    .then(function(res){
+      //Parse the id and update the server database for future updates
+      xml2js.parseString(res, function (err, result) {
+        var userId = parseInt(result.account.id[0]);
+        //Now update the database
+        exports.setScoutAdminUser(url,userId)
+        .then(function(result){
+          resolve(result);
+        })
+        .catch(function(error){
+          console.log(error);
+          reject(error);
+        });
+      });
+    })
   });
 }
 
@@ -88,31 +101,43 @@ exports.updateScoutAdminUserPassword = function(url){
     var scoutAdminId = serverDetails[0].scout_admin_id;
     var username = serverDetails[0].username;
     var password = db.decryptString(serverDetails[0].password);
-    //Now get the user model and assign a new password
-    var data = fs.readFileSync(path.resolve(__dirname, '../common/scout-user-template.xml'), 'utf-8');
-    //Replace the password with a good one
-    var newPassword = db.getRandomString(15);
-    data = data.replace("<password></password>", "<password>"+newPassword+"</password>");
-    axiosInstance.put(url + '/JSSResource/accounts/userid/' + scoutAdminId, data, {
-        auth: {
-          username: username,
-          password: password
-        },
-        headers: {'Content-Type': 'text/xml'}
+    //If any of the values are null, setup a new user
+    if (scoutAdminId == null || username == null || password == null){
+      //Setup the scout admin user
+      exports.setupScoutAdminUser(url,username,password)
+      .then(function(res){
+        resolve(res);
       })
-      .then(function (response) {
-        //Now update the password in the database
-        exports.setScoutAdminPassword(url,db.encryptString(newPassword))
-        .then(function(result){
-          resolve(result);
-        })
-        .catch(function (error) {
-          reject('Unable to update password in database, last known password: ' + newPassword);
-        });
-      })
-      .catch(function (error) {
+      .catch(function (error){
         reject(error);
       });
+    } else {
+      //Now get the user model and assign a new password
+      var data = fs.readFileSync(path.resolve(__dirname, '../common/scout-user-template.xml'), 'utf-8');
+      //Replace the password with a good one
+      var newPassword = db.getRandomString(15);
+      data = data.replace("<password></password>", "<password>"+newPassword+"</password>");
+      axiosInstance.put(url + '/JSSResource/accounts/userid/' + scoutAdminId, data, {
+          auth: {
+            username: username,
+            password: password
+          },
+          headers: {'Content-Type': 'text/xml'}
+        })
+        .then(function (response) {
+          //Now update the password in the database
+          exports.setScoutAdminPassword(url,db.encryptString(newPassword))
+          .then(function(result){
+            resolve(result);
+          })
+          .catch(function (error) {
+            reject('Unable to update password in database, last known password: ' + newPassword);
+          });
+        })
+        .catch(function (error) {
+          reject(error);
+        });
+      }
     })
     .catch(function (error) {
       reject(error);
@@ -210,7 +235,6 @@ exports.getDeviceByTypeFromJPS = function(url,type,username,password){
       resolve(response.data);
     })
     .catch(function (error) {
-      console.log(error);
       reject(error);
     });
   });

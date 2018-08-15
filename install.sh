@@ -94,6 +94,7 @@ EOF
 
 echo "---------------------------------------------------------------"
 echo "MySQL Setup (Default database is 'scout', this can be changed after install)"
+echo "You may run into permission issues using MySQL 8.0 or higher!! If you are using this, you will have to manually import the scout.sql file at the root of this dir"
 echo "---------------------------------------------------------------"
 
 echo "Please provide your MySQL Host: "
@@ -102,6 +103,14 @@ echo "Please provide your MySQL User: "
 read mysql_user
 echo "Please provide your MySQL Password: "
 read -s mysql_password
+
+echo "---------------------------------------------------------------"
+echo "Mongo NoSQL Install"
+echo "---------------------------------------------------------------" 
+echo "Please provide your Mongo host and port: (mongodb://localhost:27017) "
+read mongo_host
+echo "Please provide your Mongo databse name: "
+read mongo_db_name
 
 echo "Would you like to use LDAP? (y/n)"
 read is_ldap
@@ -123,6 +132,11 @@ else
 	read pin
 fi
 
+echo " "
+echo "Please provide your patch server directory (Default: ~/scout-public/api/patches)"
+read patch_dir
+echo " "
+
 echo "---------------------------------------------------------------"
 echo "Your settings will now be written to a .env file located at the root of the API Directory. If you'd like to edit them in the future, simply change them in this file. Your database will also be imported. To edit this env file enter 'nano .env' at the root /api directory. You'll need to restart the server for this to take effect. If you change your encryption key, you must reenter servers."
 echo "---------------------------------------------------------------"
@@ -139,6 +153,9 @@ MYSQL_USER=$mysql_user
 MYSQL_PASS=$mysql_password
 MYSQL_DB=scout
 REG_PIN=$pin
+PATCH_DIR=$patch_dir
+NOSQL_HOST=$mongo_host
+NOSQL_DB=$mongo_db_name
 EOF
 
 echo "---------------------------------------------------------------"

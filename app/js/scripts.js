@@ -34,6 +34,26 @@ function addPatchServerToDatabase(url,cron){
 
 function updateComputers(){
   var computerTable = $("#computers-table").DataTable(getDataTablesRequest('computer'));
+  //setup click function
+  $("#computers-table tbody").on('click', 'tr', function(){
+    var data = computerTable.row(this).data();
+    //Lookup device by serial and UDID
+    var reqBody = { serial : data[3], udid : data[5]};
+    //Get expanded inventory from server
+    var liveResult = getRequestObject('/devices/live/computer', reqBody, 'POST');
+    liveResult.done(function(result){
+      for (var prop in result) {
+        if (!result.hasOwnProperty(prop)) {
+          //The current property is not a direct property of p
+          continue;
+        }
+        console.log(prop);
+      }
+    })
+    .fail(function(xhr){
+      console.log(xhr);
+    });
+  });
   var computers = getRequestObject('/devices/count/computer', null, 'GET');
   //Get a count of the total devices seperate since data tables can't handle success functions
   computers.done(function(computers){

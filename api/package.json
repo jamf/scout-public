@@ -17,6 +17,7 @@
     "child_process": "^1.0.2",
     "compression": "^1.7.2",
     "cors": "^2.8.4",
+    "cron-tab": "^1.1.17",
     "crypto": "^1.0.1",
     "delay-promise": "^2.1.0",
     "dotenv": "^4.0.0",

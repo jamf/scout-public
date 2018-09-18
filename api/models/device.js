@@ -77,6 +77,18 @@ exports.getDeviceById = function(scoutDeviceId){
   });
 }
 
+exports.getDeviceByUDIDAndSerial = function(serial, udid){
+  return new Promise(function(resolve,reject) {
+    db.get().query('SELECT * FROM devices JOIN servers ON devices.server_id = servers.id WHERE devices.jss_serial = ? AND devices.jss_udid = ?', [serial, udid], function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
 exports.getDeviceByUDID = function(udid) {
   return new Promise(function(resolve,reject) {
     db.get().query('SELECT devices.*, servers.org_name FROM devices JOIN servers ON devices.server_id = servers.id WHERE jss_udid = ?', udid, function(error, results, fields) {

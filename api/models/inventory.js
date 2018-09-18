@@ -2,7 +2,7 @@ var db = require('../common/db.js');
 var devices = require('./device.js');
 var Throttle = require('promise-parallel-throttle');
 //Feel free to edit this if your server has low availablity
-const jpsMaxConnections = 7;
+const jpsMaxConnections = 3;
 
 //This function handles getting inventory data for every device and storing it in mongo nosqldb
 exports.getFullInventory = function(serverUrl, username, password, jssId){

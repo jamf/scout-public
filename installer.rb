@@ -33,14 +33,26 @@ if (nosql != "y")
   exit
 end
 
-print "Please enter your host including port for Mongo: (For example: mongodb://localhost:27017)"
+print "Please enter your host including port for Mongo: (For example: mongodb://localhost:27017)\n"
 nosql_host = gets.chomp
-print "Please provide your Mongo Databse name (Default is 'scout')"
+print "Please provide your Mongo Databse name (Default is 'scout')\n"
 nosql_db_name = gets.chomp
 
 print "---------------------------------------------------------------\n"
 print "Server Config\n"
 print "---------------------------------------------------------------\n"
+
+print "Plese provide the root install directory for scout: (For Example: /Users/jacob.schultz/scount-public/)\n"
+root_dir = gets.chomp
+# see if there is a trailing slash
+if (!root_dir[root_dir.length] == "/")
+  root_dir = root_dir + "/"
+end
+root_dir + "api/"
+patch_dir = root_dir + "patches/"
+
+print "Please provide the location of the node executable on your system: (For Example: /usr/local/bin/node)\n"
+node_dir = gets.chomp
 
 print "Enter your server hostname:\n"
 print "This will write a file to app/js/server-url.js with the host name. It MUST also be updated here if it's changed in the .env file in the future.\n"
@@ -59,7 +71,62 @@ open('./app/js/server-url.js', 'w') do |f|
   f.puts "window.server_host = \"" + hostname + "\";"
 end
 
-print "Please provide an Encryption Key (MUST RE-ENTER ALL JPS SERVERS IF CHANGED - PICK A STRONG PASSWORD): "
+print "Please provide an Encryption Key (MUST RE-ENTER ALL JPS SERVERS IF CHANGED - PICK A STRONG PASSWORD): \n"
 enc_key = STDIN.noecho(&:gets).chomp
-echo "Please provide a JWT Key (Can be changed): "
+print "Please provide a JWT Key (Can be changed): \n"
 jwt_key = STDIN.noecho(&:gets).chomp
+
+print "Would you like to use LDAP? (y/n)\n"
+is_ldap = gets.chomp
+#declare these variables because they'll still go in the .env file even if not used
+ldap_url = ""
+ldap_domain = ""
+pin = ""
+if (is_ldap == "y")
+  print "---------------------------------------------------------------\n"
+	print "LDAP Setup\n"
+	print "---------------------------------------------------------------\n"
+
+	print "Please provide your LDAP URL (Example: ldap://ldap.server.com:389): \n"
+	ldap_url = gets.chomp
+	print "Please provide your LDAP Domain Starting at ou= (Example: ou=Users,o=randomkey,dc=jumpcloud,dc=com)\n"
+	ldap_domain = gets.chomp
+else
+  print "---------------------------------------------------------------\n"
+	print "User Pin Setup - Since you opted not to use LDAP, a pin to register new users must be set. You should only share this with those who you would like to be able to register for an account. It can also be changed in your .env file and must be entered when registering for a new account.\n"
+	print "---------------------------------------------------------------\n"
+	print "Enter your alphanumeric register pin:\n"
+	pin = gets.chomp
+end
+
+print "---------------------------------------------------------------\n"
+print "Your settings will now be written to a .env file located at the root of the API Directory. If you'd like to edit them in the future, simply change them in this file. To edit this env file enter 'nano .env' at the root /api directory. You'll need to restart the server for this to take effect. If you change your encryption key, you must reenter servers.\n"
+print "---------------------------------------------------------------\n"
+
+#generate the .env file
+open('./api/.env', 'w') do |f|
+  f.puts "JWT_KEY=#{jwt_key}"
+  f.puts "ENC_KEY=#{enc_key}"
+  f.puts "LDAP_URL=#{ldap_url}"
+  f.puts "LDAP_STR=#{ldap_domain}"
+  f.puts "SCOUT_URL=#{hostname}"
+  f.puts "MYSQL_HOST=#{mysql_host}"
+  f.puts "MYSQL_USER=#{mysql_user}"
+  f.puts "MYSQL_PASS=#{mysql_password}"
+  f.puts "MYSQL_DB=scout"
+  f.puts "REG_PIN=#{pin}"
+  f.puts "PATCH_DIR=#{patch_dir}"
+  f.puts "ROOT_DIR=#{root_dir}"
+  f.puts "NODE_DIR=#{node_dir}"
+  f.puts "NOSQL_HOST=#{nosql_host}"
+  f.puts "NOSQL_DB=#{nosql_db_name}"
+end
+
+print "\n.env file has been written, now installing node modules.\n"
+#now install node modules
+value = %x( cd api && npm install )
+puts value
+
+print "\nNode modules have been installed!\n\n"
+print "Wait!! Before starting the server, you must import the scout mysql database! Login to your mysql server and import the scout.sql file at the root of this project.\n\n"
+print "To start the server navigate to the /api directory and run \"npm start\". It's reocmmended that you start the server with pm2 if possible.\n"

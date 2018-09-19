@@ -14,11 +14,16 @@ var mongoDBO;
 
 //Called at least once in the app or worker scripts
 exports.connect = function(callback) {
+  var databaseName = 'scout';
+  //See if there is a non-default database to use
+  if (process.env.MYSQL_DB){
+    database = process.env.MYSQL_DB;
+  }
   state.pool = mysql.createPool({
     host     : process.env.MYSQL_HOST,
     user     : process.env.MYSQL_USER,
     password : process.env.MYSQL_PASS,
-    database : process.env.MYSQL_DB
+    database : databaseName
   });
   callback();
 }
@@ -29,6 +34,9 @@ exports.get = function() {
 //handles connecting to the mongodb
 exports.connectNoSQL = function(callback){
   MongoClient.connect(process.env.NOSQL_HOST, function(err, db) {
+    if (err){
+      callback(err);
+    }
     mongoDBO = db.db(process.env.NOSQL_DB);
     callback();
   });

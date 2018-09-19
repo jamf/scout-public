@@ -64,6 +64,7 @@ echo "node    $(echo_if $(program_is_installed node))"
 echo "mysql    $(echo_if $(program_is_installed mysql))"
 node_is_installed=$(program_is_installed node)
 mysql_is_installed=$(program_is_installed mysql)
+mongo_is_installed=$(program_is_installed mongo)
 #exit if one isn't installed
 if [ $node_is_installed -eq 0 ]
 then
@@ -73,6 +74,11 @@ fi
 if [ $mysql_is_installed -eq 0 ]
 then
 	echo 'Error: please install MySQL Server to continue'
+	exit
+fi
+if [ $mongo_is_installed -eq 0 ]
+then
+	echo 'Error: please install MongoDB Server to continue'
 	exit
 fi
 
@@ -123,6 +129,10 @@ else
 	read pin
 fi
 
+echo "Now prompting for some other settings..."
+echo "What is the root directroy for this server? For example: /Users/jacob.schultz/scout-public/"
+read server_url
+
 echo "---------------------------------------------------------------"
 echo "Your settings will now be written to a .env file located at the root of the API Directory. If you'd like to edit them in the future, simply change them in this file. Your database will also be imported. To edit this env file enter 'nano .env' at the root /api directory. You'll need to restart the server for this to take effect. If you change your encryption key, you must reenter servers."
 echo "---------------------------------------------------------------"
@@ -144,7 +154,7 @@ EOF
 echo "---------------------------------------------------------------"
 echo ".env file has been written, now prompting for MySQL Password to create database..."
 #create database
-mysql -u ${mysql_user} -p ${mysql_password} -e "CREATE DATABASE scout /*\!40100 DEFAULT CHARACTER SET utf8 */;"
+mysql -u ${mysql_user} -p ${mysql_password} -e "CREATE DATABASE scout;"
 echo "Prompting password again to import database file.."
 #import database
 mysql -u ${mysql_user} -p ${mysql_password} scout < scout.sql

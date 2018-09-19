@@ -9,6 +9,18 @@ var db = require('./common/db.js');
 var crypto = require('crypto'),
     algorithm = 'aes-256-ctr',
     password = process.env.ENC_KEY;
+//Setup the logger to write info to the console
+var winston= require('winston');
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.combine(winston.format.timestamp(),winston.format.splat(), winston.format.simple()),
+    transports: [
+      // - Write to all logs with level `info` and below to `combined.log`
+      new winston.transports.File({ filename: process.env.ROOT_DIR+'logs/error.log', level: 'error' }),
+      // - Write all logs error (and below) to `error.log`.
+      new winston.transports.File({ filename: process.env.ROOT_DIR+'logs/worker.log' })
+    ]
+});
 //Get the url passed in for this server to update
 var serverURL = process.argv[2];
 //Check if we are updating a batch server or the mongo db
@@ -16,10 +28,17 @@ var serverType = 'limited';
 if (process.argv.length > 3){
   serverType = process.argv[3];
 }
+//Log the args to the log file
+logger.log('info', '\n===============================START UPDATE====================================');
+logger.log('info', 'Server URL: %s', serverURL);
+logger.log('info', 'Update Type: %s', serverType);
+
 //Connect to the db and start updating
 db.connect(function(err) {
   if (err) {
     console.log('Unable to connect to database.');
+    logger.log('error', 'Unable to connect to database');
+    logger.log('error', 'Error: %s', err);
     process.exit(1);
   } else {
     if (serverType == 'patch'){
@@ -58,15 +77,16 @@ db.connect(function(err) {
         });
       });
     } else if (serverType == 'limited'){
+      logger.log('info', 'Execute Directory: %s', process.cwd());
        //Update the ScoutAdmin user's password to a new string
       servers.updateScoutAdminUserPassword(serverURL)
       .then(function(result){
-        console.log('ScoutAdmin user password has been updated');
+        logger.log('info', 'ScoutAdmin user password has been updated');
       })
       .catch(function(error){
-        console.log('Error updating scout admin user');
+        logger.log('error', 'Error updating Scout Admin User. Remove all user details from the database to clean this up upon next worker run.');
       });
-      console.log('Getting all devices for: ' + serverURL);
+      logger.log('info', 'Getting all devices for %s', serverURL);
       var serverId;
       //Get the server details from the database
       servers.getServerFromURL(serverURL)
@@ -77,24 +97,22 @@ db.connect(function(err) {
         .then(function(allDevicesList){
           //Update each device in the database
           Promise.all(allDevicesList.map(deviceData => devices.upsertDevice(deviceData))).then(function(result){
-            console.log(result.length + ' devices updated in the database');
+            logger.log('info', '%d devices have been updated in the databse.', result.length);
+            logger.log('info', '===============================FINISH UPDATE====================================\n');
             process.exit(0);
           })
           .catch(function(error){
-            console.log('Error Inserting Devices');
-            console.log(error);
+            logger.log('error', 'Error inserting devices: %s', error);
             process.exit(1);
           });
         })
         .catch(function(error){
-          console.log('Error Getting Devices');
-          console.log(error);
+          logger.log('error', 'Error getting devices: %s', error);
           process.exit(1);
         });
       })
       .catch(function(error){
-        console.log('Error Getting Server from Database');
-        console.log(error);
+        logger.log('error', 'Error getting server from database: %s', error);
         process.exit(1);
       });
     }

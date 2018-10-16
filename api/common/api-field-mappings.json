@@ -1,0 +1,52 @@
+{
+  "general" : {
+    "id" : "Id",
+    "name" : "Name",
+    "mac_address" : "Mac Address",
+    "alt_mac_address" : "Alt Mac Address",
+    "ip_address" : "IP Address",
+    "serial_number" : "Serial Number",
+    "udid" : "UDID",
+    "jamf_version" : "Jamf Version",
+    "barcode_1" : "Barcode 1",
+    "barcode_2" : "Barcode 2",
+    "asset_tag" : "Asset Tag",
+    "mdm_capable" : "MDM Capable",
+    "last_contact_time" : "Last Contact Time",
+    "initial_entry_date" : "Initial Entry Date",
+    "itunes_store_account_is_active" : "Has iTunes Store Account"
+  },
+  "location" : {
+    "username" : "Username",
+    "realname" : "Real Name",
+    "email_address" : "Email Address",
+    "position" : "Position",
+    "phone" : "Phone",
+    "department" : "Department",
+    "building" : "Building",
+    "room" : "Room"
+  },
+  "purchasing" : {
+    "is_purchased" : "Is Purchased",
+    "is_leased" : "Is Leased"
+  },
+  "hardware" : {
+    "model" : "Hardware Model",
+    "model_identifier" : "Hardware Model Identifier",
+    "os_name" : "OS Name",
+    "os_version" : "OS Version",
+    "active_directory_status" : "Active Directory Status",
+    "processor_type" : "Processor Type",
+    "processor_speed" : "Processor Speed",
+    "number_cores" : "Number of Cores",
+    "total_ram" : "Total Ram",
+    "gatekeeper_status" : "Gatekeeper Status",
+    "institutional_recovery_key" : "Recovery Key",
+    "disk_encryption_configuration" : "Disk Encryption Configuration"
+  },
+  "applications" : {
+    "name" : "Installed Application Name",
+    "path" : "Installed Application Path",
+    "version" : "Installed Application Version"
+  }
+}

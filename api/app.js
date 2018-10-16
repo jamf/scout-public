@@ -39,6 +39,7 @@ app.use(compression()); //Compress all routes
 //require auth to use endpoints
 app.use('/servers', jwtCheck);
 app.use('/devices', jwtCheck);
+app.use('/reports', jwtCheck);
 //Provide custom response middleware
 app.use(function (err, req, res, next) {
   if (err.name === 'UnauthorizedError') {
@@ -51,6 +52,7 @@ app.use('/devices', require('./controllers/devices'));
 app.use('/webhooks', require('./controllers/webhooks'));
 app.use('/patches', require('./controllers/patches'));
 app.use('/users', require('./controllers/users'));
+app.use('/reports', require('./controllers/reports'));
 
 //Serve the web app
 app.get('/', function(req, res) {

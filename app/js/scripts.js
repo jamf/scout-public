@@ -1,3 +1,14 @@
+function getSupportedReportFields(){
+  var fields = getRequestObject('/reports/builder/fields', null, 'GET');
+  fields.done(function(fieldsObject){
+    //Store this as a global object so it can also be added to the report builder without making the request again
+    window.reporting_fields = fieldsObject;
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+  });
+}
+
 function addServerToDatabase(url,username,password,cron){
   var serverObject = { "url" : url, "username" : username, "password" : password, "cron" : cron};
   $("#loading-modal").modal('show');
@@ -217,6 +228,34 @@ function registerUser(){
   })
 }
 
+function addReportLineItem(){
+  //Get the element from the view table
+  $.get("/app-views/report-line-item.html", function(data) {
+    $("#advance-report-criteria").append(data);
+    //Make sure it has the most recent fields available to it
+    $(".advanced-report-field-dropdown").append(new Option('--- General ---',''));
+    for (var key in window.reporting_fields.general){
+      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.general[key],key));
+    }
+    $(".advanced-report-field-dropdown").append(new Option('--- Location ---',''));
+    for (var key in window.reporting_fields.location){
+      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.location[key],key));
+    }
+    $(".advanced-report-field-dropdown").append(new Option('--- Purchasing ---',''));
+    for (var key in window.reporting_fields.purchasing){
+      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.purchasing[key],key));
+    }
+    $(".advanced-report-field-dropdown").append(new Option('--- Hardware ---',''));
+    for (var key in window.reporting_fields.hardware){
+      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.hardware[key],key));
+    }
+    $(".advanced-report-field-dropdown").append(new Option('--- Applications ---',''));
+    for (var key in window.reporting_fields.applications){
+      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.applications[key],key));
+    }
+  });
+}
+
 function doLogOut(){
   sessionStorage.removeItem("auth_token");
   location.reload();
@@ -230,6 +269,7 @@ function renderPage(){
   updateTvs();
   loadPatchesTable();
   loadPatchServersTable();
+  getSupportedReportFields();
   //Setup button listeners
   $("#add-server-button").click(function(){
     addServerToDatabase($("#add-server-url").val(), $("#add-server-username").val(), $("#add-server-password").val(), $("#add-server-cron").val());

@@ -9,6 +9,24 @@ function getSupportedReportFields(){
   });
 }
 
+function doAdvancedSearch(){
+  //keep a list of all of the search line items to send to the server
+  var lineItems = [];
+  //for every line item, build an object
+  for (var i = 0; i <= window.advanced_search_line_item_count; i++){
+    lineItems.push({ "junction" : $("#include-value-" + i).val(), "param-one" : $("#param-one-value-" + i).val(), "operator" : $("#operator-value-" + i).val(), "value" : $("#input-value-" + i).val(), "field" : $("#field-value-" + i).val(), "param-two" : $("#param-two-value-" + i).val()});
+  }
+  //Post the object to the server
+  var reqBody = { search_line_items : lineItems};
+  var post = getRequestObject('/reports/search', reqBody, 'POST');
+  post.done(function(res){
+    console.log(res);
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+  })
+}
+
 function addServerToDatabase(url,username,password,cron){
   var serverObject = { "url" : url, "username" : username, "password" : password, "cron" : cron};
   $("#loading-modal").modal('show');
@@ -228,9 +246,13 @@ function registerUser(){
   })
 }
 
+//Keep a count of how many line items there are for advanced search
+window.advanced_search_line_item_count = 0;
 function addReportLineItem(){
   //Get the element from the view table
   $.get("/app-views/report-line-item.html", function(data) {
+    //Fill in the id for querying data later
+    data = data.replace(/{ID}/g, window.advanced_search_line_item_count);
     $("#advance-report-criteria").append(data);
     //Make sure it has the most recent fields available to it
     $(".advanced-report-field-dropdown").append(new Option('--- General ---',''));
@@ -253,6 +275,7 @@ function addReportLineItem(){
     for (var key in window.reporting_fields.applications){
       $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.applications[key],key));
     }
+    advanced_search_line_item_count++;
   });
 }
 

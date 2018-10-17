@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col-lg-2">
     <label>AND/OR</label>
-    <select class="form-control">
+    <select class="form-control" id="include-value-{ID}">
         <option></option>
         <option>AND</option>
         <option>OR</option>
@@ -9,20 +9,20 @@
   </div>
   <div class="col-lg-1">
     <label>(</label>
-    <select class="form-control">
+    <select class="form-control" id="param-one-value-{ID}">
         <option></option>
         <option>(</option>
     </select>
   </div>
   <div class="col-lg-3">
     <label>Field</label>
-    <select class="form-control advanced-report-field-dropdown">
-        
+    <select class="form-control advanced-report-field-dropdown" id="field-value-{ID}">
+
     </select>
   </div>
   <div class="col-lg-2">
     <label>Operator</label>
-    <select class="form-control">
+    <select class="form-control" id="operator-value-{ID}">
         <option>equals</option>
         <option>does not equal</option>
         <option>is greater than</option>
@@ -33,11 +33,11 @@
   </div>
   <div class="col-lg-3">
     <label>Value</label>
-    <input type="text" class="form-control" placeholder="Enter text">
+    <input type="text" class="form-control" placeholder="Enter text" id="input-value-{ID}">
   </div>
   <div class="col-lg-1">
     <label>)</label>
-    <select class="form-control">
+    <select class="form-control" id="param-two-value-{ID}">
         <option></option>
         <option>)</option>
     </select>

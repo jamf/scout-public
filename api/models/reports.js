@@ -14,3 +14,29 @@ exports.getSupportedFields = function(){
     }
   });
 }
+
+//Get matching inventory record by category and field search
+exports.getRecordsForSearchObject = function(collection, searchObject){
+  return new Promise(function(resolve,reject) {
+    db.getNoSQL().collection(collection).find(searchObject).toArray(function(err, result) {
+      if (err){
+        console.log('ERROR');
+        reject(err);
+      } else {
+        console.log(result);
+        resolve(result);
+      }
+    });
+  });
+}
+
+exports.getSearchObject = function(collection, category, field, searchValue){
+  //Build the search query
+  var searchObject = {};
+  searchObject[collection] = {};
+  var fieldSearch = {};
+  fieldSearch[field] = searchValue;
+  searchObject[collection][category] = fieldSearch;
+  console.log(searchObject);
+  return searchObject;
+}

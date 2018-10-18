@@ -209,22 +209,30 @@ exports.updateDevice = function(deviceData, deviceId, type){
   });
 }
 
-exports.upsertFullInventory = function(deviceObjFromJSS, jss_id, jss_server_id){
-  //Set the colleciton name
-  var collectionName = 'computer';
-  if ('mobile_device' in deviceObj){
-    collectionName = 'mobile_device';
-  }
-  //See if there is already a record for this device
-  exports.getFullInventoryByJSSAndServerId(collectionName, jss_id, jss_server_id)
-  .then(function(existingDevice){
-    if (existingDevice.length == 0){
-      //Return a promise based on the status of the insert
-      return insertFullInventory(deviceObjFromJSS);
-    } else {
-      return updateFullInventory(deviceObjFromJSS, { jss_id : jss_id, jss_server_id : jss_server_id});
+exports.upsertFullInventory = function(deviceObjFromJSS, jss_server_id){
+  return new Promise(function(resolve,reject) {
+    //Set the colleciton name
+    var collectionName = 'computer';
+    if ('mobile_device' in deviceObjFromJSS){
+      collectionName = 'mobile_device';
     }
-  })
+    var jss_id = deviceObjFromJSS[collectionName].general.id;
+    //See if there is already a record for this device
+    exports.getFullInventoryByJSSAndServerId(collectionName, jss_id, jss_server_id)
+    .then(function(existingDevice){
+      //We didn't find a device
+      if (existingDevice == null){
+        //Return a promise based on the status of the insert
+        resolve(exports.insertFullInventory(deviceObjFromJSS));
+      } else {
+        resolve(exports.updateFullInventory(deviceObjFromJSS, { jss_id : jss_id, jss_server_id : jss_server_id}));
+      }
+    })
+    .catch(error => {
+      console.log(error);
+      reject(error);
+    });
+  });
 }
 
 exports.getFullInventoryByJSSAndServerId = function(collection, jss_id, jss_server_id){
@@ -248,7 +256,7 @@ exports.updateFullInventory = function(deviceObj, searchObject){
   deviceObj.jss_id = deviceObj[collectionName].general.id;
   return new Promise(function(resolve,reject) {
     //Make the update
-    db.getNoSQL().collection(collectionName).updateOne(searchObject,deviceObj, function(err, result) {
+    db.getNoSQL().collection(collectionName).replaceOne(searchObject,deviceObj, function(err, result) {
       if (err){
         reject(err);
       } else {

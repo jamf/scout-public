@@ -59,20 +59,28 @@ db.connect(function(err) {
           console.log('Unable to connect to database.');
           process.exit(1);
         }
+        var jss_id;
         //Get all of the devices from the database
         servers.getServerFromURL(serverURL)
         .then(function(serverDetails){
+          jss_id = serverDetails[0].id;
           return inventory.getFullInventory(serverURL,serverDetails[0].username, db.decryptString(serverDetails[0].password), serverDetails[0].id)
         })
         .then(function(fullApiDevices){
-          //After getting all of the devices from the jss insert them
-          Promise.all(fullApiDevices.map(deviceObj => devices.insertFullInventory(deviceObj))).then(function(results){
+          //After getting all of the devices from the jss insert them //deviceObj.id, jss_id)
+          Promise.all(fullApiDevices.map(deviceObj => devices.upsertFullInventory(deviceObj, jss_id))).then(function(results){
             console.log('Inserted ' + results.length + ' expanded inventories');
             process.exit(0);
+          })
+          .catch(error => {
+            console.log(error);
+            console.log('Unable to insert all expanded inventories');
+            process.exit(1);
           });
         })
         .catch(error => {
-          console.log('Unable to insert all inventory');
+          console.log(error);
+          console.log('Unable to insert all expanded inventories');
           process.exit(1);
         });
       });

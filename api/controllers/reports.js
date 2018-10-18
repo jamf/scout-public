@@ -16,4 +16,26 @@ reports.get('/builder/fields', function(req,res) {
   });
 });
 
+reports.post('/search', function(req,res) {
+  //make sure they provided some search terms
+  if (!req.body.search_line_items || req.body.search_line_items.length < 1){
+    res.status(400).send({
+      error: "No search terms provided"
+    });
+  }
+  //Parse the search items into a NoSQL query
+  var searchObject = report.parseIntoQuery(req.body.search_line_items);
+  //Now perform the query
+  report.getRecordsForSearchObject("computer", searchObject)
+  .then(function(results){
+    res.status(200).send(results);
+  })
+  .catch(error => {
+    console.log(error);
+    res.status(500).send({
+      error: "Unable to perform search"
+    });
+  });
+});
+
 module.exports = reports;

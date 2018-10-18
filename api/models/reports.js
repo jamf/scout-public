@@ -15,6 +15,41 @@ exports.getSupportedFields = function(){
   });
 }
 
+exports.parseIntoQuery = function(searchLineItems){
+  var searchObject = {};
+  //Loop throught the query and build up the search query
+  for (var i = 0; i < searchLineItems.length -1; i++){
+    //Make sure the line item was actually filled out
+    if (Object.keys(searchLineItems[i]).length > 0 && searchLineItems[i].value != ''){
+      var line = searchLineItems[i];
+      //see if we need to add a new conidtion or use the last one in the query
+      var operatorsInSearch = Object.keys(searchObject);
+      //Check if we need to add this operator to the search object
+      if (operatorsInSearch.length == 0 || operatorsInSearch[operatorsInSearch.length - 1] != operatorToNoSQL(line.junction)){
+        if (i == 0){
+          //add the new operator
+          searchObject[operatorToNoSQL(searchLineItems[1].junction)] = [];
+        } else {
+          //add the new operator
+          searchObject[operatorToNoSQL(line.junction)] = [];
+        }
+      }
+      //If if it's the first item add it to whatever the second operator is
+      var lineItemSearchObject = getSearchObject("computer", "general", line.field, line.operator, line.value);
+      console.log(lineItemSearchObject);
+      if (i == 0){
+        //Add the serach item to the correct operator
+        searchObject[operatorToNoSQL(searchLineItems[1].junction)].push(lineItemSearchObject);
+      } else {
+        //Add the serach item to the correct operator
+        searchObject[operatorToNoSQL(line.junction)].push(lineItemSearchObject);
+      }
+    }
+  }
+  return searchObject;
+}
+
+
 //Get matching inventory record by category and field search
 exports.getRecordsForSearchObject = function(collection, searchObject){
   return new Promise(function(resolve,reject) {
@@ -30,13 +65,35 @@ exports.getRecordsForSearchObject = function(collection, searchObject){
   });
 }
 
-exports.getSearchObject = function(collection, category, field, searchValue){
-  //Build the search query
+function getSearchObject(collection, category, field, operation, searchValue){
+  var pathString = collection + "." + category + "." + field;
+  //Build the actual search object
   var searchObject = {};
-  searchObject[collection] = {};
-  var fieldSearch = {};
-  fieldSearch[field] = searchValue;
-  searchObject[collection][category] = fieldSearch;
-  console.log(searchObject);
+  searchObject[pathString] = operationToObject(operation, searchValue);
   return searchObject;
+}
+
+function operatorToNoSQL(value){
+  if (value == "AND"){
+    return '$and';
+  } else if (value == "OR"){
+    return '$or';
+  }
+}
+
+function operationToObject(operation, value){
+  if (operation == "equals"){
+    return { "$eq" : value};
+  } else if (operation == "does not equal"){
+    return { "$ne" : value};
+  } else if (operation == "is greater than"){
+    return { "$gt" : value};
+  } else if (operation == "is less than"){
+    return { "$lt" : value};
+  } else if (operation == "contains"){
+    return "/.*"+value+".*/";
+  } else if (operation == "does not contain"){
+    return "{ $not: /.*"+value+".*/ }";
+  }
+  return '';
 }

@@ -2,6 +2,7 @@ var devices = require('express').Router();
 var device = require('../models/device.js');
 var report = require('../models/export.js');
 var inventory = require('../models/inventory.js');
+var db = require('../common/db.js');
 
 devices.get('/server/:orgName', function(req,res) {
   device.getDevicesByOrg(req.params.orgName)
@@ -89,18 +90,21 @@ devices.get('/computers/expanded/:id', function(req,res){
   });
 });
 
-//Gets a device live from the JPS by scout id
-devices.get('/live/:collection/:id', function(req,res){
-  //First get the device object from the databse to lookup server details
-  device.getDeviceById(req.params.id)
+//Gets a device live from the JPS by UDID and serial
+devices.post('/live/:collection', function(req,res){
+  //Make sure required fields are in the post
+  if (req.body.serial == null || req.body.udid == null){
+    return res.status(400).send({error: "Missing required fields"});
+  }
+  device.getDeviceByUDIDAndSerial(req.body.serial, req.body.udid)
   .then(function(deviceObj){
-    //Now use the server details to callout to the JPS
-    device.getExpandedInventory(serverDetails[0].url,serverDetails[0].username, db.decryptString(serverDetails[0].password), deviceObj, serverDetails[0].id)
+    //Now hit the JPS API
+    device.getExpandedInventory(deviceObj[0].url,deviceObj[0].username, db.decryptString(deviceObj[0].password), deviceObj[0], deviceObj[0].id)
     .then(function(jpsAPIResponse){
       res.status(200).send(jpsAPIResponse);
     })
     .catch(error => {
-      res.status(400).send({
+      res.status(500).send({
         error: "Unable to hit the JPS API for this device"
       });
     });
@@ -112,6 +116,28 @@ devices.get('/live/:collection/:id', function(req,res){
   });
 });
 
+//Gets a device live from the JPS by scout id
+devices.get('/live/:collection/:id', function(req,res){
+  //First get the device object from the databse to lookup server details
+  device.getDeviceById(req.params.id)
+  .then(function(deviceObj){
+    //Now use the server details to callout to the JPS
+    device.getExpandedInventory(deviceObj[0].url,deviceObj[0].username, db.decryptString(deviceObj[0].password), deviceObj[0], deviceObj[0].id)
+    .then(function(jpsAPIResponse){
+      res.status(200).send(jpsAPIResponse);
+    })
+    .catch(error => {
+      res.status(500).send({
+        error: "Unable to hit the JPS API for this device"
+      });
+    });
+  })
+  .catch(error => {
+    res.status(400).send({
+      error: "Unable to find device record"
+    });
+  });
+});
 
 devices.get('/computers', function(req,res) {
   device.getDeviceByPlatform('computer')

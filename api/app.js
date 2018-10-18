@@ -11,6 +11,7 @@ var jwttoken = require('jsonwebtoken');
 var cors = require('cors');
 var schedule = require('node-schedule');
 var exec = require('child_process').exec;
+var cron = require('./common/cron-handler.js');
 
 //Check for a JWT Key, if not set to 'local' for tests
 if (!process.env.JWT_KEY){
@@ -38,6 +39,7 @@ app.use(compression()); //Compress all routes
 //require auth to use endpoints
 app.use('/servers', jwtCheck);
 app.use('/devices', jwtCheck);
+app.use('/reports', jwtCheck);
 //Provide custom response middleware
 app.use(function (err, req, res, next) {
   if (err.name === 'UnauthorizedError') {
@@ -50,6 +52,7 @@ app.use('/devices', require('./controllers/devices'));
 app.use('/webhooks', require('./controllers/webhooks'));
 app.use('/patches', require('./controllers/patches'));
 app.use('/users', require('./controllers/users'));
+app.use('/reports', require('./controllers/reports'));
 
 //Serve the web app
 app.get('/', function(req, res) {
@@ -61,6 +64,13 @@ var devices = require('./models/device.js');
 
 if (!module.parent) {
   var db = require('./common/db.js');
+  //Copy a recent copy of the .env file to the home directory to be used by the worker
+  exec('cp .env ~', (err, stdout, stderr) => {
+    if (err){
+      console.log('Unable to update copy of .env file for the worker, exiting.');
+      process.exit(1);
+    }
+  })
   db.connect(function(err) {
     if (err) {
       console.log('Unable to connect to database.');
@@ -84,40 +94,21 @@ if (!module.parent) {
           process.exit(1);
         }
       });
-      //For every server in the database, we should schedule the updates for them
+      //For revery server in the database, make sure our cron jobs are up to date
       servers.getAllServers()
       .then(function(serverList){
-        var scheduledJobs = [];
-        //For ever server in the database
-        for (i = 0; i < serverList.length; i++){
-          //Create and schedule a new job and bind the server url
-          var j = schedule.scheduleJob(serverList[i].url,serverList[i].cron_update, function(serverURL){
-            //Update the servers in a new thread
-            exec('node ./worker.js ' + serverURL + ' limited', function(error, stdout, stderr) {
-              console.log('Background worker: ', stdout);
-              if (error !== null) {
-                console.log('exec error: ', error);
-              }
-            });
-          }.bind(null,serverList[i].url));
-          //Add it to our list of jobs
-          scheduledJobs.push(j);
-          //Now create a schedule job to get exapnded device inventory
-          var e = schedule.scheduleJob(serverList[i].url,serverList[i].cron_update, function(serverURL){
-            //Update the servers in a new thread
-            exec('node ./worker.js ' + serverURL + ' expanded', function(error, stdout, stderr) {
-              console.log('Background worker: ', stdout);
-              if (error !== null) {
-                console.log('exec error: ', error);
-              }
-            });
-          }.bind(null,serverList[i].url));
-          //Add it to our list of jobs
-          scheduledJobs.push(e);
-        }
-        console.log((scheduledJobs.length / 2) + ' servers are scheduled to update');
+        //Take the server list and pass it to the handler
+        cron.handleServerRecords(serverList)
+        .then(function(cronResult){
+          console.log('Cron jobs have been verified and are operational');
+        })
+        .catch(function(error){
+          console.log('Unable to verify cron jobs');
+          console.log(error);
+        });
       })
       .catch(function(error){
+        console.log('Unable to verify cron jobs');
         console.log(error);
       });
     }

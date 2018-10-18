@@ -1,3 +1,32 @@
+function getSupportedReportFields(){
+  var fields = getRequestObject('/reports/builder/fields', null, 'GET');
+  fields.done(function(fieldsObject){
+    //Store this as a global object so it can also be added to the report builder without making the request again
+    window.reporting_fields = fieldsObject;
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+  });
+}
+
+function doAdvancedSearch(){
+  //keep a list of all of the search line items to send to the server
+  var lineItems = [];
+  //for every line item, build an object
+  for (var i = 0; i <= window.advanced_search_line_item_count; i++){
+    lineItems.push({ "junction" : $("#include-value-" + i).val(), "param-one" : $("#param-one-value-" + i).val(), "operator" : $("#operator-value-" + i).val(), "value" : $("#input-value-" + i).val(), "field" : $("#field-value-" + i).val(), "param-two" : $("#param-two-value-" + i).val()});
+  }
+  //Post the object to the server
+  var reqBody = { search_line_items : lineItems};
+  var post = getRequestObject('/reports/search', reqBody, 'POST');
+  post.done(function(res){
+    console.log(res);
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+  })
+}
+
 function addServerToDatabase(url,username,password,cron){
   var serverObject = { "url" : url, "username" : username, "password" : password, "cron" : cron};
   $("#loading-modal").modal('show');
@@ -34,6 +63,26 @@ function addPatchServerToDatabase(url,cron){
 
 function updateComputers(){
   var computerTable = $("#computers-table").DataTable(getDataTablesRequest('computer'));
+  //setup click function
+  $("#computers-table tbody").on('click', 'tr', function(){
+    var data = computerTable.row(this).data();
+    //Lookup device by serial and UDID
+    var reqBody = { serial : data[3], udid : data[5]};
+    //Get expanded inventory from server
+    var liveResult = getRequestObject('/devices/live/computer', reqBody, 'POST');
+    liveResult.done(function(result){
+      for (var prop in result) {
+        if (!result.hasOwnProperty(prop)) {
+          //The current property is not a direct property of p
+          continue;
+        }
+        console.log(prop);
+      }
+    })
+    .fail(function(xhr){
+      console.log(xhr);
+    });
+  });
   var computers = getRequestObject('/devices/count/computer', null, 'GET');
   //Get a count of the total devices seperate since data tables can't handle success functions
   computers.done(function(computers){
@@ -197,6 +246,39 @@ function registerUser(){
   })
 }
 
+//Keep a count of how many line items there are for advanced search
+window.advanced_search_line_item_count = 0;
+function addReportLineItem(){
+  //Get the element from the view table
+  $.get("/app-views/report-line-item.html", function(data) {
+    //Fill in the id for querying data later
+    data = data.replace(/{ID}/g, window.advanced_search_line_item_count);
+    $("#advance-report-criteria").append(data);
+    //Make sure it has the most recent fields available to it
+    $(".advanced-report-field-dropdown").append(new Option('--- General ---',''));
+    for (var key in window.reporting_fields.general){
+      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.general[key],key));
+    }
+    $(".advanced-report-field-dropdown").append(new Option('--- Location ---',''));
+    for (var key in window.reporting_fields.location){
+      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.location[key],key));
+    }
+    $(".advanced-report-field-dropdown").append(new Option('--- Purchasing ---',''));
+    for (var key in window.reporting_fields.purchasing){
+      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.purchasing[key],key));
+    }
+    $(".advanced-report-field-dropdown").append(new Option('--- Hardware ---',''));
+    for (var key in window.reporting_fields.hardware){
+      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.hardware[key],key));
+    }
+    $(".advanced-report-field-dropdown").append(new Option('--- Applications ---',''));
+    for (var key in window.reporting_fields.applications){
+      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.applications[key],key));
+    }
+    advanced_search_line_item_count++;
+  });
+}
+
 function doLogOut(){
   sessionStorage.removeItem("auth_token");
   location.reload();
@@ -210,6 +292,7 @@ function renderPage(){
   updateTvs();
   loadPatchesTable();
   loadPatchServersTable();
+  getSupportedReportFields();
   //Setup button listeners
   $("#add-server-button").click(function(){
     addServerToDatabase($("#add-server-url").val(), $("#add-server-username").val(), $("#add-server-password").val(), $("#add-server-cron").val());

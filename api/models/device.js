@@ -1,4 +1,5 @@
 var db = require('../common/db.js');
+var inventory = require('./inventory.js');
 var https = require('https');
 var axios = require('axios')
 //Allow self signed certs
@@ -68,6 +69,18 @@ exports.getExpandedInventory = function(url, username, password, device, jssServ
 exports.getDeviceById = function(scoutDeviceId){
   return new Promise(function(resolve,reject) {
     db.get().query('SELECT * FROM devices JOIN servers ON devices.server_id = servers.id WHERE devices.id = ?', [scoutDeviceId], function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
+exports.getDeviceByUDIDAndSerial = function(serial, udid){
+  return new Promise(function(resolve,reject) {
+    db.get().query('SELECT * FROM devices JOIN servers ON devices.server_id = servers.id WHERE devices.jss_serial = ? AND devices.jss_udid = ?', [serial, udid], function(error, results, fields) {
       if (error) {
         reject(error);
       } else {
@@ -191,6 +204,63 @@ exports.updateDevice = function(deviceData, deviceId, type){
         reject(error);
       } else {
         resolve(results);
+      }
+    });
+  });
+}
+
+exports.upsertFullInventory = function(deviceObjFromJSS, jss_server_id){
+  return new Promise(function(resolve,reject) {
+    //Set the colleciton name
+    var collectionName = 'computer';
+    if ('mobile_device' in deviceObjFromJSS){
+      collectionName = 'mobile_device';
+    }
+    var jss_id = deviceObjFromJSS[collectionName].general.id;
+    //See if there is already a record for this device
+    exports.getFullInventoryByJSSAndServerId(collectionName, jss_id, jss_server_id)
+    .then(function(existingDevice){
+      //We didn't find a device
+      if (existingDevice == null){
+        //Return a promise based on the status of the insert
+        resolve(exports.insertFullInventory(deviceObjFromJSS));
+      } else {
+        resolve(exports.updateFullInventory(deviceObjFromJSS, { jss_id : jss_id, jss_server_id : jss_server_id}));
+      }
+    })
+    .catch(error => {
+      console.log(error);
+      reject(error);
+    });
+  });
+}
+
+exports.getFullInventoryByJSSAndServerId = function(collection, jss_id, jss_server_id){
+  return new Promise(function(resolve,reject) {
+    db.getNoSQL().collection(collection).findOne({ jss_id : jss_id, jss_server_id : jss_server_id}, function(err, result) {
+      if (err){
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+}
+
+exports.updateFullInventory = function(deviceObj, searchObject){
+  var collectionName = 'computer';
+  if ('mobile_device' in deviceObj){
+    collectionName = 'mobile_device';
+  }
+  //Add the jss id to the top of the object to make searching easier
+  deviceObj.jss_id = deviceObj[collectionName].general.id;
+  return new Promise(function(resolve,reject) {
+    //Make the update
+    db.getNoSQL().collection(collectionName).replaceOne(searchObject,deviceObj, function(err, result) {
+      if (err){
+        reject(err);
+      } else {
+        resolve(result);
       }
     });
   });

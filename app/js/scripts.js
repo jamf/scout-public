@@ -71,13 +71,27 @@ function updateComputers(){
     //Get expanded inventory from server
     var liveResult = getRequestObject('/devices/live/computer', reqBody, 'POST');
     liveResult.done(function(result){
-      for (var prop in result) {
-        if (!result.hasOwnProperty(prop)) {
-          //The current property is not a direct property of p
-          continue;
+      //Get the view to inject into the modal
+      $.get("/app-views/device-view.html", function(data) {
+        $("#device-modal-view").html(data);
+        //Start filling in the tables by key
+        var computer = result.computer;
+        for (var prop in computer) {
+          if (!computer.hasOwnProperty(prop)) {
+             continue;
+          }
+          //Get the table for the given key
+          var tableTab = prop + "-table-body";
+          //if (tableTab == "general-table-body"){
+            //For every key in this value, add a row to the table
+            for (var value in computer[prop]) {
+              $("#" + tableTab).append("<tr><td>"+value+"</td><td>"+computer[prop][value]+"</td></tr>");
+            }
+        //  }
         }
-        console.log(prop);
-      }
+        //Show the modal
+        $("#device-display-modal").modal('show');
+      });
     })
     .fail(function(xhr){
       console.log(xhr);

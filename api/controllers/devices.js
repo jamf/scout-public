@@ -24,7 +24,7 @@ devices.post('/paged/:deviceType', function(req,res) {
   var search = req.body.search.value;
   device.getDeviceWithSearch(req.params.deviceType, search)
   .then(function(deviceList){
-    var obj = getDataTablesRes(req.body.draw,deviceList.slice(start, start + len),deviceList.length,deviceList.length);
+    var obj = getDataTablesRes(req.body.draw,deviceList.slice(start, start + len),deviceList.length,deviceList.length,req.params.deviceType);
     res.status(200).send(obj);
   })
   .catch(error => {
@@ -40,7 +40,7 @@ devices.post('/paged/:deviceType', function(req,res) {
   var search = req.body.search.value;
   device.getDeviceWithSearch(req.params.deviceType, search)
   .then(function(deviceList){
-    var obj = getDataTablesRes(req.body.draw,deviceList.slice(start, start + len),deviceList.length,deviceList.length);
+    var obj = getDataTablesRes(req.body.draw,deviceList.slice(start, start + len),deviceList.length,deviceList.length,req.params.deviceType);
     res.status(200).send(obj);
   })
   .catch(error => {
@@ -201,10 +201,12 @@ function getBoolVal(origin){
     return false;
   }
 }
-function getDataTablesRes(draw, data, totalRecords, filteredRecords){
+function getDataTablesRes(draw, data, totalRecords, filteredRecords,platform){
   var dataList = [];
   for (i = 0; i < data.length; i++){
-    var item = [ data[i].jss_name, data[i].org_name, data[i].jss_Model, data[i].jss_serial, data[i].jss_last_inventory, data[i].jss_udid, getBoolVal(data[i].jss_managed)];
+    //Get the text for the view live button
+    var liveViewButton = '<button type="button" class="btn btn-info btn-circle" onclick="getDeviceLive(\''+platform+'\',\''+data[i].jss_serial+'\',\''+ data[i].jss_udid+'\')"><i class="fa fa-eye"></i></button>';
+    var item = [ data[i].jss_name, data[i].org_name, data[i].jss_Model, data[i].jss_serial, data[i].jss_last_inventory, data[i].jss_udid, getBoolVal(data[i].jss_managed),liveViewButton];
     dataList.push(item);
   }
   return { "draw" : parseInt(draw), "recordsTotal" : totalRecords, "recordsFiltered" :  filteredRecords, "data" : dataList};

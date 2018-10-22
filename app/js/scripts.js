@@ -61,42 +61,41 @@ function addPatchServerToDatabase(url,cron){
   })
 }
 
+function getDeviceLive(type, serial, udid){
+  //Lookup device by serial and UDID
+  var reqBody = { serial : serial, udid : udid};
+  //Get expanded inventory from server
+  var liveResult = getRequestObject('/devices/live/' + type, reqBody, 'POST');
+  liveResult.done(function(result){
+    //Get the view to inject into the modal
+    $.get("/app-views/device-view.html", function(data) {
+      $("#device-modal-view").html(data);
+      //Start filling in the tables by key
+      var computer = result.computer;
+      for (var prop in computer) {
+        if (!computer.hasOwnProperty(prop)) {
+           continue;
+        }
+        //Get the table for the given key
+        var tableTab = prop + "-table-body";
+        //if (tableTab == "general-table-body"){
+          //For every key in this value, add a row to the table
+          for (var value in computer[prop]) {
+            $("#" + tableTab).append("<tr><td>"+value+"</td><td>"+computer[prop][value]+"</td></tr>");
+          }
+      //  }
+      }
+      //Show the modal
+      $("#device-display-modal").modal('show');
+    });
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+  });
+}
+
 function updateComputers(){
   var computerTable = $("#computers-table").DataTable(getDataTablesRequest('computer'));
-  //setup click function
-  $("#computers-table tbody").on('click', 'tr', function(){
-    var data = computerTable.row(this).data();
-    //Lookup device by serial and UDID
-    var reqBody = { serial : data[3], udid : data[5]};
-    //Get expanded inventory from server
-    var liveResult = getRequestObject('/devices/live/computer', reqBody, 'POST');
-    liveResult.done(function(result){
-      //Get the view to inject into the modal
-      $.get("/app-views/device-view.html", function(data) {
-        $("#device-modal-view").html(data);
-        //Start filling in the tables by key
-        var computer = result.computer;
-        for (var prop in computer) {
-          if (!computer.hasOwnProperty(prop)) {
-             continue;
-          }
-          //Get the table for the given key
-          var tableTab = prop + "-table-body";
-          //if (tableTab == "general-table-body"){
-            //For every key in this value, add a row to the table
-            for (var value in computer[prop]) {
-              $("#" + tableTab).append("<tr><td>"+value+"</td><td>"+computer[prop][value]+"</td></tr>");
-            }
-        //  }
-        }
-        //Show the modal
-        $("#device-display-modal").modal('show');
-      });
-    })
-    .fail(function(xhr){
-      console.log(xhr);
-    });
-  });
   var computers = getRequestObject('/devices/count/computer', null, 'GET');
   //Get a count of the total devices seperate since data tables can't handle success functions
   computers.done(function(computers){
@@ -325,6 +324,8 @@ function renderPage(){
         $('#add-patch-server-cron').val($(this).cron("value"));
     }
   }); // apply cron with default options
+  //Add one advanced report criteria to start with
+  addReportLineItem();
 }
 
 //Wait for the page to render

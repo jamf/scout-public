@@ -32,7 +32,8 @@ function getDataTablesRequest(platform){
         { data : "Serial" },
         { data : "Last Inventory" },
         { data : "UDID" },
-        { data : "Managed" }
+        { data : "Managed" },
+        { data : "Action" }
       ]
     }
   }

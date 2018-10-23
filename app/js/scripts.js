@@ -61,6 +61,15 @@ function addPatchServerToDatabase(url,cron){
   })
 }
 
+function prettyPrintKey(input){
+  //First replace the underscores with spaces
+  var pretty = input.replace(/_/g, ' ');
+  return pretty.toLowerCase()
+      .split(' ')
+      .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+      .join(' ');
+}
+
 function getDeviceLive(type, serial, udid){
   //Lookup device by serial and UDID
   var reqBody = { serial : serial, udid : udid};
@@ -71,19 +80,23 @@ function getDeviceLive(type, serial, udid){
     $.get("/app-views/device-view.html", function(data) {
       $("#device-modal-view").html(data);
       //Start filling in the tables by key
-      var computer = result.computer;
-      for (var prop in computer) {
-        if (!computer.hasOwnProperty(prop)) {
+      var device;
+      if (type == "computer"){
+        device = result.computer;
+      } else {
+        device = result.mobile_device;
+      }
+      for (var prop in device) {
+        if (!device.hasOwnProperty(prop)) {
            continue;
         }
         //Get the table for the given key
         var tableTab = prop + "-table-body";
         //if (tableTab == "general-table-body"){
           //For every key in this value, add a row to the table
-          for (var value in computer[prop]) {
-            $("#" + tableTab).append("<tr><td>"+value+"</td><td>"+computer[prop][value]+"</td></tr>");
+          for (var value in device[prop]) {
+            $("#" + tableTab).append("<tr><td>"+prettyPrintKey(value)+"</td><td>"+device[prop][value]+"</td></tr>");
           }
-      //  }
       }
       //Show the modal
       $("#device-display-modal").modal('show');

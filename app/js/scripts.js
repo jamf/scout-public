@@ -298,6 +298,12 @@ function doLogOut(){
 }
 
 function renderPage(){
+  //Check if there is a certian tab to show
+  var urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('tab')){
+    //Show that tab
+    $('.nav-tabs a[href="#'+urlParams.get('tab')+'"]').tab('show')
+  }
   //Get all of the Jamf Pro Servers
   loadServerTable();
   updateComputers();
@@ -326,7 +332,13 @@ function renderPage(){
   }); // apply cron with default options
   //Add one advanced report criteria to start with
   addReportLineItem();
+  //Whenever a tab is clicked, update the URL for quick refreshes
+  $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+    var target = $(e.target).attr("href");
+    updateQueryStringParam('tab',target.substring(1,target.length));
+  });
 }
+
 
 //Wait for the page to render
 $(document).ready(function(){
@@ -344,4 +356,5 @@ $(document).ready(function(){
   } else {
     renderPage();
   }
+
 });

@@ -4,6 +4,7 @@ var db = require('../common/db.js');
 var device = require('../models/device.js');
 var schedule = require('node-schedule');
 var exec = require('child_process').exec;
+var cron = require('../common/cron-handler.js');
 
 servers.post('/add', function(req,res) {
   if (req.body.url == null || req.body.username == null || req.body.password == null){
@@ -13,25 +14,34 @@ servers.post('/add', function(req,res) {
   }
   server.addNewServer(req.body.url, req.body.username, req.body.password, req.body.cron)
   .then(function(result) {
-    res.status(201).send({
-          status : "success"
-    });
-    //Submit a scheduled job to update this server
-    var j = schedule.scheduleJob(req.body.url,req.body.cron, function(serverURL){
-      //Update the servers in a new thread
-      exec('node ./worker.js ' + serverURL, function(error, stdout, stderr) {
-        console.log('Background worker: ', stdout);
-        if (error !== null) {
-          console.log('exec error: ', error);
-        }
+    //Need to now resetup the cron jobs
+    server.getAllServers()
+    .then(function(serverList){
+      //Take the server list and pass it to the handler
+      cron.handleServerRecords(serverList)
+      .then(function(cronResult){
+        res.status(201).send({ status : "success" });
+      })
+      .catch(function(error){
+        res.status(206).send({ error : "Unable to verify cron jobs, please restart your server to fix this." });
+        console.log(error);
       });
-    }.bind(null,req.body.url));
+    })
+    .catch(function(error){
+      res.status(206).send({ error : "Unable to verify cron jobs, please restart your server to fix this." });
+      console.log(error);
+    });
   })
   .catch(error => {
     console.log(error);
-    res.status(500).send({
-      error: "Unable to add server"
-    });
+    if (error.error == "Unable to contact server"){
+      return res.status(401).send({ error: "Unable to contact JPS Server - check creds and try again"});
+    } else if (error.error == "Unable to insert server to the database"){
+      return res.status(500).send({ error: "Unable to insert server to the database. Check the scout logs."});
+    } else if (error.error == "Unable to setup scout admin user"){
+      return res.status(206).send({ error: "Unable to setup the scout admin user, emergency access will not function."});
+    }
+    res.status(500).send({ error: "Unkown error has occured"});
   });
 });
 

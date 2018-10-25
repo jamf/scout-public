@@ -12,7 +12,7 @@ const axiosInstance = axios.create({
 exports.upsertDevice = function(deviceData){
   return new Promise(function(resolve,reject) {
     //Try to get the device first
-    exports.getDeviceByUDID(deviceData.jss_udid)
+    exports.getDeviceByUDIDAndServerId(deviceData.jss_udid, deviceData.server_id)
     .then(function(results) {
       //If it exists, update it, else insert new device
       if (results.length == 0){
@@ -93,6 +93,18 @@ exports.getDeviceByUDIDAndSerial = function(serial, udid){
 exports.getDeviceByUDID = function(udid) {
   return new Promise(function(resolve,reject) {
     db.get().query('SELECT devices.*, servers.org_name FROM devices JOIN servers ON devices.server_id = servers.id WHERE jss_udid = ?', udid, function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
+exports.getDeviceByUDIDAndServerId = function(udid, serverId) {
+  return new Promise(function(resolve,reject) {
+    db.get().query('SELECT devices.*, servers.org_name FROM devices JOIN servers ON devices.server_id = servers.id WHERE jss_udid = ? AND server_id = ?', [udid,serverId], function(error, results, fields) {
       if (error) {
         reject(error);
       } else {

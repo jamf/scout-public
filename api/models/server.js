@@ -31,7 +31,7 @@ exports.addNewServer = function(url, username, password, cron){
                    "org_name" : response.activation_code.organization_name, "activation_code" : response.activation_code.code};
       db.get().query('INSERT INTO servers SET ?', [data], function(error, results, fields) {
         if (error) {
-          reject(error);
+          reject({"error" : "Unable to insert server to the database"});
         } else {
           //Setup the scout admin user
           exports.setupScoutAdminUser(url,username,password)
@@ -39,14 +39,14 @@ exports.addNewServer = function(url, username, password, cron){
             resolve(res);
           })
           .catch(function (error){
-            reject(error);
+            reject({"error" : "Unable to setup scout admin user"});
           });
         }
       });
     })
     .catch(function (error) {
       console.log(error);
-      reject(error);
+      reject({"error" : "Unable to contact server"});
     });
   });
 }
@@ -70,6 +70,10 @@ exports.setupScoutAdminUser = function(url, username, password){
         });
       });
     })
+    .catch(function(error){
+      console.log(error);
+      reject(error);
+    });
   });
 }
 
@@ -102,7 +106,7 @@ exports.updateScoutAdminUserPassword = function(url){
     var username = serverDetails[0].username;
     var password = db.decryptString(serverDetails[0].password);
     //If any of the values are null, setup a new user
-    if (scoutAdminId == null || username == null || password == null){
+    if (scoutAdminId == null || username == null){
       //Setup the scout admin user
       exports.setupScoutAdminUser(url,username,password)
       .then(function(res){

@@ -1,18 +1,19 @@
 <div class="row">
   <div class="col-md-3">
     <ul class="nav nav-pills  nav-stacked">
-      <li role="presentation" class="general-table tab-selector"><a href="#">General</a></li>
-      <li role="presentation" class="location-table tab-selector"><a href="">Location</a></li>
-      <li role="presentation"><a href="">Purchasing</a></li>
-      <li role="presentation"><a href="">Peripherals</a></li>
-      <li role="presentation"><a href="">Hardware</a></li>
-      <li role="presentation"><a href="">Certificates</a></li>
-      <li role="presentation"><a href="">Software</a></li>
-      <li role="presentation"><a href="">Extension Attributes</a></li>
-      <li role="presentation"><a href="">Configuration Profiles</a></li>
+      <li role="presentation" class="general-table tab-selector"><a>General</a></li>
+      <li role="presentation" class="location-table tab-selector"><a>Location</a></li>
+      <li role="presentation" class="purchasing-table tab-selector"><a>Purchasing</a></li>
+      <li role="presentation" class="peripherals-table tab-selector"><a>Peripherals</a></li>
+      <li role="presentation" class="hardware-table tab-selector"><a>Hardware</a></li>
+      <li role="presentation" class="certificates-table tab-selector"><a>Certificates</a></li>
+      <li role="presentation" class="software-table tab-selector"><a>Software</a></li>
+      <li role="presentation" class="extension_attributes-table tab-selector"><a>Extension Attributes</a></li>
+      <li role="presentation" class="configuration_profiles-table tab-selector"><a>Configuration Profiles</a></li>
     </ul>
   </div>
   <div class="col-md-9">
+    <div style="height: 450px !important; overflow: scroll;">
     <div class="table-responsive">
       <table class="table table-striped device-table" id="general-table">
         <thead>
@@ -21,54 +22,65 @@
             <th>Value</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="general-table-body">
             <!-- filled dynamically via js -->
         </tbody>
       </table>
-      <table class="table table-striped device-table" id="location-table">
+      <table class="table table-striped device-table" id="location-table" style="display:none;">
         <thead>
           <tr>
             <th>Key</th>
             <th>Value</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="location-table-body">
             <!-- filled dynamically via js -->
         </tbody>
       </table>
-      <table class="table table-striped device-table" id="purchasing-table">
+      <table class="table table-striped device-table" id="purchasing-table" style="display:none;">
         <thead>
           <tr>
             <th>Key</th>
             <th>Value</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="purchasing-table-body">
             <!-- filled dynamically via js -->
         </tbody>
       </table>
-      <table class="table table-striped device-table" id="hardware-table">
+      <table class="table table-striped device-table" id="hardware-table" style="display:none;">
         <thead>
           <tr>
             <th>Key</th>
             <th>Value</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="hardware-table-body">
             <!-- filled dynamically via js -->
         </tbody>
       </table>
-      <table class="table table-striped device-table" id="software-table">
+      <table class="table table-striped device-table" id="software-table" style="display:none;" >
         <thead>
           <tr>
             <th>Key</th>
             <th>Value</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="software-table-body">
             <!-- filled dynamically via js -->
         </tbody>
       </table>
     </div>
   </div>
 </div>
+</div>
+<!-- this code handles switch between tabs -->
+<script>
+  $(".tab-selector").click(function(event){
+    var selectedTab = $(this).prop("class").split(' ')[0];
+    //hide all of the other tables
+    $(".device-table").hide();
+    //Show the selected table
+    $("#" + selectedTab).show();
+  })
+</script>

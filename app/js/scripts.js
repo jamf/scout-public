@@ -34,15 +34,23 @@ function addServerToDatabase(url,username,password,cron){
 
   //send it to the server
   var post = getRequestObject('/servers/add', serverObject, 'POST');
-  post.done(function(res){
+  post.done(function(data, textStatus, jqXHR){
     $("#loading-modal").modal('hide');
-    swal('Server Added', 'The server has been addded to the database successfully.', 'success');
+    if (jqXHR.status == 206 && jqXHR.responseText.includes("cron")){
+      swal('Server Added', 'The server has been added, but we were unable to verify the server cron jobs. Please restart the server to fix this.', 'warning');
+    } else if (jqXHR.status == 206 && jqXHR.responseText.includes("scout admin user")){
+      swal('Server Added', 'The server has been added, but we were unable add the scout admin user. Emergency access has been disabled for this server.', 'warning');
+    } else {
+      swal('Server Added', 'The server has been added.', 'success');
+    }
     loadServerTable();
   })
-  .fail(function(xhr){
+  .fail(function(jqXHR, textStatus, errorThrown){
+    console.log(jqXHR);
+    console.log(textStatus);
+    console.log(errorThrown);
     $("#loading-modal").modal('hide');
     swal('Server Upload Failed', 'The server has not been added to the database, please check the console for more details.', 'error');
-    console.log(xhr);
   })
 }
 

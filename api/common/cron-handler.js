@@ -33,8 +33,10 @@ exports.upsertCronJobs = function(serverList, cronList){
           }
         }
         //If it isn't in there, remove it
-        var removeMatch = 'Scout-Update-'+serverUrl;
-        crontab.remove({comment:removeMatch});
+        if (!isInServerList){
+          var removeMatch = 'Scout-Update-'+serverUrl;
+          crontab.remove({comment:removeMatch});
+        }
       });
       //Now for all of the servers, make sure they have a job, if not create one
       for (var s = 0; s < serverList.length; s++){

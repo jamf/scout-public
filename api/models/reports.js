@@ -34,7 +34,7 @@ exports.parseIntoQuery = function(searchLineItems){
           searchObject[operatorToNoSQL(line.junction)] = [];
         }
       }
-      //If if it's the first item add it to whatever the second operator is
+      //If if it's the first item add it fto whatever the second operator is
       var lineItemSearchObject = getSearchObject("computer", "general", line.field, line.operator, line.value);
       console.log(lineItemSearchObject);
       if (i == 0){
@@ -60,6 +60,31 @@ exports.getRecordsForSearchObject = function(collection, searchObject){
       } else {
         console.log(result);
         resolve(result);
+      }
+    });
+  });
+}
+
+exports.insertReportObject = function(reportObject){
+  return new Promise(function(resolve,reject) {
+    db.get().query('INSERT INTO reports SET ?', [reportObject], function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
+exports.insertReportLineItem = function(lineItem, reportId){
+  lineItem.report_id = reportId;
+  return new Promise(function(resolve,reject) {
+    db.get().query('INSERT INTO reports_line_item SET ?', [lineItem], function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
       }
     });
   });

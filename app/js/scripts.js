@@ -9,6 +9,24 @@ function getSupportedReportFields(){
   });
 }
 
+function saveNewReport(){
+  //keep a list of all of the search line items to send to the server
+  var lineItems = [];
+  //for every line item, build an object
+  for (var i = 0; i <= window.advanced_search_line_item_count-1; i++){
+    lineItems.push({ "order" : i, "condition" : $("#include-value-" + i).val(), "parenthesis_one" : $("#param-one-value-" + i).val(), "operator" : $("#operator-value-" + i).val(), "value" : $("#input-value-" + i).val(), "field" : $("#field-value-" + i).val(), "parenthesis_two" : $("#param-two-value-" + i).val()});
+  }
+  //Create the report object and post everything to the server
+  var reqBody = { name : $("#new-report-name").val(), line_items : lineItems};
+  var post = getRequestObject('/reports/save', reqBody, 'POST');
+  post.done(function(res){
+    swal('Report Saved', 'The report has been saved.', 'success');
+  })
+  .fail(function(xhr){
+    swal('Save Failed.', 'The report has not been saved.', 'error');
+  })
+}
+
 function doAdvancedSearch(){
   //keep a list of all of the search line items to send to the server
   var lineItems = [];
@@ -319,6 +337,7 @@ function doLogOut(){
 }
 
 function renderPage(){
+  getSupportedReportFields();
   //Check if there is a certian tab to show
   var urlParams = new URLSearchParams(window.location.search);
   if (urlParams.has('tab')){
@@ -332,7 +351,6 @@ function renderPage(){
   updateTvs();
   loadPatchesTable();
   loadPatchServersTable();
-  getSupportedReportFields();
   //Setup button listeners
   $("#add-server-button").click(function(){
     addServerToDatabase($("#add-server-url").val(), $("#add-server-username").val(), $("#add-server-password").val(), $("#add-server-cron").val());

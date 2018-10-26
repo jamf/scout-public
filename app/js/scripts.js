@@ -9,6 +9,39 @@ function getSupportedReportFields(){
   });
 }
 
+function getAllSavedReports(){
+  var reports = getRequestObject('/reports/', null, 'GET');
+  reports.done(function(reportsList){
+    //Create a table for the reports
+    var reportsTable = $("#saved-reports-table").DataTable();
+    for (var i = 0; i < reportsList.length; i++){
+      var actionButtons = '<button type="button" class="btn btn-info btn-circle"><i class="fa fa-eye"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-warning btn-circle"><i class="fa fa-pencil"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-danger btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;';
+      reportsTable.row.add([reportsList[i].name, reportsList[i].created, reportsList[i].email, reportsList[i].conditions_count, actionButtons]).draw(false);
+    }
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+  });
+}
+
+function saveNewReport(){
+  //keep a list of all of the search line items to send to the server
+  var lineItems = [];
+  //for every line item, build an object
+  for (var i = 0; i <= window.advanced_search_line_item_count-1; i++){
+    lineItems.push({ "order" : i, "condition" : $("#include-value-" + i).val(), "parenthesis_one" : $("#param-one-value-" + i).val(), "operator" : $("#operator-value-" + i).val(), "value" : $("#input-value-" + i).val(), "field" : $("#field-value-" + i).val(), "parenthesis_two" : $("#param-two-value-" + i).val()});
+  }
+  //Create the report object and post everything to the server
+  var reqBody = { name : $("#new-report-name").val(), line_items : lineItems};
+  var post = getRequestObject('/reports/save', reqBody, 'POST');
+  post.done(function(res){
+    swal('Report Saved', 'The report has been saved.', 'success');
+  })
+  .fail(function(xhr){
+    swal('Save Failed.', 'The report has not been saved.', 'error');
+  })
+}
+
 function doAdvancedSearch(){
   //keep a list of all of the search line items to send to the server
   var lineItems = [];
@@ -319,6 +352,7 @@ function doLogOut(){
 }
 
 function renderPage(){
+  getSupportedReportFields();
   //Check if there is a certian tab to show
   var urlParams = new URLSearchParams(window.location.search);
   if (urlParams.has('tab')){
@@ -332,7 +366,7 @@ function renderPage(){
   updateTvs();
   loadPatchesTable();
   loadPatchServersTable();
-  getSupportedReportFields();
+  getAllSavedReports();
   //Setup button listeners
   $("#add-server-button").click(function(){
     addServerToDatabase($("#add-server-url").val(), $("#add-server-username").val(), $("#add-server-password").val(), $("#add-server-cron").val());

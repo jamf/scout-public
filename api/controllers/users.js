@@ -72,7 +72,7 @@ users.post('/login/basic', function(req, res) {
         error : "Unable to Log In"
       });
     }
-    var user = { "email" : userObject[0].email, "can_mdm" : userObject[0].mdm_commands, "notificaitons" : userObject[0].notifications};
+    var user = { "id" : userObject[0].id, "email" : userObject[0].email, "can_mdm" : userObject[0].mdm_commands, "notificaitons" : userObject[0].notifications};
     var resp = { userId : userObject[0].id, token : createToken(user), "can_mdm" : userObject[0].mdm_commands, "notificaitons" : userObject[0].notifications};
     res.status(201).send(resp);
   })

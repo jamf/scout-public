@@ -16,6 +16,79 @@ reports.get('/builder/fields', function(req,res) {
   });
 });
 
+//Returns all of the reports
+reports.get('/', function(req,res){
+  //Return all of the reports
+  report.getReports()
+  .then(function(reports){
+    return res.status(200).send(reports);
+  })
+  .catch(error => {
+    console.log(error);
+    return res.status(500).send({
+      error: "Unable to get reports"
+    });
+  });
+});
+
+//Gets a report by id
+reports.get('/id/:reportId', function(req,res){
+  //make sure the report id was provided in the request
+  if (!req.params.reportId){
+    res.status(400).send({
+      error: "Missing report id"
+    });
+  }
+  //Get the report and it's line items from the database
+  reports.getReportById(req.params.reportId)
+  .then(function(report){
+    res.status(200).send(report);
+  })
+  .catch(error => {
+    console.log(error);
+    return res.status(500).send({
+      error: "Unable to get report"
+    });
+  });
+});
+
+//Saves a report to the database to be used later
+reports.post('/save', function(req,res){
+  //Make sure everything is in the request
+  if (!req.body.name || !req.body.line_items || req.body.line_items.length < 1){
+    res.status(400).send({
+      error: "Missing required fields"
+    });
+  }
+  //Copy out the line items to be inserted after the parent report
+  var reportObj = req.body;
+  reportObj.created = new Date();
+  reportObj.created_by = req.user.id;
+  reportObj.conditions_count = req.body.line_items.length;
+  var lineItems = req.body.line_items;
+  delete reportObj.line_items;
+  //Insert the report
+  report.insertReportObject(reportObj)
+  .then(function(result){
+    //the insert id is the report id
+    Promise.all(lineItems.map(lineItem => report.insertReportLineItem(lineItem, result.insertId))).then(function(results){
+      return res.status(200).send({ "status" : "success"});
+    })
+    .catch(error => {
+      console.log(error);
+      return res.status(500).send({
+        error: "Unable to insert report line items"
+      });
+    });
+  })
+  .catch(error => {
+    console.log(error);
+    return res.status(500).send({
+      error: "Unable to insert new report"
+    });
+  });
+});
+
 reports.post('/search', function(req,res) {
   //make sure they provided some search terms
   if (!req.body.search_line_items || req.body.search_line_items.length < 1){
@@ -25,6 +98,7 @@ reports.post('/search', function(req,res) {
   }
   //Parse the search items into a NoSQL query
   var searchObject = report.parseIntoQuery(req.body.search_line_items);
+  console.log(searchObject);
   //Now perform the query
   report.getRecordsForSearchObject("computer", searchObject)
   .then(function(results){

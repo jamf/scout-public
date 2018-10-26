@@ -102,6 +102,28 @@ exports.insertReportLineItem = function(lineItem, reportId){
   });
 }
 
+exports.getReportById = function(reportId){
+  return new Promise(function(resolve,reject) {
+    db.get().query('SELECT * FROM reports WHERE report_id = ?',[reportId], function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        //Now get the line items
+        var reportObj = results[0];
+        db.get().query('SELECT * FROM reports_line_item WHERE report_id = ? ORDER BY order ASC',[reportId], function(error, results, fields) {
+          if (error) {
+            reject(error);
+          } else {
+            //Setup the line items
+            reportObj.line_items = results;
+            resolve(reportObj);
+          }
+        });
+      }
+    });
+  });
+}
+
 function getSearchObject(collection, category, field, operation, searchValue){
   var pathString = collection + "." + category + "." + field;
   //Build the actual search object

@@ -31,6 +31,27 @@ reports.get('/', function(req,res){
   });
 });
 
+//Gets a report by id
+reports.get('/id/:reportId', function(req,res){
+  //make sure the report id was provided in the request
+  if (!req.params.reportId){
+    res.status(400).send({
+      error: "Missing report id"
+    });
+  }
+  //Get the report and it's line items from the database
+  reports.getReportById(req.params.reportId)
+  .then(function(report){
+    res.status(200).send(report);
+  })
+  .catch(error => {
+    console.log(error);
+    return res.status(500).send({
+      error: "Unable to get report"
+    });
+  });
+});
+
 //Saves a report to the database to be used later
 reports.post('/save', function(req,res){
   //Make sure everything is in the request

@@ -16,6 +16,21 @@ reports.get('/builder/fields', function(req,res) {
   });
 });
 
+//Returns all of the reports
+reports.get('/', function(req,res){
+  //Return all of the reports
+  report.getReports()
+  .then(function(reports){
+    return res.status(200).send(reports);
+  })
+  .catch(error => {
+    console.log(error);
+    return res.status(500).send({
+      error: "Unable to get reports"
+    });
+  });
+});
+
 //Saves a report to the database to be used later
 reports.post('/save', function(req,res){
   //Make sure everything is in the request
@@ -28,6 +43,7 @@ reports.post('/save', function(req,res){
   var reportObj = req.body;
   reportObj.created = new Date();
   reportObj.created_by = req.user.id;
+  reportObj.conditions_count = req.body.line_items.length;
   var lineItems = req.body.line_items;
   delete reportObj.line_items;
   //Insert the report

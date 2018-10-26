@@ -9,6 +9,21 @@ function getSupportedReportFields(){
   });
 }
 
+function getAllSavedReports(){
+  var reports = getRequestObject('/reports/', null, 'GET');
+  reports.done(function(reportsList){
+    //Create a table for the reports
+    var reportsTable = $("#saved-reports-table").DataTable();
+    for (var i = 0; i < reportsList.length; i++){
+      var actionButtons = '<button type="button" class="btn btn-info btn-circle"><i class="fa fa-eye"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-warning btn-circle"><i class="fa fa-pencil"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-danger btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;';
+      reportsTable.row.add([reportsList[i].name, reportsList[i].created, reportsList[i].email, reportsList[i].conditions_count, actionButtons]).draw(false);
+    }
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+  });
+}
+
 function saveNewReport(){
   //keep a list of all of the search line items to send to the server
   var lineItems = [];
@@ -351,6 +366,7 @@ function renderPage(){
   updateTvs();
   loadPatchesTable();
   loadPatchServersTable();
+  getAllSavedReports();
   //Setup button listeners
   $("#add-server-button").click(function(){
     addServerToDatabase($("#add-server-url").val(), $("#add-server-username").val(), $("#add-server-password").val(), $("#add-server-cron").val());

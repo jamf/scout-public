@@ -77,6 +77,18 @@ exports.insertReportObject = function(reportObject){
   });
 }
 
+exports.getReports = function(){
+  return new Promise(function(resolve,reject) {
+    db.get().query('SELECT reports.*, users.email FROM reports JOIN users ON reports.created_by = users.id', function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
 exports.insertReportLineItem = function(lineItem, reportId){
   lineItem.report_id = reportId;
   return new Promise(function(resolve,reject) {

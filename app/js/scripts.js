@@ -14,14 +14,30 @@ function getAllSavedReports(){
   reports.done(function(reportsList){
     //Create a table for the reports
     var reportsTable = $("#saved-reports-table").DataTable();
+    //Clear out the table if it already was rendered
+    reportsTable.clear();
     for (var i = 0; i < reportsList.length; i++){
-      var actionButtons = '<button type="button" class="btn btn-info btn-circle"><i class="fa fa-eye"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-warning btn-circle"><i class="fa fa-pencil"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-danger btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;';
+      var actionButtons = '<button type="button" class="btn btn-success btn-circle" onclick="viewReportResults(\''+reportsList[i].id+'\');"><i class="fa fa-play-circle"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-info btn-circle" onclick="loadReportById(\''+reportsList[i].id+'\');"><i class="fa fa-eye"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-warning btn-circle"><i class="fa fa-pencil"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-danger btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;';
       reportsTable.row.add([reportsList[i].name, reportsList[i].created, reportsList[i].email, reportsList[i].conditions_count, actionButtons]).draw(false);
     }
   })
   .fail(function(xhr){
     console.log(xhr);
   });
+}
+
+function loadReportById(reportId){
+  //Make the request to the server to get a saved report
+  var report = getRequestObject('/reports/id/' + reportId, null, 'GET');
+  report.done(function(reportObject){
+    //Load the existing report view
+    $("#report-name-field").html(reportObject.name);
+    //addReportLineItem();
+    console.log(reportObject);
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+  })
 }
 
 function saveNewReport(){
@@ -36,9 +52,34 @@ function saveNewReport(){
   var post = getRequestObject('/reports/save', reqBody, 'POST');
   post.done(function(res){
     swal('Report Saved', 'The report has been saved.', 'success');
+    //Reset the new report div and reload the table with the new report
+    reloadReportPane();
   })
   .fail(function(xhr){
     swal('Save Failed.', 'The report has not been saved.', 'error');
+  })
+}
+
+function reloadReportPane(){
+  //hide the new report view
+  $('#new-report-div').hide();
+  //reload the saved reports from the server
+  getAllSavedReports();
+  //Remove the report line items and clear the name field
+  $("#advance-report-criteria").html('');
+  $("#new-report-name").val('');
+  //Add a new blank line item
+  window.advanced_search_line_item_count = 0;
+  addReportLineItem();
+}
+
+function viewReportResults(reportId){
+  var getReport = getRequestObject('/reports/search/' + reportId, null, 'GET');
+  getReport.done(function(res){
+    console.log(res);
+  })
+  .fail(function(xhr){
+    console.log(xhr);
   })
 }
 

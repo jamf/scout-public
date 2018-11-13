@@ -67,6 +67,7 @@ db.connect(function(err) {
           return inventory.getFullInventory(serverURL,serverDetails[0].username, db.decryptString(serverDetails[0].password), serverDetails[0].id)
         })
         .then(function(fullApiDevices){
+          console.log(fullApiDevices);
           //After getting all of the devices from the jss insert them //deviceObj.id, jss_id)
           Promise.all(fullApiDevices.map(deviceObj => devices.upsertFullInventory(deviceObj, jss_id))).then(function(results){
             console.log('Inserted ' + results.length + ' expanded inventories');

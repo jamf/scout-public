@@ -40,7 +40,7 @@ reports.get('/id/:reportId', function(req,res){
     });
   }
   //Get the report and it's line items from the database
-  reports.getReportById(req.params.reportId)
+  report.getReportById(req.params.reportId)
   .then(function(report){
     res.status(200).send(report);
   })
@@ -85,6 +85,43 @@ reports.post('/save', function(req,res){
     console.log(error);
     return res.status(500).send({
       error: "Unable to insert new report"
+    });
+  });
+});
+
+//Does an advanced search by id
+reports.get('/search/:reportId', function(req,res){
+  //Make sure a report Id was provided
+  if (!req.params.reportId){
+    res.status(400).send({
+      error: "Missing required fields"
+    });
+  }
+  //Get the report and it's line items by id
+  report.getReportById(req.params.reportId)
+  .then(function(reportObj){
+    //Convert it's line items to a query string
+    var lineItemsConverted = [];
+    reportObj.line_items.forEach(function(l){
+      lineItemsConverted.push(report.convertDbLineItem(l));
+    });
+    var searchObject = report.parseIntoQuery(lineItemsConverted);
+    //Now perform the query
+    report.getRecordsForSearchObject("computer", searchObject)
+    .then(function(results){
+      res.status(200).send(results);
+    })
+    .catch(error => {
+      console.log(error);
+      res.status(500).send({
+        error: "Unable to perform search"
+      });
+    });
+  })
+  .catch(error => {
+    console.log(error);
+    return res.status(500).send({
+      error: "Unable to get report"
     });
   });
 });

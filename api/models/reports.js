@@ -15,10 +15,23 @@ exports.getSupportedFields = function(){
   });
 }
 
+//Converts a line item stored in the database to one similar to the UI
+exports.convertDbLineItem = function(lineItem){
+  var newLineItem = {};
+  newLineItem.junction = lineItem.condition;
+  newLineItem.param_one = lineItem.parenthesis_one;
+  newLineItem.operator = lineItem.operator;
+  newLineItem.value = lineItem.value;
+  newLineItem.field = lineItem.field;
+  newLineItem.param_two = lineItem.parenthesis_two;
+  return newLineItem;
+}
+
 exports.parseIntoQuery = function(searchLineItems){
   var searchObject = {};
+  console.log(searchLineItems);
   //Loop throught the query and build up the search query
-  for (var i = 0; i < searchLineItems.length -1; i++){
+  for (var i = 0; i < searchLineItems.length; i++){
     //Make sure the line item was actually filled out
     if (Object.keys(searchLineItems[i]).length > 0 && searchLineItems[i].value != ''){
       var line = searchLineItems[i];
@@ -35,7 +48,7 @@ exports.parseIntoQuery = function(searchLineItems){
         }
       }
       //If if it's the first item add it fto whatever the second operator is
-      var lineItemSearchObject = getSearchObject("computer", "general", line.field, line.operator, line.value);
+      var lineItemSearchObject = getSearchObject("computer", "location", line.field, line.operator, line.value);
       console.log(lineItemSearchObject);
       if (i == 0){
         //Add the serach item to the correct operator
@@ -46,6 +59,7 @@ exports.parseIntoQuery = function(searchLineItems){
       }
     }
   }
+  console.log(searchObject);
   return searchObject;
 }
 
@@ -104,13 +118,13 @@ exports.insertReportLineItem = function(lineItem, reportId){
 
 exports.getReportById = function(reportId){
   return new Promise(function(resolve,reject) {
-    db.get().query('SELECT * FROM reports WHERE report_id = ?',[reportId], function(error, results, fields) {
+    db.get().query('SELECT * FROM reports WHERE id = ?',[reportId], function(error, results, fields) {
       if (error) {
         reject(error);
       } else {
         //Now get the line items
         var reportObj = results[0];
-        db.get().query('SELECT * FROM reports_line_item WHERE report_id = ? ORDER BY order ASC',[reportId], function(error, results, fields) {
+        db.get().query('SELECT * FROM reports_line_item WHERE report_id = ?',[reportId], function(error, results, fields) {
           if (error) {
             reject(error);
           } else {
@@ -150,7 +164,7 @@ function operationToObject(operation, value){
   } else if (operation == "is less than"){
     return { "$lt" : value};
   } else if (operation == "contains"){
-    return "/.*"+value+".*/";
+    return `/.*${value}.*/`;
   } else if (operation == "does not contain"){
     return "{ $not: /.*"+value+".*/ }";
   }

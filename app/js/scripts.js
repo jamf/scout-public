@@ -27,16 +27,55 @@ function getAllSavedReports(){
 }
 
 function loadReportById(reportId){
+  reloadReportPane(false);
   //Make the request to the server to get a saved report
   var report = getRequestObject('/reports/id/' + reportId, null, 'GET');
   report.done(function(reportObject){
     //Load the existing report view
     $("#report-name-field").html(reportObject.name);
-    //addReportLineItem();
-    console.log(reportObject);
+    $("#new-report-parent").hide();
+    for (var i = 0; i < reportObject.line_items.length; i++){
+      addReportLineItem(reportObject.line_items[i]);
+    }
+    //Show the new report UI
+    $('#new-report-div').show();
   })
   .fail(function(xhr){
     console.log(xhr);
+  })
+}
+
+function upsertReport(runReport){
+  //Check if their is an existing report id loaded into the UI and it should be a save
+  if ($("#existing-report-id").val() != null || $("#existing-report-id").val() != ''){
+    updateExistingReport();
+  } else {
+    saveNewReport(runReport);
+  }
+}
+
+function updateExistingReport(){
+  var reportId = $("#existing-report-id").val();
+  if (reportId == '' || reportId == null){
+    swal('Save Failed.', 'Uanble to load an existing report Id.', 'error');
+    return;
+  }
+  //keep a list of all of the search line items to send to the server
+  var lineItems = [];
+  //for every line item, build an object
+  for (var i = 0; i <= window.advanced_search_line_item_count-1; i++){
+    lineItems.push({ "order" : i, "condition" : $("#include-value-" + i).val(), "parenthesis_one" : $("#param-one-value-" + i).val(), "operator" : $("#operator-value-" + i).val(), "value" : $("#input-value-" + i).val(), "field" : $("#field-value-" + i).val(), "parenthesis_two" : $("#param-two-value-" + i).val()});
+  }
+  //Create the report object and post everything to the server
+  var reqBody = { name : $("#new-report-name").val(), line_items : lineItems};
+  var post = getRequestObject('/reports/update/', reqBody, 'PUT');
+  post.done(function(res){
+    swal('Report Saved', 'The report has been saved.', 'success');
+    //Reset the new report div and reload the table with the new report
+    reloadReportPane(true);
+  })
+  .fail(function(xhr){
+    swal('Save Failed.', 'The report has not been saved.', 'error');
   })
 }
 
@@ -53,16 +92,20 @@ function saveNewReport(){
   post.done(function(res){
     swal('Report Saved', 'The report has been saved.', 'success');
     //Reset the new report div and reload the table with the new report
-    reloadReportPane();
+    reloadReportPane(true);
   })
   .fail(function(xhr){
     swal('Save Failed.', 'The report has not been saved.', 'error');
   })
 }
 
-function reloadReportPane(){
+function reloadReportPane(loadFirstItem){
   //hide the new report view
   $('#new-report-div').hide();
+  //Clear out the existing report id in case one was added
+  $("#existing-report-id").val('');
+  $("#new-report-name").val('New Report Name');
+  $("#new-report-parent").show();
   //reload the saved reports from the server
   getAllSavedReports();
   //Remove the report line items and clear the name field
@@ -70,17 +113,43 @@ function reloadReportPane(){
   $("#new-report-name").val('');
   //Add a new blank line item
   window.advanced_search_line_item_count = 0;
-  addReportLineItem();
+  if (loadFirstItem){
+    addReportLineItem(null);
+  }
 }
 
 function viewReportResults(reportId){
+  console.log(reportId);
   var getReport = getRequestObject('/reports/search/' + reportId, null, 'GET');
   getReport.done(function(res){
+    //Create a table in the modal
+    var resultTable = $("#report-results-table").DataTable();
+    //Clear it out in case it was previously loaded
+    resultTable.clear();
+    //For each line item of the report, add it to the display modal
+    for (var i = 0; i < res.length; i++){
+      //Check if it's a computer or mobile device
+      var deviceType = getKeyForDeviceObj(res[i]);
+      //Add a row for the device to the table
+      resultTable.row.add([res[i][deviceType].general.name, res[i][deviceType].general.last_contact_time, res[i][deviceType].location.realname, '']);
+    }
+    //Draw the table and show the results modal
+    resultTable.draw(false);
+    $("#report-display-modal").modal('show');
     console.log(res);
   })
   .fail(function(xhr){
     console.log(xhr);
   })
+}
+
+function getKeyForDeviceObj(obj){
+  var key = "computer";
+  //Default to computer, if it has a mobile_device key, then go with that
+  if ('mobile_device' in obj){
+    key = 'mobile_device';
+  }
+  return key;
 }
 
 function doAdvancedSearch(){
@@ -101,8 +170,8 @@ function doAdvancedSearch(){
   })
 }
 
-function addServerToDatabase(url,username,password,cron){
-  var serverObject = { "url" : url, "username" : username, "password" : password, "cron" : cron};
+function addServerToDatabase(url,username,password,cronLimited,cronExpanded){
+  var serverObject = { "url" : url, "username" : username, "password" : password, "cronLimited" : cronLimited, "cronExpanded" : cronExpanded};
   $("#loading-modal").modal('show');
   $('#add-server-modal').modal('hide');
 
@@ -257,7 +326,7 @@ function loadServerTable(){
     for (i = 0; i < servers.servers.length; i++){
       var s = servers.servers[i];
       console.log(s);
-      serverTable.row.add( [s.url, s.username, s.org_name, s.ac, s.cron,getServerButtons(s.id,s.url) ] );
+      serverTable.row.add( [s.url, s.username, s.org_name, s.ac, s.cronLimited, s.cronExpanded,getServerButtons(s.id,s.url) ] );
     }
     serverTable.draw();
   })
@@ -354,9 +423,25 @@ function registerUser(){
   })
 }
 
+function fillDataForLineItem(id, data){
+  //Fill in all of the data
+  if (data.condition != ''){
+    $("#include-value-" + data.order).val(data.condition);
+  }
+  if (data.parenthesis_one != 0){
+    $("#param-one-value-" + data.order).val('(');
+  }
+  if (data.parenthesis_two != 0){
+    $("#param-two-value-" + data.order).val(')');
+  }
+  $("#field-value-" + data.order).val(data.field);
+  $("#operator-value-" + data.order).val(data.operator);
+  $("#input-value-" + data.order).val(data.value);
+}
+
 //Keep a count of how many line items there are for advanced search
 window.advanced_search_line_item_count = 0;
-function addReportLineItem(){
+function addReportLineItem(lineItemToFill){
   //Get the element from the view table
   $.get("/app-views/report-line-item.html", function(data) {
     //Fill in the id for querying data later
@@ -382,6 +467,10 @@ function addReportLineItem(){
     $(".advanced-report-field-dropdown").append(new Option('--- Applications ---',''));
     for (var key in window.reporting_fields.applications){
       $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.applications[key],key));
+    }
+    //If the line item isn't null, fill in the data now
+    if (lineItemToFill != null){
+      fillDataForLineItem(advanced_search_line_item_count,lineItemToFill);
     }
     advanced_search_line_item_count++;
   });
@@ -410,15 +499,20 @@ function renderPage(){
   getAllSavedReports();
   //Setup button listeners
   $("#add-server-button").click(function(){
-    addServerToDatabase($("#add-server-url").val(), $("#add-server-username").val(), $("#add-server-password").val(), $("#add-server-cron").val());
+    addServerToDatabase($("#add-server-url").val(), $("#add-server-username").val(), $("#add-server-password").val(), $("#add-server-limited-cron").val(),$("#add-server-expanded-cron").val());
   });
   $("#add-patch-server-button").click(function(){
     addPatchServerToDatabase($("#add-patch-server-url").val(), $("#add-patch-server-cron").val());
   });
   $("#servers-table-div").show();
-  $('#cron-selector').cron({
+  $('#cron-selector-limited').cron({
     onChange: function() {
-        $('#add-server-cron').val($(this).cron("value"));
+        $('#add-server-limited-cron').val($(this).cron("value"));
+    }
+  }); // apply cron with default options
+  $('#cron-selector-expanded').cron({
+    onChange: function() {
+        $('#add-server-expanded-cron').val($(this).cron("value"));
     }
   }); // apply cron with default options
   $('#patch-cron-selector').cron({
@@ -427,7 +521,7 @@ function renderPage(){
     }
   }); // apply cron with default options
   //Add one advanced report criteria to start with
-  addReportLineItem();
+  addReportLineItem(null);
   //Whenever a tab is clicked, update the URL for quick refreshes
   $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
     var target = $(e.target).attr("href");

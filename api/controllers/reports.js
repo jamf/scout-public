@@ -52,6 +52,15 @@ reports.get('/id/:reportId', function(req,res){
   });
 });
 
+reports.put('/update/:reportId', function(req,res){
+  //Make sure everything is in the request
+  if (!req.body.name || !req.body.line_items || req.body.line_items.length < 1){
+    res.status(400).send({
+      error: "Missing required fields"
+    });
+  }
+});
+
 //Saves a report to the database to be used later
 reports.post('/save', function(req,res){
   //Make sure everything is in the request
@@ -71,8 +80,9 @@ reports.post('/save', function(req,res){
   report.insertReportObject(reportObj)
   .then(function(result){
     //the insert id is the report id
-    Promise.all(lineItems.map(lineItem => report.insertReportLineItem(lineItem, result.insertId))).then(function(results){
-      return res.status(200).send({ "status" : "success"});
+    var newReportId = result.insertId;
+    Promise.all(lineItems.map(lineItem => report.insertReportLineItem(lineItem, newReportId))).then(function(results){
+      return res.status(200).send({ "status" : "success", "id" : newReportId});
     })
     .catch(error => {
       console.log(error);

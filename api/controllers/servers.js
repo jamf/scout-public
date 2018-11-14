@@ -7,12 +7,12 @@ var exec = require('child_process').exec;
 var cron = require('../common/cron-handler.js');
 
 servers.post('/add', function(req,res) {
-  if (req.body.url == null || req.body.username == null || req.body.password == null){
+  if (req.body.url == null || req.body.username == null || req.body.password == null || req.body.cronLimited == null || req.body.cronExpanded == null){
     return res.status(400).send({
       error : "Missing Required Fields"
     });
   }
-  server.addNewServer(req.body.url, req.body.username, req.body.password, req.body.cron)
+  server.addNewServer(req.body.url, req.body.username, req.body.password, req.body.cronLimited, req.body.cronExpanded)
   .then(function(result) {
     //Need to now resetup the cron jobs
     server.getAllServers()
@@ -115,7 +115,7 @@ servers.get('/', function(req,res) {
   .then(function(serverList){
     var servers = [];
     for (i = 0; i < serverList.length; i++){
-      var s = { "id" : serverList[i].id, "url" : serverList[i].url, "username" : serverList[i].username, "org_name" : serverList[i].org_name, "ac" : serverList[i].activation_code, "cron" : serverList[i].cron_update};
+      var s = { "id" : serverList[i].id, "url" : serverList[i].url, "username" : serverList[i].username, "org_name" : serverList[i].org_name, "ac" : serverList[i].activation_code, "cronLimited" : serverList[i].cron_update, "cronExpanded" : serverList[i].cron_update_expanded};
       servers.push(s);
     }
     res.status(200).send({

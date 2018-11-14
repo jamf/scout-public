@@ -192,7 +192,8 @@
                                        <th>Admin User</th>
                                        <th>Org Name</th>
                                        <th>AC</th>
-                                       <th>Update Frequency</th>
+                                       <th>Update Frequency (Limited)</th>
+                                       <th>Update Frequency (Expanded)</th>
                                        <th>Action</th>
                                     </tr>
                                  </thead>
@@ -205,9 +206,10 @@
                              <button type="submit" onclick="$('#new-report-div').toggle();" class="btn btn-success">Create a new Report</button>
                               <br/><br/>
                               <div id="new-report-div" style="display:none;">
+                                <input id="existing-report-id" style="display:none;"></input>
                                 <div class="panel panel-default">
                                   <div class="panel-heading">
-                                    <span id=" ">New Report Builder</span>
+                                    <span id="report-name-field">New Report Builder</span>
                                   </div>
                                   <div class="panel-body">
                                     <div id="advance-report-criteria">
@@ -216,7 +218,7 @@
                                     <br/>
                                     <br/>
                                     <div class="row">
-                                      <div class="col-lg-5">
+                                      <div class="col-lg-5" id="new-report-parent">
                                         <div class="form-group">
                                           <label for="new-report-name">New Report Name</label>
                                           <input type="text" class="form-control" id="new-report-name" placeholder="Computers with iMovie Installed">
@@ -224,8 +226,8 @@
                                       </div>
                                       <div class="col-lg-12" style="float:right;">
                                         <button type="submit" onclick="addReportLineItem();" class="btn btn-primary">Add Criteria</button>
-                                        <button type="submit" onclick="saveNewReport();" class="btn btn-warning">Save</button>
-                                        <button type="submit" onclick="doAdvancedSearch();" class="btn btn-success">Save & Run</button>
+                                        <button type="submit" onclick="upsertReport(false);" class="btn btn-warning">Save</button>
+                                        <button type="submit" onclick="upsertReport(true);" class="btn btn-success">Save & Run</button>
                                       </div>
                                     </div>
                                   </div>
@@ -443,7 +445,7 @@
                   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                   <h4 class="modal-title" id="myModalLabel">Search Results</h4>
                </div>
-               <div class="modal-body" id="device-modal-view">
+               <div class="modal-body" id="report-modal-view">
                   <!-- this datatable is populated when the serach results are returned -->
                   <table id="report-results-table" class="table table-striped table-bordered table-hover" style="width:100%">
                      <thead>
@@ -596,7 +598,8 @@
                   <h4 class="modal-title" id="myModalLabel">Add Jamf Pro Server</h4>
                </div>
                <div class="modal-body">
-                  A sample request will be made to the JSS to verify that credentials are valid and to get the Org Name and Activation Code. A 'ScoutAdmin' user will also be added to this JPS for emergency server access. This users password is changed every time Scout pulls inventory, and is randomly set.<br/><br/>
+                  <p>A sample request will be made to the JSS to verify that credentials are valid and to get the Org Name and Activation Code. A 'ScoutAdmin' user will also be added to this JPS for emergency server access. This user's password is changed every time Scout pulls inventory, and is randomly set.</p>
+                  <p>It is recommended basic inventory is taken roughly once every day, while expanded inventory should be taken on a weekly basis. Limited inventory will perform one API call per Jamf Pro Server, while expanded access will peform a call for every single device, in every single server. It's high recommended these updates are spread throughout the week for more efficent batch processing.</p>
                   <div class="row">
                      <div class="col-md-12">
                        <div class="form-group">
@@ -611,18 +614,25 @@
                           <label>Password</label>
                           <input class="form-control" id="add-server-password" type="password" placeholder="jamf">
                        </div>
-                       <div id="cron-selector" class="form-group">
+                       <div id="cron-selector-limited" class="form-group">
 
                        </div>
                        <div class="form-group">
-                          <label>Update Frequency (Cron)</label>
-                          <input class="form-control" id="add-server-cron" type="text" placeholder="* * * * *">
+                          <label>Update Frequency (Basic Inventory)</label>
+                          <input class="form-control" id="add-server-limited-cron" type="text" placeholder="* * * * *">
+                       </div>
+                       <div id="cron-selector-expanded" class="form-group">
+
+                       </div>
+                       <div class="form-group">
+                          <label>Update Frequency (Expanded Inventory)</label>
+                          <input class="form-control" id="add-server-expanded-cron" type="text" placeholder="* * * * *">
                        </div>
                      </div>
                   </div>
                </div>
                <div class="modal-footer">
-                 <button id="add-server-button" class="btn btn-default">Add Server</button>
+                 <button id="add-server-button" class="btn btn-success">Add Server</button>
                </div>
             </div>
             <!-- /.modal-content -->

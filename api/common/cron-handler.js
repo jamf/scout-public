@@ -6,15 +6,17 @@ exports.handleServerRecords = function(serverObjects){
   //Build a list to hand off to the cron handler
   var serverUrls = [];
   var cronList = [];
+  var cronListExpanded = [];
   serverObjects.forEach(function(s){
     serverUrls.push(s.url);
     cronList.push(s.cron_update);
+    cronListExpanded.push(s.cron_update_expanded);
   });
-  return exports.upsertCronJobs(serverUrls, cronList);
+  return exports.upsertCronJobs(serverUrls, cronList, cronListExpanded);
 }
 
 //This function handles inserting new cron jobs, updating exisiting or deleting old jobs
-exports.upsertCronJobs = function(serverList, cronList){
+exports.upsertCronJobs = function(serverList, cronList, cronListExpanded){
   return new Promise(function(resolve,reject) {
     const workerLocation = process.cwd() + '/worker.js';
     const logLocation = process.cwd() + '/logs/';
@@ -52,7 +54,7 @@ exports.upsertCronJobs = function(serverList, cronList){
         if (shouldCreate){
           var logStamp = serverList[s] + '-' + new Date();
           var newBulkJob = crontab.create(process.env.NODE_DIR + ' ' + workerLocation + ' ' + serverList[s] + ' limited', cronList[s], 'Scout-Update-' + serverList[s]);
-          var newExpandedJob = crontab.create(process.env.NODE_DIR + ' ' + workerLocation + ' ' + serverList[s] + ' expanded', cronList[s], 'Scout-Update-' + serverList[s]);
+          var newExpandedJob = crontab.create(process.env.NODE_DIR + ' ' + workerLocation + ' ' + serverList[s] + ' expanded', cronListExpanded[s], 'Scout-Update-' + serverList[s]);
         }
       }
       //Now that we have deleted or created all of the cron jobs, save the changes to the cron file

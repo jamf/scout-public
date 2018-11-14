@@ -1,3 +1,4 @@
+//Try to load the original dotenv from the project home
 require('dotenv').config();
 //Setup modules to use
 var schedule = require('node-schedule');
@@ -53,10 +54,11 @@ db.connect(function(err) {
       });
     //Expanded records are inserted into a nosql mongo database for bulk storage
     } else if (serverType == 'expanded'){
+      logger.log('info', 'Execute Directory: %s', process.cwd());
       //Connect to the NoSQL database
       db.connectNoSQL(function(err){
         if (err){
-          console.log('Unable to connect to database.');
+          logger.log('error', 'Unable to connect to mongodb.');
           process.exit(1);
         }
         var jss_id;
@@ -67,21 +69,21 @@ db.connect(function(err) {
           return inventory.getFullInventory(serverURL,serverDetails[0].username, db.decryptString(serverDetails[0].password), serverDetails[0].id)
         })
         .then(function(fullApiDevices){
-          console.log(fullApiDevices);
           //After getting all of the devices from the jss insert them //deviceObj.id, jss_id)
           Promise.all(fullApiDevices.map(deviceObj => devices.upsertFullInventory(deviceObj, jss_id))).then(function(results){
-            console.log('Inserted ' + results.length + ' expanded inventories');
+            logger.log('info', 'Inserted %d expanded inventories', results.length);
+            logger.log('info', '===============================FINISH UPDATE====================================\n');
             process.exit(0);
           })
           .catch(error => {
-            console.log(error);
-            console.log('Unable to insert all expanded inventories');
+            logger.log('error', 'Unable to insert all expanded inventories');
+            logger.log('error', error);
             process.exit(1);
           });
         })
         .catch(error => {
-          console.log(error);
-          console.log('Unable to insert all expanded inventories');
+          logger.log('error', 'Unable to insert all expanded inventories');
+          logger.log('error', error);
           process.exit(1);
         });
       });
@@ -95,6 +97,7 @@ db.connect(function(err) {
       .catch(function(error){
         logger.log('error', 'Error updating Scout Admin User. Remove all user details from the database to clean this up upon next worker run.');
       });
+      console.log(serverURL);
       logger.log('info', 'Getting all devices for %s', serverURL);
       var serverId;
       //Get the server details from the database
@@ -102,6 +105,7 @@ db.connect(function(err) {
       .then(function(serverDetails){
         //get all of the devices for that server
         serverId = serverDetails[0].id;
+        console.log(serverId);
         servers.getAllDevices(serverURL, serverDetails[0].id, serverDetails[0].username, db.decryptString(serverDetails[0].password))
         .then(function(allDevicesList){
           //Update each device in the database
@@ -112,17 +116,17 @@ db.connect(function(err) {
           })
           .catch(function(error){
             logger.log('error', 'Error inserting devices: %s', error);
-            process.exit(1);
+            process.exit(0);
           });
         })
         .catch(function(error){
           logger.log('error', 'Error getting devices: %s', error);
-          process.exit(1);
+          process.exit(0);
         });
       })
       .catch(function(error){
         logger.log('error', 'Error getting server from database: %s', error);
-        process.exit(1);
+        process.exit(0);
       });
     }
   }

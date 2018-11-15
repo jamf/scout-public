@@ -202,6 +202,18 @@ exports.setScoutAdminUser = function(url, userId) {
   });
 }
 
+exports.updateServer = function(id, updateObject){
+  return new Promise(function(resolve,reject) {
+    db.get().query('UPDATE servers SET ? WHERE id = ?',[updateObject,id], function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
 exports.setScoutAdminPassword = function(url, passwordEncrypted) {
   return new Promise(function(resolve,reject) {
     db.get().query('UPDATE servers SET scout_admin_password = ? WHERE url = ?',[passwordEncrypted,url], function(error, results, fields) {

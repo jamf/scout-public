@@ -197,6 +197,54 @@ function addServerToDatabase(url,username,password,cronLimited,cronExpanded){
   })
 }
 
+function updateServer(id,url){
+  //Fill in some modal details
+  $("#update-server-url").val(url);
+  $("#update-server-id").val(id);
+  $("#update-server-username").val('');
+  $("#update-server-modal").modal('show');
+}
+
+function doUpdateServer(){
+  //Make sure the id is filled out
+  if ($("#update-server-id").val() == ''){
+    swal('Server Update Failed', 'No server Id was passed to the update function.', 'error');
+    return;
+  }
+  //Check which fields changed
+  var updateObject = {};
+  if ($("#update-server-username").val() != ''){
+    updateObject.username = $("#update-server-username").val();
+  }
+  if ($("#update-server-password").val() != ''){
+    updateObject.password = $("#update-server-password").val();
+  }
+  if ($("#update-server-limited-cron").val() != '' && $("#update-server-limited-cron").val() != '* * * * *'){
+    updateObject.cron_update = $("#update-server-limited-cron").val();
+  }
+  if ($("#update-server-expanded-cron").val() != '' && $("#update-server-expanded-cron").val() != '* * * * *'){
+    updateObject.cron_update_expanded = $("#update-server-expanded-cron").val();
+  }
+  //Make sure an update is actually being made
+  if (Object.keys(updateObject).length > 0){
+    var put = getRequestObject('/servers/update/' + $("#update-server-id").val(), updateObject, 'PUT');
+    put.done(function(data, textStatus, jqXHR){
+      swal('Server Updated', 'The server has been updated.', 'success');
+      $("#update-server-modal").modal('hide');
+      loadServerTable();
+    })
+    .fail(function(jqXHR, textStatus, errorThrown){
+      console.log(jqXHR);
+      console.log(textStatus);
+      console.log(errorThrown);
+      $("#update-server-modal").modal('hide');
+      swal('Server Update Failed', 'The server update failed.', 'error');
+    })
+  } else {
+    swal('Server Update Failed', 'No fields have been specified to update.', 'error');
+  }
+}
+
 function addPatchServerToDatabase(url,cron){
   var serverObject = { "url" : url, "cron" : cron};
   //send it to the server
@@ -312,7 +360,7 @@ function getServerAccess(id,url){
 }
 
 function getServerButtons(id,url){
-  return '<button type="button" id="edit_'+id+'" class="edit_server btn btn-info btn-circle"><i class="fa fa-pencil"></i></button>&nbsp;&nbsp;<button type="button" id="delete_'+id+'" onclick="deleteServer(\''+id+'\')" class="btn btn-danger delete_server btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;<button type="button" id="access'+id+'" onclick="getServerAccess(\''+id+'\',\''+url+'\')" class="btn btn-success delete_server btn-circle"><i class="fa fa-key"></i></button>&nbsp;&nbsp;<br/><br/><button type="button" class="btn btn-warning btn-circle"><i class="fa fa-laptop"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-warning btn-circle"><i class="fa fa-mobile"></i></button>';
+  return '<button onclick="updateServer(\''+id+'\',\''+url+'\');" type="button" id="edit_'+id+'" class="edit_server btn btn-info btn-circle"><i class="fa fa-pencil"></i></button>&nbsp;&nbsp;<button type="button" id="delete_'+id+'" onclick="deleteServer(\''+id+'\')" class="btn btn-danger delete_server btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;<button type="button" id="access'+id+'" onclick="getServerAccess(\''+id+'\',\''+url+'\')" class="btn btn-success delete_server btn-circle"><i class="fa fa-key"></i></button>&nbsp;&nbsp;<br/><br/><button type="button" class="btn btn-warning btn-circle"><i class="fa fa-laptop"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-warning btn-circle"><i class="fa fa-mobile"></i></button>';
 }
 
 function loadServerTable(){
@@ -513,6 +561,16 @@ function renderPage(){
   $('#cron-selector-expanded').cron({
     onChange: function() {
         $('#add-server-expanded-cron').val($(this).cron("value"));
+    }
+  }); // apply cron with default options
+  $('#update-cron-selector-limited').cron({
+    onChange: function() {
+        $('#update-cron-selector-limited').val($(this).cron("value"));
+    }
+  }); // apply cron with default options
+  $('#update-cron-selector-expanded').cron({
+    onChange: function() {
+        $('#update-cron-selector-expanded').val($(this).cron("value"));
     }
   }); // apply cron with default options
   $('#patch-cron-selector').cron({

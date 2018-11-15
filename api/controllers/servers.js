@@ -79,6 +79,34 @@ servers.post('/access/', function(req,res){
   });
 });
 
+servers.put('/update/:id', function(req,res){
+  if (req.params.id == null){
+    return res.status(400).send({
+      error : "Missing Required Fields"
+    });
+  }
+  //Only allow update of certain fields
+  if ("url" in req.body || "scout_admin_id" in req.body || "scout_admin_password" in req.body){
+    return res.status(403).send({
+      error : "Unable to update specified field"
+    });
+  }
+  //if they are updating the password, encrypt it
+  if ("password" in req.body){
+    req.body.password = db.encryptString(req.body.password);
+  }
+  server.updateServer(req.params.id, req.body)
+  .then(function(result){
+    res.status(200).send({success : true});
+  })
+  .catch(error => {
+    console.log(error);
+    return res.status(500).send({
+      error: "Unable to update JPS server"
+    });
+  });
+});
+
 servers.delete('/delete/:id', function(req,res) {
   if (req.params.id == null){
     return res.status(400).send({

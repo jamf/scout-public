@@ -590,6 +590,57 @@
          </div>
          <!-- /.modal-dialog -->
       </div>
+
+      <div class="modal fade in" id="update-server-modal" tabindex="-1" role="dialog" aria-labelledby="Update Server" aria-hidden="true">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                  <h4 class="modal-title" id="myModalLabel">Update Jamf Pro Server</h4>
+               </div>
+               <div class="modal-body">
+                  <p>This menu will allow you to update the frequency this server is updated, as well the username and password used to reach the server. If you need to change the url, you'll have to delete the server and readd it. </p>
+                  <div class="row">
+                     <div class="col-md-12">
+                       <div class="form-group">
+                          <label>Server URL</label>
+                          <input class="form-control" id="update-server-url" type="text" disabled placeholder="https://jamfcloud.com">
+                       </div>
+                       <div class="form-group">
+                          <label>Admin Username</label>
+                          <input class="form-control" id="update-server-username" type="text" placeholder="admin">
+                       </div>
+                       <div class="form-group">
+                          <label>Password</label>
+                          <input class="form-control" id="update-server-password" type="password" placeholder="jamf">
+                       </div>
+                       <div id="update-cron-selector-limited" class="form-group">
+
+                       </div>
+                       <div class="form-group">
+                          <label>Update Frequency (Basic Inventory)</label>
+                          <input class="form-control" id="update-server-limited-cron" type="text" placeholder="* * * * *">
+                       </div>
+                       <div id="update-cron-selector-expanded" class="form-group">
+
+                       </div>
+                       <div class="form-group">
+                          <label>Update Frequency (Expanded Inventory)</label>
+                          <input class="form-control" id="update-server-expanded-cron" type="text" placeholder="* * * * *">
+                       </div>
+                     </div>
+                     <input id="update-server-id" style="display:none;" type="number" id="update-server-id"/>
+                  </div>
+               </div>
+               <div class="modal-footer">
+                 <button id="update-server-button" onclick="doUpdateServer();" class="btn btn-primary">Update Server</button>
+               </div>
+            </div>
+            <!-- /.modal-content -->
+         </div>
+         <!-- /.modal-dialog -->
+      </div>
+
       <div class="modal fade in" id="add-server-modal" tabindex="-1" role="dialog" aria-labelledby="Add Server" aria-hidden="true">
          <div class="modal-dialog">
             <div class="modal-content">

@@ -33,8 +33,11 @@ exports.get = function() {
 }
 //handles connecting to the mongodb
 exports.connectNoSQL = function(callback){
-  MongoClient.connect(process.env.NOSQL_HOST, { useNewUrlParser: true }, function(err, db) {
+  var passwordEncoded = encodeURIComponent(process.env.NOSQL_PASS);
+  var mongoURL = "mongodb://" + process.env.NOSQL_USER + ":" + passwordEncoded + "@" + process.env.NOSQL_HOST;
+  MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
     if (err){
+      console.log(err);
       callback(err);
     }
     mongoDBO = db.db(process.env.NOSQL_DB);

@@ -33,10 +33,14 @@ if (nosql != "y")
   exit
 end
 
-print "Please enter your host including port for Mongo: (For example: mongodb://localhost:27017)\n"
+print "Please enter your host including port for Mongo: (For example: localhost:27017) Don't include mongo://\n"
 nosql_host = gets.chomp
 print "Please provide your Mongo Databse name (Default is 'scout')\n"
 nosql_db_name = gets.chomp
+print "Please provide your Mongo Username\n"
+nosql_user = gets.chomp
+print "Please provide your Mongo Password\n"
+nosql_password = gets.chomp
 
 print "---------------------------------------------------------------\n"
 print "Server Config\n"
@@ -120,6 +124,8 @@ open('./api/.env', 'w') do |f|
   f.puts "NODE_DIR=#{node_dir}"
   f.puts "NOSQL_HOST=#{nosql_host}"
   f.puts "NOSQL_DB=#{nosql_db_name}"
+  f.puts "NOSQL_USER=#{nosql_user}"
+  f.puts "NOSQL_PASS=#{nosql_pass}"
 end
 
 print "\n.env file has been written, now installing node modules.\n"

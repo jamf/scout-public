@@ -14,7 +14,7 @@ const axiosInstance = axios.create({
   })
 });
 
-exports.addNewServer = function(url, username, password, cron){
+exports.addNewServer = function(url, username, password, limited, expanded){
   return new Promise(function(resolve,reject) {
     //Make sure we can make a connection to the jamf pro server
     exports.checkConnection(url,username,password)
@@ -25,9 +25,8 @@ exports.addNewServer = function(url, username, password, cron){
     //Insert the server into the database
     .then(function(response){
       //Built an object to represent the server
-      console.log(response);
       //Encrypt the password - it's not super secure, but it needs to be read later and this is better than plaintext
-      var data = { "url" : url, "username" : username, "password" : db.encryptString(password), "cron_update" : cron,
+      var data = { "url" : url, "username" : username, "password" : db.encryptString(password), "cron_update" : limited, "cron_update_expanded" : expanded,
                    "org_name" : response.activation_code.organization_name, "activation_code" : response.activation_code.code};
       db.get().query('INSERT INTO servers SET ?', [data], function(error, results, fields) {
         if (error) {
@@ -194,6 +193,18 @@ exports.deleteServer = function(id) {
 exports.setScoutAdminUser = function(url, userId) {
   return new Promise(function(resolve,reject) {
     db.get().query('UPDATE servers SET scout_admin_id = ? WHERE url = ?',[userId,url], function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
+exports.updateServer = function(id, updateObject){
+  return new Promise(function(resolve,reject) {
+    db.get().query('UPDATE servers SET ? WHERE id = ?',[updateObject,id], function(error, results, fields) {
       if (error) {
         reject(error);
       } else {

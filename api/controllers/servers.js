@@ -7,12 +7,12 @@ var exec = require('child_process').exec;
 var cron = require('../common/cron-handler.js');
 
 servers.post('/add', function(req,res) {
-  if (req.body.url == null || req.body.username == null || req.body.password == null){
+  if (req.body.url == null || req.body.username == null || req.body.password == null || req.body.cronLimited == null || req.body.cronExpanded == null){
     return res.status(400).send({
       error : "Missing Required Fields"
     });
   }
-  server.addNewServer(req.body.url, req.body.username, req.body.password, req.body.cron)
+  server.addNewServer(req.body.url, req.body.username, req.body.password, req.body.cronLimited, req.body.cronExpanded)
   .then(function(result) {
     //Need to now resetup the cron jobs
     server.getAllServers()
@@ -79,6 +79,34 @@ servers.post('/access/', function(req,res){
   });
 });
 
+servers.put('/update/:id', function(req,res){
+  if (req.params.id == null){
+    return res.status(400).send({
+      error : "Missing Required Fields"
+    });
+  }
+  //Only allow update of certain fields
+  if ("url" in req.body || "scout_admin_id" in req.body || "scout_admin_password" in req.body){
+    return res.status(403).send({
+      error : "Unable to update specified field"
+    });
+  }
+  //if they are updating the password, encrypt it
+  if ("password" in req.body){
+    req.body.password = db.encryptString(req.body.password);
+  }
+  server.updateServer(req.params.id, req.body)
+  .then(function(result){
+    res.status(200).send({success : true});
+  })
+  .catch(error => {
+    console.log(error);
+    return res.status(500).send({
+      error: "Unable to update JPS server"
+    });
+  });
+});
+
 servers.delete('/delete/:id', function(req,res) {
   if (req.params.id == null){
     return res.status(400).send({
@@ -115,7 +143,7 @@ servers.get('/', function(req,res) {
   .then(function(serverList){
     var servers = [];
     for (i = 0; i < serverList.length; i++){
-      var s = { "id" : serverList[i].id, "url" : serverList[i].url, "username" : serverList[i].username, "org_name" : serverList[i].org_name, "ac" : serverList[i].activation_code, "cron" : serverList[i].cron_update};
+      var s = { "id" : serverList[i].id, "url" : serverList[i].url, "username" : serverList[i].username, "org_name" : serverList[i].org_name, "ac" : serverList[i].activation_code, "cronLimited" : serverList[i].cron_update, "cronExpanded" : serverList[i].cron_update_expanded};
       servers.push(s);
     }
     res.status(200).send({

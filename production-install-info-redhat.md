@@ -14,16 +14,26 @@ yum install httpd
 2. Start the web server: 
 ```
 sudo systemctl start httpd.service
+OR
+sudo service httpd start
 ```
 
 3. Install MySQL Server. Setup a database user. 
 ```
-wget https://repo.mysql.com/mysql80-community-release-el6-10.noarch.rpm
-yum install mysql-community-server
+wget https://dev.mysql.com/get/mysql80-community-release-el6-1.noarch.rpm
+sudo yum localinstall mysql80-community-release-el6-1.noarch.rpm
+sudo yum install mysql-community-server
+sudo service mysqld start
 ```
-9. Install the mongo db. 
+4. Setup the MySQL User - find the temporary password and setup a scout user
 ```
-nano /etc/yum.repos.d/mongodb-org-4.0.repo
+grep 'temporary password' /var/log/mysqld.log
+mysql_secure_installation
+```
+
+5. Install the mongo db. 
+```
+sudo nano /etc/yum.repos.d/mongodb-org-4.0.repo
 [mongodb-org-4.0]
 name=MongoDB Repository
 baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.0/x86_64/
@@ -36,15 +46,16 @@ sudo yum install -y mongodb-org
 ### Step Two - Installing and Configuring Node and Scout ###
 1. Install the latest of node.js and some essential packages using the following commands: 
 ```
-yum install -y gcc-c++ make
+sudo yum install -y gcc-c++ make
 curl -sL https://rpm.nodesource.com/setup_8.x | sudo -E bash -
 
-yum install nodejs
+sudo yum install -y nodejs
 ```
 2. We now have node installed, so we can get the Scout server files using the following commands. This will clone the master branch which will feature the latest and greatest stable features. To get future updates and releases simply use the command 'git pull' in this directory. 
 
 ```
 cd ~
+sudo yum install git
 git clone https://github.com/jacobschultz/scout-public.git
 cd scout-public
 ```
@@ -57,13 +68,17 @@ mysql -u root -p scout < scout.sql
 ```
 4. Run the scout installer and follow the onscreen instructions. The installer will install all of the node modules required for scout to run properly. 
 ```
-yum install ruby
+sudo yum install ruby (Ruby 2.0 or higher is required, follow this guide to upgrade - https://tecadmin.net/install-ruby-latest-stable-centos/)
 cd ~/scout-public 
 sudo ruby installer.rb
 ```
 5. After the installer finishes, start the server for the first time by entering the following command. You can verify the server is running by visiting yoursite:3000. 
 ```
 npm start
+```
+Newer versions of MySQL may need to enable username/password auth: 
+```
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password'
 ```
 6. After verifying the server is running, you can kill that process as we will be starting it with a utility called 'pm2' which will manage the server on our behalf. 
 

@@ -47,7 +47,7 @@ function loadReportById(reportId){
 
 function upsertReport(runReport){
   //Check if their is an existing report id loaded into the UI and it should be a save
-  if ($("#existing-report-id").val() != null || $("#existing-report-id").val() != ''){
+  if ($("#existing-report-id").val() != ''){
     updateExistingReport();
   } else {
     saveNewReport(runReport);
@@ -57,7 +57,7 @@ function upsertReport(runReport){
 function updateExistingReport(){
   var reportId = $("#existing-report-id").val();
   if (reportId == '' || reportId == null){
-    swal('Save Failed.', 'Uanble to load an existing report Id.', 'error');
+    swal('Save Failed.', 'Unable to load an existing report Id.', 'error');
     return;
   }
   //keep a list of all of the search line items to send to the server
@@ -87,7 +87,7 @@ function saveNewReport(){
     lineItems.push({ "order" : i, "condition" : $("#include-value-" + i).val(), "parenthesis_one" : $("#param-one-value-" + i).val(), "operator" : $("#operator-value-" + i).val(), "value" : $("#input-value-" + i).val(), "field" : $("#field-value-" + i).val(), "parenthesis_two" : $("#param-two-value-" + i).val()});
   }
   //Create the report object and post everything to the server
-  var reqBody = { name : $("#new-report-name").val(), line_items : lineItems};
+  var reqBody = { name : $("#new-report-name").val(), type : $("#new-report-type").val(), line_items : lineItems};
   var post = getRequestObject('/reports/save', reqBody, 'POST');
   post.done(function(res){
     swal('Report Saved', 'The report has been saved.', 'success');
@@ -119,7 +119,6 @@ function reloadReportPane(loadFirstItem){
 }
 
 function viewReportResults(reportId){
-  console.log(reportId);
   var getReport = getRequestObject('/reports/search/' + reportId, null, 'GET');
   getReport.done(function(res){
     //Create a table in the modal
@@ -498,23 +497,23 @@ function addReportLineItem(lineItemToFill){
     //Make sure it has the most recent fields available to it
     $(".advanced-report-field-dropdown").append(new Option('--- General ---',''));
     for (var key in window.reporting_fields.general){
-      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.general[key],key));
+      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.general[key],"general." + key));
     }
     $(".advanced-report-field-dropdown").append(new Option('--- Location ---',''));
     for (var key in window.reporting_fields.location){
-      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.location[key],key));
+      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.location[key],"location." + key));
     }
     $(".advanced-report-field-dropdown").append(new Option('--- Purchasing ---',''));
     for (var key in window.reporting_fields.purchasing){
-      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.purchasing[key],key));
+      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.purchasing[key],"purchasing." + key));
     }
     $(".advanced-report-field-dropdown").append(new Option('--- Hardware ---',''));
     for (var key in window.reporting_fields.hardware){
-      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.hardware[key],key));
+      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.hardware[key],"hardware." + key));
     }
     $(".advanced-report-field-dropdown").append(new Option('--- Applications ---',''));
     for (var key in window.reporting_fields.applications){
-      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.applications[key],key));
+      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.applications[key],"applications." + key));
     }
     //If the line item isn't null, fill in the data now
     if (lineItemToFill != null){

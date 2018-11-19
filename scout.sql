@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.6.37)
 # Database: scout
-# Generation Time: 2018-10-26 20:58:49 +0000
+# Generation Time: 2018-11-19 21:04:42 +0000
 # ************************************************************
 
 
@@ -44,6 +44,21 @@ CREATE TABLE `devices` (
 
 
 
+# Dump of table server_errors
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `server_errors`;
+
+CREATE TABLE `server_errors` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `server_id` int(11) NOT NULL,
+  `type` varchar(128) NOT NULL DEFAULT '',
+  `message` longtext NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+
 # Dump of table patch_servers
 # ------------------------------------------------------------
 
@@ -68,6 +83,8 @@ CREATE TABLE `reports` (
   `name` varchar(255) NOT NULL DEFAULT '',
   `created` date NOT NULL,
   `created_by` int(11) NOT NULL,
+  `conditions_count` int(11) DEFAULT NULL,
+  `type` varchar(128) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -98,10 +115,11 @@ DROP TABLE IF EXISTS `servers`;
 
 CREATE TABLE `servers` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `url` varchar(255) DEFAULT NULL,
-  `username` varchar(255) DEFAULT NULL,
-  `password` varchar(255) DEFAULT NULL,
-  `cron_update` varchar(255) DEFAULT NULL,
+  `url` varchar(255) NOT NULL DEFAULT '',
+  `username` varchar(255) NOT NULL DEFAULT '',
+  `password` varchar(255) NOT NULL DEFAULT '',
+  `cron_update` varchar(255) NOT NULL DEFAULT '',
+  `cron_update_expanded` varchar(255) NOT NULL DEFAULT '',
   `org_name` varchar(255) DEFAULT NULL,
   `activation_code` varchar(255) DEFAULT NULL,
   `expanded_inventory` tinyint(1) DEFAULT NULL,
@@ -127,6 +145,7 @@ CREATE TABLE `users` (
   `can_delete` tinyint(1) DEFAULT '1',
   `can_create` tinyint(1) DEFAULT '1',
   `can_edit_users` tinyint(1) DEFAULT NULL,
+  `can_build_reports` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

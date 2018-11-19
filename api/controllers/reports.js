@@ -74,6 +74,7 @@ reports.post('/save', function(req,res){
   reportObj.created = new Date();
   reportObj.created_by = req.user.id;
   reportObj.conditions_count = req.body.line_items.length;
+  reportObj.type = req.body.type;
   var lineItems = req.body.line_items;
   delete reportObj.line_items;
   //Insert the report
@@ -115,9 +116,9 @@ reports.get('/search/:reportId', function(req,res){
     reportObj.line_items.forEach(function(l){
       lineItemsConverted.push(report.convertDbLineItem(l));
     });
-    var searchObject = report.parseIntoQuery(lineItemsConverted);
+    var searchObject = report.parseIntoQuery(lineItemsConverted,reportObj.type);
     //Now perform the query
-    report.getRecordsForSearchObject("computer", searchObject)
+    report.getRecordsForSearchObject(reportObj.type, searchObject)
     .then(function(results){
       res.status(200).send(results);
     })

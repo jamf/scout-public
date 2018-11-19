@@ -44,7 +44,7 @@ exports.addNewServer = function(url, username, password, limited, expanded){
       });
     })
     .catch(function (error) {
-      console.log(error);
+      addServerErrorByUrl(url, 'Connection Failure', error);
       reject({"error" : "Unable to contact server"});
     });
   });
@@ -90,7 +90,7 @@ exports.addScoutAdminuser = function(url, username, password){
       resolve(response.data);
     })
     .catch(function (error) {
-      console.log(error);
+      addServerErrorByUrl(url, 'Connection Failure', error);
       reject(error);
     });
   });
@@ -160,7 +160,7 @@ exports.checkConnection = function(url, username, password){
       resolve(response.data);
     })
     .catch(function (error) {
-      console.log(error);
+      addServerErrorByUrl(url, 'Connection Failure', error);
       reject(error);
     });
   });
@@ -226,6 +226,32 @@ exports.setScoutAdminPassword = function(url, passwordEncrypted) {
   });
 }
 
+exports.addServerErrorByUrl = function(serverUrl, type, message){
+  return new Promise(function(resolve,reject) {
+    //First get the server object and Id from the url
+    exports.getServerFromURL(serverUrl)
+    .then(function(server){
+      return addServerError(server.id, type, message);
+    })
+    .catch(error =>{
+      reject(error);
+    });
+  });
+}
+
+exports.addServerError = function(serverId, type, message){
+  var dbObject = {server_id : serverId, type : type, message : message};
+  return new Promise(function(resolve,reject) {
+    db.get().query('INSERT INTO server_errors SET ?',[dbObject], function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
 exports.getServerFromURL = function(url){
   return new Promise(function(resolve,reject) {
     db.get().query('SELECT * FROM servers WHERE url = ?', url, function(error, results, fields) {
@@ -250,6 +276,7 @@ exports.getDeviceByTypeFromJPS = function(url,type,username,password){
       resolve(response.data);
     })
     .catch(function (error) {
+      addServerErrorByUrl(url, 'Connection Failure', error);
       reject(error);
     });
   });

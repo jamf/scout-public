@@ -220,14 +220,25 @@
                                     <div class="row">
                                       <div class="col-lg-5" id="new-report-parent">
                                         <div class="form-group">
-                                          <label for="new-report-name">New Report Name</label>
-                                          <input type="text" class="form-control" id="new-report-name" placeholder="Computers with iMovie Installed">
+                                          <div class="row">
+                                            <div class="col-lg-6">
+                                              <label for="new-report-name">New Report Name</label>
+                                              <input type="text" class="form-control" id="new-report-name" placeholder="Computers with iMovie Installed">
+                                            </div>
+                                            <div class="col-lg-6">
+                                              <label for="new-report-type">New Report Type</label>
+                                              <select id="new-report-type" class="form-control">
+                                                <option value="mobile_device">Mobile Report</option>
+                                                <option value="computer">Computer Report</option>
+                                              </select>
+                                            </div>
+                                          </div>
                                         </div>
                                       </div>
                                       <div class="col-lg-12" style="float:right;">
                                         <button type="submit" onclick="addReportLineItem();" class="btn btn-primary">Add Criteria</button>
-                                        <button type="submit" onclick="upsertReport(false);" class="btn btn-warning">Save</button>
-                                        <button type="submit" onclick="upsertReport(true);" class="btn btn-success">Save & Run</button>
+                                        <button type="submit" onclick="$('#existing-report-id').val('');upsertReport(false);" class="btn btn-warning">Save</button>
+                                        <button type="submit" onclick="$('#existing-report-id').val('');upsertReport(true);" class="btn btn-success">Save & Run</button>
                                       </div>
                                     </div>
                                   </div>

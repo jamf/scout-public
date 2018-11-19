@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.6.37)
 # Database: scout
-# Generation Time: 2018-11-19 20:07:00 +0000
+# Generation Time: 2018-11-19 21:04:42 +0000
 # ************************************************************
 
 
@@ -39,6 +39,21 @@ CREATE TABLE `devices` (
   `jss_Model` varchar(255) DEFAULT NULL,
   `last_update_epoch` int(11) DEFAULT NULL,
   `expanded_inventory` tinyint(1) DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+
+# Dump of table server_errors
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `server_errors`;
+
+CREATE TABLE `server_errors` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `server_id` int(11) NOT NULL,
+  `type` varchar(128) NOT NULL DEFAULT '',
+  `message` longtext NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

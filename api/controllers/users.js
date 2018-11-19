@@ -2,7 +2,7 @@ var users = require('express').Router();
 var user = require('../models/user.js');
 var jwt = require('express-jwt');
 var secretKey = process.env.JWT_KEY;
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcrypt-nodejs');
 var ldap = require('ldapjs');
 var jwttoken = require('jsonwebtoken');
 

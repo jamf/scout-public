@@ -533,8 +533,7 @@ function renderPage(){
   //Check if there is a certian tab to show
   var urlParams = new URLSearchParams(window.location.search);
   if (urlParams.has('tab')){
-    //Show that tab
-    $('.nav-tabs a[href="#'+urlParams.get('tab')+'"]').tab('show')
+    changeView(urlParams.get('tab'));
   }
   //Get all of the Jamf Pro Servers
   loadServerTable();
@@ -586,6 +585,17 @@ function renderPage(){
   });
 }
 
+function changeView(newView){
+  //Hide all other views
+  $(".view-pane").hide();
+  //remove the active class
+  $(".sidebar-button").removeClass('active');
+  //Show the new one, update the url
+  updateQueryStringParam('tab',newView);
+  $("#" + newView).show();
+  //Add the active class
+  //$("#" + newView).addClass('active');
+}
 
 //Wait for the page to render
 $(document).ready(function(){

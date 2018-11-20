@@ -23,6 +23,38 @@ var jwtCheck = jwt({
 });
 
 var app = module.exports = express();
+//Setup the swagger docs
+const expressSwagger = require('express-swagger-generator')(app);
+let options = {
+    swaggerDefinition: {
+        info: {
+            description: 'A tool to aggergate devices',
+            title: 'Scout',
+            version: '0.2.0',
+        },
+        host: 'localhost:3000',
+        basePath: '/',
+        consumes : [
+          "application/json"
+        ],
+        produces: [
+            "application/json"
+        ],
+        schemes: ['http', 'https'],
+        securityDefinitions: {
+            JWT: {
+                type: 'apiKey',
+                in: 'header',
+                name: 'Authorization',
+                description: "",
+            }
+        }
+    },
+    basedir: __dirname, //app absolute path
+    files: ['./controllers/*.js'] //Path to the API handle folder
+};
+expressSwagger(options);
+
 //Serve up the reports
 app.use('/reports', express.static('reports'));
 //serve the app contents
@@ -53,6 +85,7 @@ app.use('/webhooks', require('./controllers/webhooks'));
 app.use('/patches', require('./controllers/patches'));
 app.use('/users', require('./controllers/users'));
 app.use('/reports', require('./controllers/reports'));
+
 
 //Serve the web app
 app.get('/', function(req, res) {

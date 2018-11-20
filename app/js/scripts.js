@@ -269,6 +269,12 @@ function prettyPrintKey(input){
 }
 
 function getDeviceLive(type, serial, udid){
+  //Show a loading notification
+  $.Toast.showToast({
+    "title": "Getting device from Jamf Pro server...",
+    "icon": "loading",
+    "duration": 10000
+  });
   //Lookup device by serial and UDID
   var reqBody = { serial : serial, udid : udid};
   //Get expanded inventory from server
@@ -276,7 +282,7 @@ function getDeviceLive(type, serial, udid){
   liveResult.done(function(result){
     //Get the view to inject into the modal
     $.get("/app-views/device-view.html", function(data) {
-      $("#device-modal-view").html(data);
+      $("#device-pane-view").html(data);
       //Start filling in the tables by key
       var device;
       if (type == "computer"){
@@ -284,6 +290,7 @@ function getDeviceLive(type, serial, udid){
       } else {
         device = result.mobile_device;
       }
+      $("#device-view-name").html(device.general.name);
       for (var prop in device) {
         if (!device.hasOwnProperty(prop)) {
            continue;
@@ -297,7 +304,13 @@ function getDeviceLive(type, serial, udid){
           }
       }
       //Show the modal
-      $("#device-display-modal").modal('show');
+      //$("#device-display-modal").modal('show');
+      //Change the page to the device view
+      changeView('full-device-view');
+      $.Toast.hideToast();
+      updateQueryStringParam('type',type);
+      updateQueryStringParam('serial',serial);
+      updateQueryStringParam('udid',udid);
     });
   })
   .fail(function(xhr){
@@ -532,6 +545,10 @@ function renderPage(){
   getSupportedReportFields();
   //Check if there is a certian tab to show
   var urlParams = new URLSearchParams(window.location.search);
+  //Check if we should load a live device view
+  if (urlParams.has('type') && urlParams.has('serial') && urlParams.has('udid')){
+    getDeviceLive(urlParams.get('type'), urlParams.get('serial'), urlParams.get('udid'));
+  }
   if (urlParams.has('tab')){
     changeView(urlParams.get('tab'));
   }
@@ -591,10 +608,18 @@ function changeView(newView){
   //remove the active class
   $(".sidebar-button").removeClass('active');
   //Show the new one, update the url
+  resetURLParams();
   updateQueryStringParam('tab',newView);
   $("#" + newView).show();
   //Add the active class
   //$("#" + newView).addClass('active');
+}
+
+//resets all url params that is not navigation based
+function resetURLParams(){
+  updateQueryStringParam('type',null);
+  updateQueryStringParam('serial',null);
+  updateQueryStringParam('udid',null);
 }
 
 //Wait for the page to render

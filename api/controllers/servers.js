@@ -104,7 +104,7 @@ servers.post('/access/', function(req,res){
 
 /**
  * This endpoint adds a new server
- * @route PUT /servers/update/{id}
+ * @route PUT /servers/update/{serverId}
  * @group Servers - Operations about Jamf Pro Servers
  * @param {string} id.query.required - The Id of the Jamf Pro Server to update
  * @param {string} username.body.optional - Admin username of user in the Jamf Pro Server

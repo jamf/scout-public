@@ -171,13 +171,16 @@ function doAdvancedSearch(){
 
 function addServerToDatabase(url,username,password,cronLimited,cronExpanded){
   var serverObject = { "url" : url, "username" : username, "password" : password, "cronLimited" : cronLimited, "cronExpanded" : cronExpanded};
-  $("#loading-modal").modal('show');
+  $.Toast.showToast({
+    "title": "Attempting to contact Jamf Pro Server...",
+    "icon": "loading",
+    "duration": 15000
+  });
   $('#add-server-modal').modal('hide');
-
   //send it to the server
   var post = getRequestObject('/servers/add', serverObject, 'POST');
   post.done(function(data, textStatus, jqXHR){
-    $("#loading-modal").modal('hide');
+    $.Toast.hideToast();
     if (jqXHR.status == 206 && jqXHR.responseText.includes("cron")){
       swal('Server Added', 'The server has been added, but we were unable to verify the server cron jobs. Please restart the server to fix this.', 'warning');
     } else if (jqXHR.status == 206 && jqXHR.responseText.includes("scout admin user")){
@@ -191,7 +194,7 @@ function addServerToDatabase(url,username,password,cronLimited,cronExpanded){
     console.log(jqXHR);
     console.log(textStatus);
     console.log(errorThrown);
-    $("#loading-modal").modal('hide');
+    $.Toast.hideToast();
     swal('Server Upload Failed', 'The server has not been added to the database, please check the console for more details.', 'error');
   })
 }
@@ -210,6 +213,11 @@ function doUpdateServer(){
     swal('Server Update Failed', 'No server Id was passed to the update function.', 'error');
     return;
   }
+  $.Toast.showToast({
+    "title": "Attempting to contact Jamf Pro Server...",
+    "icon": "loading",
+    "duration": 15000
+  });
   //Check which fields changed
   var updateObject = {};
   if ($("#update-server-username").val() != ''){
@@ -228,6 +236,7 @@ function doUpdateServer(){
   if (Object.keys(updateObject).length > 0){
     var put = getRequestObject('/servers/update/' + $("#update-server-id").val(), updateObject, 'PUT');
     put.done(function(data, textStatus, jqXHR){
+      $.Toast.hideToast();
       swal('Server Updated', 'The server has been updated.', 'success');
       $("#update-server-modal").modal('hide');
       loadServerTable();
@@ -237,9 +246,11 @@ function doUpdateServer(){
       console.log(textStatus);
       console.log(errorThrown);
       $("#update-server-modal").modal('hide');
+      $.Toast.hideToast();
       swal('Server Update Failed', 'The server update failed.', 'error');
     })
   } else {
+    $.Toast.hideToast();
     swal('Server Update Failed', 'No fields have been specified to update.', 'error');
   }
 }

@@ -42,6 +42,7 @@ enabled=1
 gpgkey=https://www.mongodb.org/static/pgp/server-4.0.asc
 
 sudo yum install -y mongodb-org
+sudo service mongod start
 ```
 ### Step Two - Installing and Configuring Node and Scout ###
 1. Install the latest of node.js and some essential packages using the following commands: 
@@ -89,4 +90,20 @@ sudo npm install -g pm2
 cd ~/scout-public/api
 pm2 start app.js
 ```
+2. After pm2 is started, we should be able to hit the server at url.com:3000. Next, we are going to forward all requests to the server to port 3000 using a reverse proxy with apache. 
+```
+sudo nano /etc/httpd/conf.d/default-site.conf
+```
+Fill in the default site file with the following virtual host. This will redirect all traffic on port 80 (default http port) to our node server.
+```
+<VirtualHost *:80>
+    ProxyPreserveHost On
 
+    ProxyPass / http://127.0.0.1:3000/ retry=0
+    ProxyPassReverse / http://127.0.0.1:3000/
+</VirtualHost>
+```
+Restart Apache, and give the server a test. Some systems may throw a 503, if that's the case give the following command a try: 
+```
+sudo /usr/sbin/setsebool httpd_can_network_connect 1
+```

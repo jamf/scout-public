@@ -44,6 +44,23 @@ gpgkey=https://www.mongodb.org/static/pgp/server-4.0.asc
 sudo yum install -y mongodb-org
 sudo service mongod start
 ```
+
+6. It's important that we now secure the mongo installation and scout database. First, we'll create a new user with read/write on the scout database, then we'll enable auth in the mongo settings.
+```
+mongo
+
+use scout;
+db.createUser({ user : "ScoutAdmin", pwd : "supersecure", roles : [{role : "readWrite", db: "scout"}] });
+exit
+
+sudo /etc/mongod.conf
+
+security:
+    authorization: "enabled"
+    
+sudo service mongod restart
+```
+
 ### Step Two - Installing and Configuring Node and Scout ###
 1. Install the latest of node.js and some essential packages using the following commands: 
 ```
@@ -72,6 +89,23 @@ mysql -u root -p scout < scout.sql
 sudo yum install ruby (Ruby 2.0 or higher is required, follow this guide to upgrade - https://tecadmin.net/install-ruby-latest-stable-centos/)
 cd ~/scout-public 
 sudo ruby installer.rb
+```
+If you don't have the io/console gem, that can be installed with the following command: 
+```
+gem install io-console
+```
+4a. (**Optional**) We can skip the ruby installation by running the following commands ourselves: 
+```
+cd ~/scout-public 
+cp sample.env api/.env
+nano api/.env (EDIT THIS FILE)
+
+nano app/js/server-url.js
+//FILL FILE WITH:
+window.server_host = 'http://127.0.0.1';
+
+cd api 
+npm install
 ```
 5. After the installer finishes, start the server for the first time by entering the following command. You can verify the server is running by visiting yoursite:3000. 
 ```
@@ -107,3 +141,9 @@ Restart Apache, and give the server a test. Some systems may throw a 503, if tha
 ```
 sudo /usr/sbin/setsebool httpd_can_network_connect 1
 ```
+3. It's important that we secure all connections to the server with https. Below we will be setting up the server with a self signed cert, but you can use your own if you'd like. 
+```
+sudo yum install mod_ssl -y
+sudo service httpd restart
+```
+The server should now be able to be hit at https://serverurl, however you'll likely see a red hat test page as we haven't forwarded connections to our node server yet. 

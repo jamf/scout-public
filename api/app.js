@@ -34,6 +34,13 @@ if (cluster.isMaster){
       });
     });
   }
+  console.log("  ___              _   ");
+  console.log(" / __| __ ___ _  _| |_ ");
+  console.log(" \\__ \\/ _/ _ \\ || |  _|");
+  console.log(" |___/\\__\\___/\\_,_|\\__|");
+  console.log("                       ");
+  console.log("Written by Jacob Schultz");
+  console.log("                       ");
   //For revery server in the database, make sure our cron jobs are up to date
   servers.getAllServers()
   .then(function(serverList){
@@ -133,6 +140,7 @@ if (cluster.isMaster){
   app.use('/servers', jwtCheck);
   app.use('/devices', jwtCheck);
   app.use('/reports', jwtCheck);
+  app.use('/users/all', jwtCheck);
   //Provide custom response middleware
   app.use(function (err, req, res, next) {
     if (err.name === 'UnauthorizedError') {
@@ -166,14 +174,6 @@ if (cluster.isMaster){
         var port = process.env.PORT || 3000;
         app.listen(port, function() {
           console.log('Worker with id: ' + cluster.worker.id + ' on port: ' + port);
-          // console.log("  ___              _   ");
-          // console.log(" / __| __ ___ _  _| |_ ");
-          // console.log(" \\__ \\/ _/ _ \\ || |  _|");
-          // console.log(" |___/\\__\\___/\\_,_|\\__|");
-          // console.log("                       ");
-          // console.log("Written by Jacob Schultz");
-          // console.log("                       ");
-          // console.log('Express started on port ' + port);
         });
         //Connect to the mongo database
         db.connectNoSQL(function(err){

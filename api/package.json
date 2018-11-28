@@ -1,7 +1,7 @@
 {
   "name": "Scout",
-  "version": "0.0.1",
-  "description": "Server to handle server additions and scheduling",
+  "version": "0.2.1",
+  "description": "A tool to aggergate devices",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",

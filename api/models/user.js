@@ -15,6 +15,18 @@ exports.getUserFromEmail = function(email) {
   });
 }
 
+exports.getAllUsers = function(){
+  return new Promise(function(resolve,reject) {
+    db.get().query('SELECT id, email, can_edit, mdm_commands, can_delete, can_create, can_edit_users, can_build_reports FROM users', function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
 exports.createUser = function(email, password){
   return new Promise(function(resolve,reject) {
     //var hash = bcrypt.hashSync(password, 10);

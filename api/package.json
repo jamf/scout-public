@@ -15,6 +15,7 @@
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.18.3",
     "child_process": "^1.0.2",
+    "cluster": "^0.7.7",
     "compression": "^1.7.3",
     "cors": "^2.8.4",
     "cron-tab": "^1.1.17",

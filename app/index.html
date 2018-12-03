@@ -143,7 +143,7 @@
                             <!-- /.nav-second-level -->
                         </li>
                         <li>
-                            <a href="index.html"><i class="fa fa-gear fa-fw"></i> Settings</a>
+                            <a onclick="changeView('settings-view');"><i class="fa fa-gear fa-fw"></i> Settings</a>
                         </li>
 
                     </ul>
@@ -480,6 +480,51 @@
                         <div id="device-pane-view">
 
                         </div>
+                      </div>
+                   </div>
+                </div>
+              </div>
+           </div>
+           <div id="settings-view" class="view-pane" style="display:none;">
+             <div class="row">
+                <br/>
+             </div>
+             <div class="row">
+                <div class="col-lg-6">
+                   <div class="panel panel-default">
+                      <div class="panel-heading">
+                         General Settings
+                      </div>
+                      <!-- /.panel-heading -->
+                      <div class="panel-body">
+                        <form role="form" id="general-settings">
+                          
+                        </form>
+                      </div>
+                   </div>
+                </div>
+                <div class="col-lg-6">
+                   <div class="panel panel-default">
+                      <div class="panel-heading">
+                          User Settings
+                      </div>
+                      <!-- /.panel-heading -->
+                      <div class="panel-body">
+                        <br/>
+                        <table id="users-table" class="table table-striped table-bordered table-hover" style="width:100%">
+                           <thead>
+                              <tr>
+                                 <th>Email</th>
+                                 <th>Create</th>
+                                 <th>Edit</th>
+                                 <th>Delete</th>
+                                 <th>Edit Users</th>
+                                 <th>MDM Commands</th>
+                              </tr>
+                           </thead>
+                           <tbody id="users-table-body">
+                           </tbody>
+                        </table>
                       </div>
                    </div>
                 </div>

@@ -500,9 +500,13 @@ function doLoginUserPass(){
   var loginObj = {"email" : $("#login-user-username").val(), "password" : $("#login-user-password").val()};
   var req = getRequestObject('/users/login/basic', loginObj, 'POST');
   req.done(function(data){
+    console.log(data);
     sessionStorage.setItem("auth_token", data.token);
     $('#login-user-modal').modal('hide');
     renderPage();
+    if (data.is_admin == 1){
+      getSettingsForAdmin();
+    }
   })
   .fail(function(xhr){
     $(".login-group").addClass("has-error");
@@ -521,6 +525,26 @@ function registerUser(){
   .fail(function(xhr){
     $(".login-group").addClass("has-error");
   })
+}
+
+function getSettingsForAdmin(){
+  var req = getRequestObject('/settings/all', null, 'GET');
+  req.done(function(data){
+    for (var key in data){
+      $("#general-settings").append(getSettingsItemHTML(key, key, data[key]));
+    }
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+  })
+}
+
+function getSettingsItemHTML(title, id, value){
+  var html = '<div class="form-group">';
+    html += '<label>'+title+'</label>';
+    html += '<input class="form-control settings-input" id="'+id+'" value="'+value+'">';
+    html += '<p class="help-block">Example block-level help text here.</p></div>';
+ return html;
 }
 
 function fillDataForLineItem(id, data){
@@ -684,6 +708,7 @@ function resetURLParams(){
   updateQueryStringParam('udid',null);
   updateQueryStringParam('reportType',null);
   updateQueryStringParam('isUpdate',null);
+  updateQueryStringParam('type',null);
 }
 
 //Wait for the page to render

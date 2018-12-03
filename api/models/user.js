@@ -15,6 +15,10 @@ exports.getUserFromEmail = function(email) {
   });
 }
 
+exports.hasPermission = function(userObject, permisison){
+  return (userObject[permisison] == 1 || userObject[permisison] == true);
+}
+
 exports.getAllUsers = function(){
   return new Promise(function(resolve,reject) {
     db.get().query('SELECT id, email, can_edit, mdm_commands, can_delete, can_create, can_edit_users, can_build_reports FROM users', function(error, results, fields) {

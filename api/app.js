@@ -141,6 +141,7 @@ if (cluster.isMaster){
   app.use('/devices', jwtCheck);
   app.use('/reports', jwtCheck);
   app.use('/users/all', jwtCheck);
+  app.use('/settings', jwtCheck);
   //Provide custom response middleware
   app.use(function (err, req, res, next) {
     if (err.name === 'UnauthorizedError') {
@@ -154,7 +155,8 @@ if (cluster.isMaster){
   app.use('/patches', require('./controllers/patches'));
   app.use('/users', require('./controllers/users'));
   app.use('/reports', require('./controllers/reports'));
-
+  app.use('/settings', require('./controllers/admin'));
+  
   //Serve the web app
   app.get('/', function(req, res) {
     res.sendFile('../app/index.html');

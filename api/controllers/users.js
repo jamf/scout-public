@@ -127,11 +127,11 @@ users.post('/login/basic', function(req, res) {
     }
     var user = { "id" : userObject[0].id, "email" : userObject[0].email, "can_mdm" : userObject[0].mdm_commands, "notificaitons" : userObject[0].notifications,
                  "can_edit" : userObject[0].can_edit, "can_delete" : userObject[0].can_delete, "can_create" : userObject[0].can_create, "can_edit_users" : userObject[0].can_edit_users,
-                 "can_build_reports" : userObject[0].can_build_reports
+                 "can_build_reports" : userObject[0].can_build_reports, "is_admin" : userObject[0].is_admin
                 };
     var resp = { userId : userObject[0].id, token : createToken(user), "can_mdm" : userObject[0].mdm_commands, "notificaitons" : userObject[0].notifications,
                 "can_edit" : userObject[0].can_edit, "can_delete" : userObject[0].can_delete, "can_create" : userObject[0].can_create, "can_edit_users" : userObject[0].can_edit_users,
-                "can_build_reports" : userObject[0].can_build_reports};
+                "can_build_reports" : userObject[0].can_build_reports, "is_admin" : userObject[0].is_admin};
     res.status(200).send(resp);
   })
   .catch(error => {

@@ -40,11 +40,12 @@ function loadReportById(reportId){
     //Load the existing report view
     $("#report-name-field").html(reportObject.name);
     $("#new-report-parent").hide();
+    console.log(reportObject.line_items);
     for (var i = 0; i < reportObject.line_items.length; i++){
       addReportLineItem(reportObject.line_items[i]);
     }
     //Show the new report UI
-    $('#new-report-div').show();
+    changeReportView('computer', 'view');
   })
   .fail(function(xhr){
     console.log(xhr);
@@ -85,7 +86,7 @@ function updateExistingReport(){
   })
 }
 
-function saveNewReport(){
+function saveNewReport(shouldRun){
   //keep a list of all of the search line items to send to the server
   var lineItems = [];
   //for every line item, build an object
@@ -285,6 +286,15 @@ function prettyPrintKey(input){
       .join(' ');
 }
 
+//A bunch of custom parsers for values that are nested
+function parseToTableValue(prop, object){
+  if (prop == 'remote_management'){
+    return 'Managed: ' + object.managed;
+  } else {
+    return JSON.stringify(object);
+  }
+}
+
 function getDeviceLive(type, serial, udid){
   //Show a loading notification
   $.Toast.showToast({
@@ -312,13 +322,22 @@ function getDeviceLive(type, serial, udid){
         if (!device.hasOwnProperty(prop)) {
            continue;
         }
-        //Get the table for the given key
-        var tableTab = prop + "-table-body";
-        //if (tableTab == "general-table-body"){
-          //For every key in this value, add a row to the table
-          for (var value in device[prop]) {
-            $("#" + tableTab).append("<tr><td>"+prettyPrintKey(value)+"</td><td>"+device[prop][value]+"</td></tr>");
-          }
+        //If there is a length object, it's a list type
+        if (device[prop].length == undefined){
+          //Get the table for the given key
+          var tableTab = prop + "-table-body";
+          //if (tableTab == "general-table-body"){
+            //For every key in this value, add a row to the table
+            for (var value in device[prop]) {
+              if (typeof device[prop][value] === 'object'){
+                  $("#" + tableTab).append("<tr><td>"+prettyPrintKey(value)+"</td><td>"+parseToTableValue(value,device[prop][value])+"</td></tr>");
+              } else {
+                $("#" + tableTab).append("<tr><td>"+prettyPrintKey(value)+"</td><td>"+device[prop][value]+"</td></tr>");
+              }
+            }
+        } else if (device[prop].length == 0){
+          //No values
+        }
       }
       //Show the modal
       //$("#device-display-modal").modal('show');
@@ -505,6 +524,7 @@ function registerUser(){
 }
 
 function fillDataForLineItem(id, data){
+  console.log(data);
   //Fill in all of the data
   if (data.condition != ''){
     $("#include-value-" + data.order).val(data.condition);
@@ -651,11 +671,19 @@ function changeView(newView){
   //$("#" + newView).addClass('active');
 }
 
+function changeReportView(deviceType, operation){
+  changeView('create-new-report-view');
+  //Add the url params for the type
+  updateQueryStringParam('reportType', deviceType);
+  updateQueryStringParam('type', operation);
+}
 //resets all url params that is not navigation based
 function resetURLParams(){
   updateQueryStringParam('type',null);
   updateQueryStringParam('serial',null);
   updateQueryStringParam('udid',null);
+  updateQueryStringParam('reportType',null);
+  updateQueryStringParam('isUpdate',null);
 }
 
 //Wait for the page to render

@@ -13,7 +13,7 @@ function createToken(user) {
 }
 
 function hasPermission(userObject, permisison){
-  return (userObject["permisison"] == 1 || userObject["permisison"] == true);
+  return (userObject[permisison] == 1 || userObject[permisison] == true);
 }
 
 function authDN(dn, password, cb) {
@@ -41,9 +41,10 @@ users.get('/all', function(req,res){
   //get the users from the database
   user.getAllUsers()
   .then(function(userList){
-    res.status(200).send(usersList);
+    res.status(200).send(userList);
   })
   .catch(error => {
+    console.log(error);
     res.status(500).send({
       error: "Unable to get users"
     });

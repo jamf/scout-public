@@ -503,12 +503,14 @@ function doLoginUserPass(){
     console.log(data);
     sessionStorage.setItem("auth_token", data.token);
     $('#login-user-modal').modal('hide');
-    renderPage();
     if (data.is_admin == 1){
-      getSettingsForAdmin();
+      sessionStorage.setItem("is_admin", true);
     }
+    renderPage();
+    changeView('dashboard-view');
   })
   .fail(function(xhr){
+    sessionStorage.setItem("is_admin", false);
     $(".login-group").addClass("has-error");
   })
 }
@@ -536,14 +538,46 @@ function getSettingsForAdmin(){
   })
   .fail(function(xhr){
     console.log(xhr);
+  });
+  //Get the users from the database so those can be edited
+  var userReq = getRequestObject('/users/all', null, 'GET');
+  userReq.done(function(userList){
+    //add users to the table
+    var usersTable = $("#users-table").DataTable();
+    userList.forEach(function(u){
+      usersTable.row.add([u.email, u.can_create, u.can_edit, u.can_delete, u.can_edit_users, u.mdm_commands]).draw(false);
+    });
   })
+  .fail(function(xhr){
+    console.log(xhr);
+  });
+}
+
+function updateSettings(){
+  //For every settings input, get the id and it's value
+  var newFile = {};
+  $(".settings-input").each(function(i,e){
+    var id = $(this).attr('id');
+    var value = $(this).val();
+    newFile[id] = value;
+  });
+  console.log(newFile);
+  //Make the request to the server
+  var req = getRequestObject('/settings/all', newFile, 'PUT')
+  req.done(function(result){
+    swal('Success!', 'Your settings have been saved successfully. The server can now be restarted.', 'success');
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+    swal('Save Failed.', 'Unable to save settings, check the console for more details.', 'error');
+  });
 }
 
 function getSettingsItemHTML(title, id, value){
   var html = '<div class="form-group">';
-    html += '<label>'+title+'</label>';
-    html += '<input class="form-control settings-input" id="'+id+'" value="'+value+'">';
-    html += '<p class="help-block">Example block-level help text here.</p></div>';
+      html += '<label>'+title+'</label>';
+      html += '<input class="form-control settings-input" id="'+id+'" value="'+value+'">';
+    html += '</div>';
  return html;
 }
 
@@ -665,6 +699,10 @@ function renderPage(){
     var target = $(e.target).attr("href");
     updateQueryStringParam('tab',target.substring(1,target.length));
   });
+  if (sessionStorage.getItem("is_admin") == "true"){
+    console.log('get settings');
+    getSettingsForAdmin();
+  }
 }
 
 var urlParams = new URLSearchParams(window.location.search);

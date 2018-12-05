@@ -795,6 +795,12 @@ $(document).ready(function(){
       registerUser();
     });
     $('#login-user-modal').modal('show');
+    //Make sure reshow the login if they click out of it
+    $('#login-user-modal').on('hidden.bs.modal', function () {
+      if (!("auth_token" in sessionStorage)){
+        $('#login-user-modal').modal('show');
+      }
+    })
   } else {
     renderPage();
   }

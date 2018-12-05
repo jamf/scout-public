@@ -6,6 +6,21 @@ var schedule = require('node-schedule');
 var exec = require('child_process').exec;
 var cron = require('../common/cron-handler.js');
 
+/**
+ * This endpoint adds a new server
+ * @route POST /servers/add
+ * @group Servers - Operations about Jamf Pro Servers
+ * @param {string} url.body.required - The URL of the Jamf Pro Server
+ * @param {string} username.body.required - Admin username of user in the Jamf Pro Server
+ * @param {string} password.body.required - Admin password of user in the Jamf Pro Server
+ * @param {string} cronLimited.body.required - A cron string that specifys how often to grab limited inventory
+ * @param {string} cronExpanded.body.required - A cron string that specifys how often to grab expanded inventory
+ * @returns {object} 201 - The server was added to the database successfully, return a status message
+ * @returns {object} 206 - The server was added to the database successfully, but the cron jobs on the system could not be verified.
+ * @returns {Error}  401 - Unable to contact the JPS server
+ * @returns {Error}  500 - Unable to insert server to the database
+ * @returns {Error}  206 - Unable to setup scout admin user
+ */
 servers.post('/add', function(req,res) {
   if (req.body.url == null || req.body.username == null || req.body.password == null || req.body.cronLimited == null || req.body.cronExpanded == null){
     return res.status(400).send({
@@ -45,9 +60,17 @@ servers.post('/add', function(req,res) {
   });
 });
 
+/**
+ * This endpoint grants emergency access to the server
+ * @route POST /servers/access
+ * @group Servers - Operations about Jamf Pro Servers
+ * @param {string} url.body.required - The URL of the Jamf Pro Server
+ * @returns {object} 200 - An object containing the ScoutAdmin user password
+ * @returns {Error}  500 - Unable to remove the password from the database after getting it for the user, will not return password
+ * @returns {Error}  400 - Unable to find server for given url or the server does not have an emergency admin setup
+ */
 servers.post('/access/', function(req,res){
   //Make sure this user has access to view passwords
-  console.log(req.user);
   //First make sure there is a password that hasn't been destroyed
   server.getServerFromURL(req.body.url)
   .then(function(serverDetails){
@@ -79,6 +102,19 @@ servers.post('/access/', function(req,res){
   });
 });
 
+/**
+ * This endpoint adds a new server
+ * @route PUT /servers/update/{serverId}
+ * @group Servers - Operations about Jamf Pro Servers
+ * @param {string} id.query.required - The Id of the Jamf Pro Server to update
+ * @param {string} username.body.optional - Admin username of user in the Jamf Pro Server
+ * @param {string} password.body.optional - Admin password of user in the Jamf Pro Server
+ * @param {string} cronLimited.body.optional - A cron string that specifys how often to grab limited inventory
+ * @param {string} cronExpanded.body.optional - A cron string that specifys how often to grab expanded inventory
+ * @returns {object} 200 - The server was updated successfully
+ * @returns {Error}  500 - Unable to update the JPS server
+ * @returns {Error}  403 - Unable to update a specific field
+ */
 servers.put('/update/:id', function(req,res){
   if (req.params.id == null){
     return res.status(400).send({
@@ -107,6 +143,14 @@ servers.put('/update/:id', function(req,res){
   });
 });
 
+/**
+ * This gets all of the servers in Scout
+ * @route DELETE /servers/delete/{serverId}
+ * @group Servers - Operations about Jamf Pro Servers
+ * @param {string} id.query.required - The Id of the Jamf Pro Server to delete
+ * @returns {object} 200 - A success object if the server was deleted
+ * @returns {Error}  500 - Unable to query the database, delete all of the server's devices, or delete the server itself
+ */
 servers.delete('/delete/:id', function(req,res) {
   if (req.params.id == null){
     return res.status(400).send({
@@ -137,6 +181,13 @@ servers.delete('/delete/:id', function(req,res) {
   });
 });
 
+/**
+ * This gets all of the servers in Scout
+ * @route GET /servers/
+ * @group Servers - Operations about Jamf Pro Servers
+ * @returns {object} 200 - An array of server objects
+ * @returns {Error}  500 - Unable to query the database
+ */
 servers.get('/', function(req,res) {
   //Get all of the servers in the database
   server.getAllServers()

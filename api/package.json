@@ -1,7 +1,7 @@
 {
   "name": "Scout",
-  "version": "0.0.1",
-  "description": "Server to handle server additions and scheduling",
+  "version": "0.2.1",
+  "description": "A tool to aggergate devices",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
@@ -15,6 +15,7 @@
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.18.3",
     "child_process": "^1.0.2",
+    "cluster": "^0.7.7",
     "compression": "^1.7.3",
     "cors": "^2.8.4",
     "cron-tab": "^1.1.17",
@@ -24,6 +25,7 @@
     "express": "^4.16.3",
     "express-fileupload": "^0.4.0",
     "express-jwt": "^5.3.1",
+    "express-swagger-generator": "^1.1.10",
     "fs": "0.0.1-security",
     "helmet": "^3.13.0",
     "jsonwebtoken": "^8.3.0",

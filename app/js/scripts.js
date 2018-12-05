@@ -12,13 +12,19 @@ function getSupportedReportFields(){
 function getAllSavedReports(){
   var reports = getRequestObject('/reports/', null, 'GET');
   reports.done(function(reportsList){
-    //Create a table for the reports
-    var reportsTable = $("#saved-reports-table").DataTable();
+    //Create an instance of the report for both computers and mobile
+    var computerReports = $("#saved-computer-reports-table").DataTable();
+    var mobileReports = $("#saved-mobile-reports-table").DataTable();
     //Clear out the table if it already was rendered
-    reportsTable.clear();
+    computerReports.clear();
+    mobileReports.clear();
     for (var i = 0; i < reportsList.length; i++){
       var actionButtons = '<button type="button" class="btn btn-success btn-circle" onclick="viewReportResults(\''+reportsList[i].id+'\');"><i class="fa fa-play-circle"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-info btn-circle" onclick="loadReportById(\''+reportsList[i].id+'\');"><i class="fa fa-eye"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-warning btn-circle"><i class="fa fa-pencil"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-danger btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;';
-      reportsTable.row.add([reportsList[i].name, reportsList[i].created, reportsList[i].email, reportsList[i].conditions_count, actionButtons]).draw(false);
+      if (reportsList[i].type == 'computer'){
+        computerReports.row.add([reportsList[i].name, reportsList[i].created, reportsList[i].email, reportsList[i].conditions_count, actionButtons]).draw(false);
+      } else {
+        mobileReports.row.add([reportsList[i].name, reportsList[i].created, reportsList[i].email, reportsList[i].conditions_count, actionButtons]).draw(false);
+      }
     }
   })
   .fail(function(xhr){
@@ -34,11 +40,12 @@ function loadReportById(reportId){
     //Load the existing report view
     $("#report-name-field").html(reportObject.name);
     $("#new-report-parent").hide();
+    console.log(reportObject.line_items);
     for (var i = 0; i < reportObject.line_items.length; i++){
       addReportLineItem(reportObject.line_items[i]);
     }
     //Show the new report UI
-    $('#new-report-div').show();
+    changeReportView('computer', 'view');
   })
   .fail(function(xhr){
     console.log(xhr);
@@ -79,7 +86,7 @@ function updateExistingReport(){
   })
 }
 
-function saveNewReport(){
+function saveNewReport(shouldRun){
   //keep a list of all of the search line items to send to the server
   var lineItems = [];
   //for every line item, build an object
@@ -171,13 +178,16 @@ function doAdvancedSearch(){
 
 function addServerToDatabase(url,username,password,cronLimited,cronExpanded){
   var serverObject = { "url" : url, "username" : username, "password" : password, "cronLimited" : cronLimited, "cronExpanded" : cronExpanded};
-  $("#loading-modal").modal('show');
+  $.Toast.showToast({
+    "title": "Attempting to contact Jamf Pro Server...",
+    "icon": "loading",
+    "duration": 15000
+  });
   $('#add-server-modal').modal('hide');
-
   //send it to the server
   var post = getRequestObject('/servers/add', serverObject, 'POST');
   post.done(function(data, textStatus, jqXHR){
-    $("#loading-modal").modal('hide');
+    $.Toast.hideToast();
     if (jqXHR.status == 206 && jqXHR.responseText.includes("cron")){
       swal('Server Added', 'The server has been added, but we were unable to verify the server cron jobs. Please restart the server to fix this.', 'warning');
     } else if (jqXHR.status == 206 && jqXHR.responseText.includes("scout admin user")){
@@ -191,7 +201,7 @@ function addServerToDatabase(url,username,password,cronLimited,cronExpanded){
     console.log(jqXHR);
     console.log(textStatus);
     console.log(errorThrown);
-    $("#loading-modal").modal('hide');
+    $.Toast.hideToast();
     swal('Server Upload Failed', 'The server has not been added to the database, please check the console for more details.', 'error');
   })
 }
@@ -210,6 +220,11 @@ function doUpdateServer(){
     swal('Server Update Failed', 'No server Id was passed to the update function.', 'error');
     return;
   }
+  $.Toast.showToast({
+    "title": "Attempting to contact Jamf Pro Server...",
+    "icon": "loading",
+    "duration": 15000
+  });
   //Check which fields changed
   var updateObject = {};
   if ($("#update-server-username").val() != ''){
@@ -228,6 +243,7 @@ function doUpdateServer(){
   if (Object.keys(updateObject).length > 0){
     var put = getRequestObject('/servers/update/' + $("#update-server-id").val(), updateObject, 'PUT');
     put.done(function(data, textStatus, jqXHR){
+      $.Toast.hideToast();
       swal('Server Updated', 'The server has been updated.', 'success');
       $("#update-server-modal").modal('hide');
       loadServerTable();
@@ -237,9 +253,11 @@ function doUpdateServer(){
       console.log(textStatus);
       console.log(errorThrown);
       $("#update-server-modal").modal('hide');
+      $.Toast.hideToast();
       swal('Server Update Failed', 'The server update failed.', 'error');
     })
   } else {
+    $.Toast.hideToast();
     swal('Server Update Failed', 'No fields have been specified to update.', 'error');
   }
 }
@@ -268,7 +286,22 @@ function prettyPrintKey(input){
       .join(' ');
 }
 
+//A bunch of custom parsers for values that are nested
+function parseToTableValue(prop, object){
+  if (prop == 'remote_management'){
+    return 'Managed: ' + object.managed;
+  } else {
+    return JSON.stringify(object);
+  }
+}
+
 function getDeviceLive(type, serial, udid){
+  //Show a loading notification
+  $.Toast.showToast({
+    "title": "Getting device from Jamf Pro server...",
+    "icon": "loading",
+    "duration": 10000
+  });
   //Lookup device by serial and UDID
   var reqBody = { serial : serial, udid : udid};
   //Get expanded inventory from server
@@ -276,7 +309,7 @@ function getDeviceLive(type, serial, udid){
   liveResult.done(function(result){
     //Get the view to inject into the modal
     $.get("/app-views/device-view.html", function(data) {
-      $("#device-modal-view").html(data);
+      $("#device-pane-view").html(data);
       //Start filling in the tables by key
       var device;
       if (type == "computer"){
@@ -284,24 +317,45 @@ function getDeviceLive(type, serial, udid){
       } else {
         device = result.mobile_device;
       }
+      $("#device-view-name").html(device.general.name);
       for (var prop in device) {
         if (!device.hasOwnProperty(prop)) {
            continue;
         }
-        //Get the table for the given key
-        var tableTab = prop + "-table-body";
-        //if (tableTab == "general-table-body"){
-          //For every key in this value, add a row to the table
-          for (var value in device[prop]) {
-            $("#" + tableTab).append("<tr><td>"+prettyPrintKey(value)+"</td><td>"+device[prop][value]+"</td></tr>");
-          }
+        //If there is a length object, it's a list type
+        if (device[prop].length == undefined){
+          //Get the table for the given key
+          var tableTab = prop + "-table-body";
+          //if (tableTab == "general-table-body"){
+            //For every key in this value, add a row to the table
+            for (var value in device[prop]) {
+              if (typeof device[prop][value] === 'object'){
+                  $("#" + tableTab).append("<tr><td>"+prettyPrintKey(value)+"</td><td>"+parseToTableValue(value,device[prop][value])+"</td></tr>");
+              } else {
+                $("#" + tableTab).append("<tr><td>"+prettyPrintKey(value)+"</td><td>"+device[prop][value]+"</td></tr>");
+              }
+            }
+        } else if (device[prop].length == 0){
+          //No values
+        }
       }
       //Show the modal
-      $("#device-display-modal").modal('show');
+      //$("#device-display-modal").modal('show');
+      //Change the page to the device view
+      changeView('full-device-view');
+      $.Toast.hideToast();
+      updateQueryStringParam('type',type);
+      updateQueryStringParam('serial',serial);
+      updateQueryStringParam('udid',udid);
     });
   })
   .fail(function(xhr){
-    console.log(xhr);
+    $.Toast.hideToast();
+    $.Toast.showToast({
+      "title": "Unable to contact server or find device",
+      "icon": "error",
+      "duration": 5000
+    });
   });
 }
 
@@ -372,7 +426,6 @@ function loadServerTable(){
     //Add to the server table
     for (i = 0; i < servers.servers.length; i++){
       var s = servers.servers[i];
-      console.log(s);
       serverTable.row.add( [s.url, s.username, s.org_name, s.ac, s.cronLimited, s.cronExpanded,getServerButtons(s.id,s.url) ] );
     }
     serverTable.draw();
@@ -447,11 +500,17 @@ function doLoginUserPass(){
   var loginObj = {"email" : $("#login-user-username").val(), "password" : $("#login-user-password").val()};
   var req = getRequestObject('/users/login/basic', loginObj, 'POST');
   req.done(function(data){
+    console.log(data);
     sessionStorage.setItem("auth_token", data.token);
     $('#login-user-modal').modal('hide');
+    if (data.is_admin == 1){
+      sessionStorage.setItem("is_admin", true);
+    }
     renderPage();
+    changeView('dashboard-view');
   })
   .fail(function(xhr){
+    sessionStorage.setItem("is_admin", false);
     $(".login-group").addClass("has-error");
   })
 }
@@ -470,7 +529,93 @@ function registerUser(){
   })
 }
 
+function getSettingsForAdmin(){
+  var req = getRequestObject('/settings/all', null, 'GET');
+  req.done(function(data){
+    for (var key in data){
+      $("#general-settings").append(getSettingsItemHTML(key, key, data[key]));
+    }
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+  });
+  loadUserPermissions();
+}
+
+function loadUserPermissions(){
+  //Get the users from the database so those can be edited
+  var userReq = getRequestObject('/users/all', null, 'GET');
+  userReq.done(function(userList){
+    //add users to the table
+    var usersTable = $("#users-table").DataTable();
+    usersTable.clear();
+    userList.forEach(function(u){
+      var canCreate = getUserEditButton(u.id, 'can_create', u.can_create);
+      var canEdit = getUserEditButton(u.id, 'can_edit', u.can_edit);
+      var canDelete = getUserEditButton(u.id, 'can_delete', u.can_delete);
+      var canEditUsers = getUserEditButton(u.id, 'can_edit_users', u.can_edit_users);
+      var mdmCommands = getUserEditButton(u.id, 'mdm_commands', u.mdm_commands);
+      usersTable.row.add([u.email, canCreate, canEdit, canDelete, canEditUsers, mdmCommands]).draw(false);
+    });
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+  });
+}
+
+function updatePermission(userId, permission, value){
+  //build the request body
+  var reqBody = { userId : userId, permission : permission, newValue : value};
+  //make the request to the server
+  var req = getRequestObject('/settings/user', reqBody, 'PUT');
+  req.done(function(result){
+    swal('Success', 'User setttings have been updated.', 'success');
+    loadUserPermissions();
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+    swal('Update Failed', 'Updating the user setting has failed. You may not have permission to do so.', 'error');
+  });
+}
+
+function getUserEditButton(userId, permission, value){
+  if (value == true || value == 1){
+    return '<button type="button" class="btn btn-success btn-circle" onclick="updatePermission(\''+userId+'\',\''+permission+'\',false);"><i class="fa fa-check"></i></button>';
+  } else {
+    return '<button type="button" class="btn btn-danger btn-circle" onclick="updatePermission(\''+userId+'\',\''+permission+'\',true);"><i class="fa fa-times"></i></button>';
+  }
+}
+
+function updateSettings(){
+  //For every settings input, get the id and it's value
+  var newFile = {};
+  $(".settings-input").each(function(i,e){
+    var id = $(this).attr('id');
+    var value = $(this).val();
+    newFile[id] = value;
+  });
+  console.log(newFile);
+  //Make the request to the server
+  var req = getRequestObject('/settings/all', newFile, 'PUT')
+  req.done(function(result){
+    swal('Success!', 'Your settings have been saved successfully. The server can now be restarted.', 'success');
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+    swal('Save Failed.', 'Unable to save settings, check the console for more details.', 'error');
+  });
+}
+
+function getSettingsItemHTML(title, id, value){
+  var html = '<div class="form-group">';
+      html += '<label>'+title+'</label>';
+      html += '<input class="form-control settings-input" id="'+id+'" value="'+value+'">';
+    html += '</div>';
+ return html;
+}
+
 function fillDataForLineItem(id, data){
+  console.log(data);
   //Fill in all of the data
   if (data.condition != ''){
     $("#include-value-" + data.order).val(data.condition);
@@ -532,9 +677,12 @@ function renderPage(){
   getSupportedReportFields();
   //Check if there is a certian tab to show
   var urlParams = new URLSearchParams(window.location.search);
+  //Check if we should load a live device view
+  if (urlParams.has('type') && urlParams.has('serial') && urlParams.has('udid')){
+    getDeviceLive(urlParams.get('type'), urlParams.get('serial'), urlParams.get('udid'));
+  }
   if (urlParams.has('tab')){
-    //Show that tab
-    $('.nav-tabs a[href="#'+urlParams.get('tab')+'"]').tab('show')
+    changeView(urlParams.get('tab'));
   }
   //Get all of the Jamf Pro Servers
   loadServerTable();
@@ -584,8 +732,55 @@ function renderPage(){
     var target = $(e.target).attr("href");
     updateQueryStringParam('tab',target.substring(1,target.length));
   });
+  if (sessionStorage.getItem("is_admin") == "true"){
+    console.log('get settings');
+    getSettingsForAdmin();
+  }
 }
 
+var urlParams = new URLSearchParams(window.location.search);
+function changeViewBack(){
+  //If there is something in session storage, show that
+  var lastTab = sessionStorage.getItem("last-view");
+  if (lastTab != null){
+    changeView(lastTab);
+  }
+}
+
+function changeView(newView){
+  //Keep a record of the last tab for a back button
+  if ("last-view" in sessionStorage && sessionStorage.getItem("last-view") != urlParams.get('tab')){
+    sessionStorage.setItem("last-view", urlParams.get('tab'));
+  } else if (!("last-view" in sessionStorage)){
+    sessionStorage.setItem("last-view", urlParams.get('tab'));
+  }
+  //Hide all other views
+  $(".view-pane").hide();
+  //remove the active class
+  $(".sidebar-button").removeClass('active');
+  //Show the new one, update the url
+  resetURLParams();
+  updateQueryStringParam('tab',newView);
+  $("#" + newView).show();
+  //Add the active class
+  //$("#" + newView).addClass('active');
+}
+
+function changeReportView(deviceType, operation){
+  changeView('create-new-report-view');
+  //Add the url params for the type
+  updateQueryStringParam('reportType', deviceType);
+  updateQueryStringParam('type', operation);
+}
+//resets all url params that is not navigation based
+function resetURLParams(){
+  updateQueryStringParam('type',null);
+  updateQueryStringParam('serial',null);
+  updateQueryStringParam('udid',null);
+  updateQueryStringParam('reportType',null);
+  updateQueryStringParam('isUpdate',null);
+  updateQueryStringParam('type',null);
+}
 
 //Wait for the page to render
 $(document).ready(function(){
@@ -600,6 +795,12 @@ $(document).ready(function(){
       registerUser();
     });
     $('#login-user-modal').modal('show');
+    //Make sure reshow the login if they click out of it
+    $('#login-user-modal').on('hidden.bs.modal', function () {
+      if (!("auth_token" in sessionStorage)){
+        $('#login-user-modal').modal('show');
+      }
+    })
   } else {
     renderPage();
   }

@@ -51,6 +51,19 @@ exports.upsertNewSettings = function(newFile){
   });
 }
 
+exports.updateUserSettings = function(setting, newValue, userId){
+  var q = 'UPDATE users SET ' + setting + ' = ? WHERE id = ?';
+  return new Promise(function(resolve,reject) {
+    db.get().query(q, [newValue,userId], function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
 exports.writeNewEnvSettings = function(existingFile, newFile){
   return new Promise(function(resolve,reject) {
     //Loop all of the new file objects and over write them in the existing file

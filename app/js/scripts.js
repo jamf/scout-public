@@ -539,18 +539,51 @@ function getSettingsForAdmin(){
   .fail(function(xhr){
     console.log(xhr);
   });
+  loadUserPermissions();
+}
+
+function loadUserPermissions(){
   //Get the users from the database so those can be edited
   var userReq = getRequestObject('/users/all', null, 'GET');
   userReq.done(function(userList){
     //add users to the table
     var usersTable = $("#users-table").DataTable();
+    usersTable.clear();
     userList.forEach(function(u){
-      usersTable.row.add([u.email, u.can_create, u.can_edit, u.can_delete, u.can_edit_users, u.mdm_commands]).draw(false);
+      var canCreate = getUserEditButton(u.id, 'can_create', u.can_create);
+      var canEdit = getUserEditButton(u.id, 'can_edit', u.can_edit);
+      var canDelete = getUserEditButton(u.id, 'can_delete', u.can_delete);
+      var canEditUsers = getUserEditButton(u.id, 'can_edit_users', u.can_edit_users);
+      var mdmCommands = getUserEditButton(u.id, 'mdm_commands', u.mdm_commands);
+      usersTable.row.add([u.email, canCreate, canEdit, canDelete, canEditUsers, mdmCommands]).draw(false);
     });
   })
   .fail(function(xhr){
     console.log(xhr);
   });
+}
+
+function updatePermission(userId, permission, value){
+  //build the request body
+  var reqBody = { userId : userId, permission : permission, newValue : value};
+  //make the request to the server
+  var req = getRequestObject('/settings/user', reqBody, 'PUT');
+  req.done(function(result){
+    swal('Success', 'User setttings have been updated.', 'success');
+    loadUserPermissions();
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+    swal('Update Failed', 'Updating the user setting has failed. You may not have permission to do so.', 'error');
+  });
+}
+
+function getUserEditButton(userId, permission, value){
+  if (value == true || value == 1){
+    return '<button type="button" class="btn btn-success btn-circle" onclick="updatePermission(\''+userId+'\',\''+permission+'\',false);"><i class="fa fa-check"></i></button>';
+  } else {
+    return '<button type="button" class="btn btn-danger btn-circle" onclick="updatePermission(\''+userId+'\',\''+permission+'\',true);"><i class="fa fa-times"></i></button>';
+  }
 }
 
 function updateSettings(){

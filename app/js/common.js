@@ -56,6 +56,9 @@ function getDataTablesRequest(platform){
         { data : "Managed" },
         { data : "Action" }
       ]
+    },
+    select: {
+      style: 'multi'
     }
   }
   return obj;

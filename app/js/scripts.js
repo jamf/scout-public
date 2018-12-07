@@ -385,6 +385,16 @@ function updateTvs(){
 
 function updateMobileDevices(){
   var mobileTable = $("#mobiledevices-table").DataTable(getDataTablesRequest('mobile'));
+  //check if we should show the mdm command buttons
+  mobileTable.on( 'select', function ( e, dt, type, indexes ) {
+    var rows = mobileTable.rows( { selected: true } ).data();
+    //If something is selected
+    if (rows.length > 0){
+      $("#send-mobile-command-button").show();
+    } else {
+      $("#send-mobile-command-button").hide();
+    }
+  });
   var mobile = getRequestObject('/devices/count/mobile', null, 'GET');
   //Get a count of the total devices seperate since data tables can't handle success functions
   mobile.done(function(mobiledevices){
@@ -468,6 +478,55 @@ function loadPatchServersTable(){
   .fail(function(xhr) {
     console.log(xhr);
   })
+}
+
+window.devices_to_send_mdm_commands = [];
+function viewMDMCommands(type){
+  var table = $("#" + type).DataTable();
+  //Get the selected rows
+  var rows = table.rows( { selected: true } ).data();
+  //save the devices to send to
+  window.devices_to_send_mdm_commands = [];
+  for (var i = 0; i < rows.length; i++){
+    window.devices_to_send_mdm_commands.push(rows[i]);
+  }
+  $("#selected-devices-count").html(rows.length);
+  //show them the possible commands
+  changeView('mobile-commands-view');
+}
+
+function sendMDMCommand(deviceType, mdmCommand){
+  if (window.devices_to_send_mdm_commands.length == 0){
+    swal('Send Failed', 'No devices have been selected.', 'error');
+    return;
+  }
+  //Prompt to ensure they actually want to send the command
+  swal({
+    title: "Are you sure?",
+    text: "Once the MDM Commands have been sent to the various Jamf Pro Servers, this can not be undone. Are you sure you'd like to send this command to " + window.devices_to_send_mdm_commands.length + " devices?",
+    icon: "warning",
+    buttons: true,
+    dangerMode: true,
+  })
+  .then((willSend) => {
+    if (willSend) {
+      var devicesObj = { mdmCommand : mdmCommand, deviceType : deviceType, deviceList : window.devices_to_send_mdm_commands};
+      var req = getRequestObject('/commands/create', devicesObj, 'POST');
+      req.done(function(data){
+        swal("The MDM Commands are on their way! They may take a few minutes to complete.", {
+          icon: "success",
+        });
+      })
+      .fail(function(xhr){
+        console.log(xhr);
+      });
+      // swal("The MDM Commands are on their way! They may take a few minutes to complete.", {
+      //   icon: "success",
+      // });
+    } else {
+      swal("No commands have been sent.");
+    }
+  });
 }
 
 function doLoginLDAP(){

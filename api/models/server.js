@@ -44,7 +44,8 @@ exports.addNewServer = function(url, username, password, limited, expanded){
       });
     })
     .catch(function (error) {
-      addServerErrorByUrl(url, 'Connection Failure', error);
+      console.log(error);
+      exports.addServerErrorByUrl(url, 'Connection Failure', error);
       reject({"error" : "Unable to contact server"});
     });
   });
@@ -90,7 +91,7 @@ exports.addScoutAdminuser = function(url, username, password){
       resolve(response.data);
     })
     .catch(function (error) {
-      addServerErrorByUrl(url, 'Connection Failure', error);
+      exports.addServerErrorByUrl(url, 'Connection Failure', error);
       reject(error);
     });
   });
@@ -160,7 +161,7 @@ exports.checkConnection = function(url, username, password){
       resolve(response.data);
     })
     .catch(function (error) {
-      addServerErrorByUrl(url, 'Connection Failure', error);
+      exports.addServerErrorByUrl(url, 'Connection Failure', error);
       reject(error);
     });
   });
@@ -231,7 +232,7 @@ exports.addServerErrorByUrl = function(serverUrl, type, message){
     //First get the server object and Id from the url
     exports.getServerFromURL(serverUrl)
     .then(function(server){
-      return addServerError(server.id, type, message);
+      return exports.addServerError(server[0].id, type, message);
     })
     .catch(error =>{
       reject(error);
@@ -276,7 +277,7 @@ exports.getDeviceByTypeFromJPS = function(url,type,username,password){
       resolve(response.data);
     })
     .catch(function (error) {
-      addServerErrorByUrl(url, 'Connection Failure', error);
+      exports.addServerErrorByUrl(url, 'Connection Failure', error);
       reject(error);
     });
   });

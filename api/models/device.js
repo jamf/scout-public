@@ -2,12 +2,17 @@ var db = require('../common/db.js');
 var inventory = require('./inventory.js');
 var https = require('https');
 var axios = require('axios')
+var server = require('./server.js');
 //Allow self signed certs
 const axiosInstance = axios.create({
   httpsAgent: new https.Agent({
     rejectUnauthorized: false
   })
 });
+var Throttle = require('promise-parallel-throttle');
+//Feel free to edit this if your server has low availablity
+const jpsMaxConnections = 3;
+var xml2js = require('xml2js');
 
 exports.upsertDevice = function(deviceData){
   return new Promise(function(resolve,reject) {
@@ -61,6 +66,70 @@ exports.getExpandedInventory = function(url, username, password, device, jssServ
     })
     .catch(function (error) {
       console.log('Failed to get a device!');
+      reject(error);
+    });
+  });
+}
+
+
+exports.createMDMCommand = function(url, jss_device_id, commandName){
+  return new Promise(function(resolve,reject) {
+  //Build the xml based on the command
+  var bodyObj = getMDMCommandObj(commandName,jss_device_id);
+  var builder = new xml2js.Builder();
+  var data = builder.buildObject(obj);
+  //Get the server details from the url
+  server.getServerFromURL(url)
+  .then(function(serverDetails){
+    //Build the request to the JPS
+      axiosInstance.post(url + '/JSSResource/mobiledevicecommands/command', data, {
+        auth: {
+          username: serverDetails[0].username,
+          password: db.decryptString(serverDetails[0].password)
+        },
+        headers: {'Content-Type': 'text/xml'}
+      })
+      .then(function (response) {
+        resolve(response.data);
+      })
+      .catch(function (error) {
+        reject(error);
+      });
+  })
+  .catch(function (error) {
+    reject(error);
+  });
+ });
+}
+
+function convertDataTablesDevices(dataTablesArray){
+  var newList = [];
+  dataTablesArray.forEach(function(d){
+    var newDevice = {};
+    newDevice.jss_serial = d[3];
+    newDevice.jss_udid = d[5];
+    newList.push(newDevice);
+  });
+  return newList;
+}
+
+//TODO: GROUP DEVICE IDS BY SERVER INSTEAD OF SENDING A COMMAND FOR EACH DEVICE
+exports.sendMDMCommandToDevices = function(devicesList, commandName){
+  return new Promise(function(resolve,reject) {
+    var convertedDevices = convertDataTablesDevices(devicesList);
+    //For every device, the server for the device and some more details like the jss id
+    Promise.all(convertedDevices.map(device => exports.getDeviceByUDIDAndSerial(device.jss_serial, device.jss_udid)))
+    .then(function(devicesWithServers){
+      //Now send the mdm commands TODO: THROTTLE THIS
+      Promise.all(devicesWithServers.map(d => exports.createMDMCommand(d[0].url,d[0].jss_id,commandName)))
+      .then(function(results){
+        resolve(results);
+      })
+      .catch(function (error) {
+        reject(error);
+      });
+    })
+    .catch(function (error) {
       reject(error);
     });
   });
@@ -294,4 +363,21 @@ exports.insertFullInventory = function(deviceObj){
       }
     });
   });
+}
+
+function getMDMCommandObj(commandName, jss_device_id){
+  return obj = {
+     "mobile_device_command":{
+        "general":{
+           "command": commandName
+        },
+        "mobile_devices":[
+           {
+              "mobile_device":{
+                 "id": jss_device_id
+              }
+           }
+        ]
+     }
+  };
 }

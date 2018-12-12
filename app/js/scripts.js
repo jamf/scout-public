@@ -87,6 +87,9 @@ function updateExistingReport(){
 }
 
 function saveNewReport(shouldRun){
+  if ($("#fields-to-select").val().length == 0){
+    swal('Save Failed.', 'Please select some fields to be displayed in this report.', 'error');
+  }
   //keep a list of all of the search line items to send to the server
   var lineItems = [];
   //for every line item, build an object
@@ -94,7 +97,7 @@ function saveNewReport(shouldRun){
     lineItems.push({ "order" : i, "condition" : $("#include-value-" + i).val(), "parenthesis_one" : $("#param-one-value-" + i).val(), "operator" : $("#operator-value-" + i).val(), "value" : $("#input-value-" + i).val(), "field" : $("#field-value-" + i).val(), "parenthesis_two" : $("#param-two-value-" + i).val()});
   }
   //Create the report object and post everything to the server
-  var reqBody = { name : $("#new-report-name").val(), type : $("#new-report-type").val(), line_items : lineItems};
+  var reqBody = { name : $("#new-report-name").val(), type : $("#new-report-type").val(), line_items : lineItems, fields_to_select : $("#fields-to-select").val().join(", ")};
   var post = getRequestObject('/reports/save', reqBody, 'POST');
   post.done(function(res){
     swal('Report Saved', 'The report has been saved.', 'success');
@@ -125,24 +128,48 @@ function reloadReportPane(loadFirstItem){
   }
 }
 
+function prettyPrintColumnName(input){
+  //First replace the periods with dashes
+  var pretty = input.replace('.', ' - ');
+  return pretty.toLowerCase()
+      .split(' ')
+      .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+      .join(' ');
+}
+
 function viewReportResults(reportId){
   var getReport = getRequestObject('/reports/search/' + reportId, null, 'GET');
   getReport.done(function(res){
-    //Create a table in the modal
-    var resultTable = $("#report-results-table").DataTable();
+    console.log(res);
+    //Create a table in the modal based on the fields to be shown
+    var columns = res.fields_to_select.split(",");
+    var columnsObjs = [];
+    columns.forEach(function(c){
+      columnsObjs.push({title : prettyPrintColumnName(c)});
+    });
+    var resultTable = $("#report-results-table").DataTable({
+      columns : columnsObjs
+    });
     //Clear it out in case it was previously loaded
     resultTable.clear();
     //For each line item of the report, add it to the display modal
-    for (var i = 0; i < res.length; i++){
+    for (var i = 0; i < res.results.length; i++){
       //Check if it's a computer or mobile device
-      var deviceType = getKeyForDeviceObj(res[i]);
+      var deviceType = getKeyForDeviceObj(res.results[i]);
+      var row = [];
+      columns.forEach(function(c){
+        c = c.replace(/\s/g,'');
+        var parentCategory = c.split(".")[0];
+        var dataCategory = c.split(".")[1];
+        row.push(res.results[i][deviceType][parentCategory][dataCategory]);
+      });
+      console.log(row);
       //Add a row for the device to the table
-      resultTable.row.add([res[i][deviceType].general.name, res[i][deviceType].general.last_contact_time, res[i][deviceType].location.realname, '']);
+      resultTable.row.add(row);
     }
     //Draw the table and show the results modal
     resultTable.draw(false);
     $("#report-display-modal").modal('show');
-    console.log(res);
   })
   .fail(function(xhr){
     console.log(xhr);
@@ -719,6 +746,15 @@ function addReportLineItem(lineItemToFill){
     for (var key in window.reporting_fields.applications){
       $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.applications[key],"applications." + key));
     }
+    //Clone select options ito the fields to select
+    if (window.advanced_search_line_item_count == 0){
+      var $options = $(".advanced-report-field-dropdown > option").clone();
+      $("#fields-to-select").selectpicker();
+      $('#fields-to-select').append($options);
+      $("#fields-to-select").selectpicker("refresh");
+
+    }
+
     //If the line item isn't null, fill in the data now
     if (lineItemToFill != null){
       fillDataForLineItem(advanced_search_line_item_count,lineItemToFill);

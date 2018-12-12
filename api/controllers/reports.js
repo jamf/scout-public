@@ -75,6 +75,12 @@ reports.post('/save', function(req,res){
   reportObj.created_by = req.user.id;
   reportObj.conditions_count = req.body.line_items.length;
   reportObj.type = req.body.type;
+  //Default to some fields to select if not provided
+  if (!req.body.fields_to_select){
+    reportObj.fields_to_select = 'general.id, general.name';
+  } else {
+    reportObj.fields_to_select = req.body.fields_to_select;
+  }
   var lineItems = req.body.line_items;
   delete reportObj.line_items;
   //Insert the report
@@ -117,10 +123,12 @@ reports.get('/search/:reportId', function(req,res){
       lineItemsConverted.push(report.convertDbLineItem(l));
     });
     var searchObject = report.parseIntoQuery(lineItemsConverted,reportObj.type);
+    var respObj = { fields_to_select : reportObj.fields_to_select};
     //Now perform the query
     report.getRecordsForSearchObject(reportObj.type, searchObject)
     .then(function(results){
-      res.status(200).send(results);
+      respObj.results = results;
+      res.status(200).send(respObj);
     })
     .catch(error => {
       console.log(error);

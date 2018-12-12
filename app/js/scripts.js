@@ -40,10 +40,7 @@ function loadReportById(reportId){
     //Load the existing report view
     $("#report-name-field").html(reportObject.name);
     $("#new-report-parent").hide();
-    console.log(reportObject.line_items);
-    for (var i = 0; i < reportObject.line_items.length; i++){
-      addReportLineItem(reportObject.line_items[i]);
-    }
+    addMultipleReportLineItems(reportObject.line_items);
     //Show the new report UI
     changeReportView('computer', 'view');
   })
@@ -717,6 +714,53 @@ function fillDataForLineItem(id, data){
   $("#input-value-" + data.order).val(data.value);
 }
 
+function getReportOptions(){
+  var options = [];
+  //Make sure it has the most recent fields available to it
+  options.push(new Option('--- General ---',''));
+  for (var key in window.reporting_fields.general){
+    options.push(new Option(window.reporting_fields.general[key],"general." + key));
+  }
+  options.push(new Option('--- Location ---',''));
+  for (var key in window.reporting_fields.location){
+    options.push(new Option(window.reporting_fields.location[key],"location." + key));
+  }
+  options.push(new Option('--- Purchasing ---',''));
+  for (var key in window.reporting_fields.purchasing){
+    options.push(new Option(window.reporting_fields.purchasing[key],"purchasing." + key));
+  }
+  options.push(new Option('--- Hardware ---',''));
+  for (var key in window.reporting_fields.hardware){
+    options.push(new Option(window.reporting_fields.hardware[key],"hardware." + key));
+  }
+  options.push(new Option('--- Applications ---',''));
+  for (var key in window.reporting_fields.applications){
+    options.push(new Option(window.reporting_fields.applications[key],"applications." + key));
+  }
+  return options;
+}
+
+function addMultipleReportLineItems(lineItems){
+  //First get the view template to be used for all line items
+  $.get("/app-views/report-line-item.html", function(data) {
+    //for every line item, add it to the view
+    for (var i = 0; i < lineItems.length; i++){
+      //make a copy of the report data to use as a template
+      var template = data;
+      template = template.replace(/{ID}/g, i);
+      $("#advance-report-criteria").append(template);
+      //Add all of the select options
+      var options = getReportOptions();
+      options.forEach(function(o){
+        $("#field-value-"+i).append(o);
+      });
+      //Populate all of the data
+      fillDataForLineItem(i,lineItems[i]);
+    }
+    advanced_search_line_item_count = lineItems.length;
+  });
+}
+
 //Keep a count of how many line items there are for advanced search
 window.advanced_search_line_item_count = 0;
 function addReportLineItem(lineItemToFill){
@@ -754,7 +798,6 @@ function addReportLineItem(lineItemToFill){
       $("#fields-to-select").selectpicker("refresh");
 
     }
-
     //If the line item isn't null, fill in the data now
     if (lineItemToFill != null){
       fillDataForLineItem(advanced_search_line_item_count,lineItemToFill);

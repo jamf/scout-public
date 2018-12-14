@@ -6,6 +6,7 @@ Scout is a easy to use webapp that allows you to aggregate multiple Devices from
  - The worker file will exec based on the contents of your crontab file. Scout automatically manages adding and removing servers from your crontab file. It runs via the command 'node worker.js JPSSERVERURL'. This can be run at anytime independent of the server as well. It handles getting devices from the Jamf Pro Instance provided and then updating them in the database.
  - All of the webapp files are location in /app and can be swapped out for anything you'd like. The front end is pretty basic and uses jQuery to load in everything with DataTables being used to render the tables.
  - Scout is also a fully functional Patch server that can even aggregate patches from multiple other servers!
+ - Some screenshots can be found here: https://imgur.com/a/qEfd0KM
  - View complete install instructions below
 
 # Running Server (Required)

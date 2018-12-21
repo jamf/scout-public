@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.6.37)
 # Database: scout
-# Generation Time: 2018-12-03 22:21:31 +0000
+# Generation Time: 2018-12-12 22:46:23 +0000
 # ************************************************************
 
 
@@ -70,6 +70,7 @@ CREATE TABLE `reports` (
   `created_by` int(11) NOT NULL,
   `conditions_count` int(11) DEFAULT NULL,
   `type` varchar(128) NOT NULL DEFAULT '',
+  `fields_to_select` longtext,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

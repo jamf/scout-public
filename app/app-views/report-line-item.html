@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row report-line-item-row-{ID}">
   <div class="col-lg-2">
     <label>AND/OR</label>
     <select class="form-control" id="include-value-{ID}">
@@ -31,7 +31,7 @@
         <option>does not contain</option>
     </select>
   </div>
-  <div class="col-lg-3">
+  <div class="col-lg-2">
     <label>Value</label>
     <input type="text" class="form-control" placeholder="Enter text" id="input-value-{ID}">
   </div>
@@ -42,5 +42,9 @@
         <option>)</option>
     </select>
   </div>
+  <div class="col-lg-1">
+    <label></label>
+    <button id="remove-line-item-button-{ID}" type="button" style="margin-top: 2.2em;" class="btn btn-circle btn-danger form-control" onclick="removeLineItemByIndex('{ID}');"><i class="fa fa-times"></i></button>
+  </div>
 </div>
-<br/>
+<br class="report-line-item-row-{ID}"/>

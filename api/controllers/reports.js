@@ -6,11 +6,11 @@ reports.get('/builder/fields', function(req,res) {
   report.getSupportedFields()
   .then(function(fieldList){
     //Return it to the client to add to the UI
-    res.status(200).send(fieldList);
+    return res.status(200).send(fieldList);
   })
   .catch(error => {
     console.log(error);
-    res.status(500).send({
+    return res.status(500).send({
       error: "Unable to get supported fields"
     });
   });
@@ -35,19 +35,39 @@ reports.get('/', function(req,res){
 reports.get('/id/:reportId', function(req,res){
   //make sure the report id was provided in the request
   if (!req.params.reportId){
-    res.status(400).send({
+    return res.status(400).send({
       error: "Missing report id"
     });
   }
   //Get the report and it's line items from the database
   report.getReportById(req.params.reportId)
   .then(function(report){
-    res.status(200).send(report);
+    return res.status(200).send(report);
   })
   .catch(error => {
     console.log(error);
     return res.status(500).send({
       error: "Unable to get report"
+    });
+  });
+});
+
+//Deletes a report by id
+reports.delete('/id/:reportId', function(req,res){
+  //make sure the report id was provided in the request
+  if (!req.params.reportId){
+    return res.status(400).send({
+      error: "Missing report id"
+    });
+  }
+  //Get the report and it's line items from the database
+  report.deleteReport(req.params.reportId)
+  .then(function(result){
+    return res.status(200).send({status : 'success'});
+  })
+  .catch(error => {
+    return res.status(500).send({
+      error: "Unable to delete report or it's line items."
     });
   });
 });
@@ -65,7 +85,7 @@ reports.put('/update/:reportId', function(req,res){
 reports.post('/save', function(req,res){
   //Make sure everything is in the request
   if (!req.body.name || !req.body.line_items || req.body.line_items.length < 1){
-    res.status(400).send({
+    return res.status(400).send({
       error: "Missing required fields"
     });
   }
@@ -75,6 +95,12 @@ reports.post('/save', function(req,res){
   reportObj.created_by = req.user.id;
   reportObj.conditions_count = req.body.line_items.length;
   reportObj.type = req.body.type;
+  //Default to some fields to select if not provided
+  if (!req.body.fields_to_select){
+    reportObj.fields_to_select = 'general.id, general.name';
+  } else {
+    reportObj.fields_to_select = req.body.fields_to_select;
+  }
   var lineItems = req.body.line_items;
   delete reportObj.line_items;
   //Insert the report
@@ -104,7 +130,7 @@ reports.post('/save', function(req,res){
 reports.get('/search/:reportId', function(req,res){
   //Make sure a report Id was provided
   if (!req.params.reportId){
-    res.status(400).send({
+    return res.status(400).send({
       error: "Missing required fields"
     });
   }
@@ -117,14 +143,16 @@ reports.get('/search/:reportId', function(req,res){
       lineItemsConverted.push(report.convertDbLineItem(l));
     });
     var searchObject = report.parseIntoQuery(lineItemsConverted,reportObj.type);
+    var respObj = { fields_to_select : reportObj.fields_to_select};
     //Now perform the query
     report.getRecordsForSearchObject(reportObj.type, searchObject)
     .then(function(results){
-      res.status(200).send(results);
+      respObj.results = results;
+      return res.status(200).send(respObj);
     })
     .catch(error => {
       console.log(error);
-      res.status(500).send({
+      return res.status(500).send({
         error: "Unable to perform search"
       });
     });
@@ -140,7 +168,7 @@ reports.get('/search/:reportId', function(req,res){
 reports.post('/search', function(req,res) {
   //make sure they provided some search terms
   if (!req.body.search_line_items || req.body.search_line_items.length < 1){
-    res.status(400).send({
+    return res.status(400).send({
       error: "No search terms provided"
     });
   }
@@ -150,11 +178,11 @@ reports.post('/search', function(req,res) {
   //Now perform the query
   report.getRecordsForSearchObject("computer", searchObject)
   .then(function(results){
-    res.status(200).send(results);
+    return res.status(200).send(results);
   })
   .catch(error => {
     console.log(error);
-    res.status(500).send({
+    return res.status(500).send({
       error: "Unable to perform search"
     });
   });

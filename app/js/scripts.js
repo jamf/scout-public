@@ -19,7 +19,7 @@ function getAllSavedReports(){
     computerReports.clear();
     mobileReports.clear();
     for (var i = 0; i < reportsList.length; i++){
-      var actionButtons = '<button type="button" class="btn btn-success btn-circle" onclick="viewReportResults(\''+reportsList[i].id+'\');"><i class="fa fa-play-circle"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-info btn-circle" onclick="loadReportById(\''+reportsList[i].id+'\');"><i class="fa fa-eye"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-warning btn-circle"><i class="fa fa-pencil"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-danger btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;';
+      var actionButtons = '<button type="button" class="btn btn-success btn-circle" onclick="viewReportResults(\''+reportsList[i].id+'\');"><i class="fa fa-play-circle"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-info btn-circle" onclick="loadReportById(\''+reportsList[i].id+'\');"><i class="fa fa-eye"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-warning btn-circle"><i class="fa fa-pencil"></i></button>&nbsp;&nbsp;<button onclick="deleteReport(\''+reportsList[i].id+'\');" type="button" class="btn btn-danger btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;';
       if (reportsList[i].type == 'computer'){
         computerReports.row.add([reportsList[i].name, reportsList[i].created, reportsList[i].email, reportsList[i].conditions_count, actionButtons]).draw(false);
       } else {
@@ -40,10 +40,7 @@ function loadReportById(reportId){
     //Load the existing report view
     $("#report-name-field").html(reportObject.name);
     $("#new-report-parent").hide();
-    console.log(reportObject.line_items);
-    for (var i = 0; i < reportObject.line_items.length; i++){
-      addReportLineItem(reportObject.line_items[i]);
-    }
+    addMultipleReportLineItems(reportObject.line_items);
     //Show the new report UI
     changeReportView('computer', 'view');
   })
@@ -71,6 +68,11 @@ function updateExistingReport(){
   var lineItems = [];
   //for every line item, build an object
   for (var i = 0; i <= window.advanced_search_line_item_count-1; i++){
+    //Make sure a header field wasn't selected
+    if ($("#field-value-" + i).val() == '' || $("#field-value-" + i).val().includes('---')){
+      swal('Save Failed.', 'It looks like one of your selected fields was a header field. Please select a field to display and save the report again.', 'error');
+      return;
+    }
     lineItems.push({ "order" : i, "condition" : $("#include-value-" + i).val(), "parenthesis_one" : $("#param-one-value-" + i).val(), "operator" : $("#operator-value-" + i).val(), "value" : $("#input-value-" + i).val(), "field" : $("#field-value-" + i).val(), "parenthesis_two" : $("#param-two-value-" + i).val()});
   }
   //Create the report object and post everything to the server
@@ -86,15 +88,48 @@ function updateExistingReport(){
   })
 }
 
+function removeLineItemByIndex(index){
+  $(".report-line-item-row-" + index).remove();
+  //Now loop through every element after i and update it's 'id' so we don't have a missing one
+  for (i = index; i <= window.advanced_search_line_item_count; i++){
+    $(".report-line-item-row-" + i).removeClass('report-line-item-row-' + i).addClass("report-line-item-row-" + (i - 1));
+    $("#param-one-value-" + i).attr('id',"param-one-value-" + (i - 1));
+    $("#field-value-" + i).attr('id',"field-value-" + (i - 1));
+    $("#operator-value-" + i).attr('id',"operator-value-" + (i - 1));
+    $("#input-value-" + i).attr('id',"input-value-" + (i - 1));
+    $("#param-two-value-" + i).attr('id',"param-two-value-" + (i - 1));
+    $("#remove-line-item-button-" + i).attr('id',"remove-line-item-button-" + (i - 1));
+  }
+  window.advanced_search_line_item_count--;
+}
+
 function saveNewReport(shouldRun){
+  if ($("#fields-to-select").val().length == 0){
+    swal('Save Failed.', 'Please select some fields to be displayed in this report.', 'error');
+    return;
+  }
+  if ($("#new-report-name").val() == ''){
+    swal('Save Failed.', 'Please provide a report name.', 'error');
+    return;
+  }
   //keep a list of all of the search line items to send to the server
   var lineItems = [];
   //for every line item, build an object
   for (var i = 0; i <= window.advanced_search_line_item_count-1; i++){
+    //Make sure a header field wasn't selected
+    if ($("#field-value-" + i).val() == '' || $("#field-value-" + i).val().includes('---')){
+      swal('Save Failed.', 'It looks like one of your selected fields was a header field. Please select a field to display and save the report again.', 'error');
+      return;
+    }
     lineItems.push({ "order" : i, "condition" : $("#include-value-" + i).val(), "parenthesis_one" : $("#param-one-value-" + i).val(), "operator" : $("#operator-value-" + i).val(), "value" : $("#input-value-" + i).val(), "field" : $("#field-value-" + i).val(), "parenthesis_two" : $("#param-two-value-" + i).val()});
   }
+  //Try to get report type
+  var reportType = "mobile_device";
+  if (urlParams.has('reportType')){
+    reportType = urlParams.get('reportType');
+  }
   //Create the report object and post everything to the server
-  var reqBody = { name : $("#new-report-name").val(), type : $("#new-report-type").val(), line_items : lineItems};
+  var reqBody = { name : $("#new-report-name").val(), type : reportType, line_items : lineItems, fields_to_select : $("#fields-to-select").val().join(", ")};
   var post = getRequestObject('/reports/save', reqBody, 'POST');
   post.done(function(res){
     swal('Report Saved', 'The report has been saved.', 'success');
@@ -125,24 +160,48 @@ function reloadReportPane(loadFirstItem){
   }
 }
 
+function prettyPrintColumnName(input){
+  //First replace the periods with dashes
+  var pretty = input.replace('.', ' - ');
+  return pretty.toLowerCase()
+      .split(' ')
+      .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+      .join(' ');
+}
+
 function viewReportResults(reportId){
   var getReport = getRequestObject('/reports/search/' + reportId, null, 'GET');
   getReport.done(function(res){
-    //Create a table in the modal
-    var resultTable = $("#report-results-table").DataTable();
+    console.log(res);
+    //Create a table in the modal based on the fields to be shown
+    var columns = res.fields_to_select.split(",");
+    var columnsObjs = [];
+    columns.forEach(function(c){
+      columnsObjs.push({title : prettyPrintColumnName(c)});
+    });
+    var resultTable = $("#report-results-table").DataTable({
+      columns : columnsObjs
+    });
     //Clear it out in case it was previously loaded
     resultTable.clear();
     //For each line item of the report, add it to the display modal
-    for (var i = 0; i < res.length; i++){
+    for (var i = 0; i < res.results.length; i++){
       //Check if it's a computer or mobile device
-      var deviceType = getKeyForDeviceObj(res[i]);
+      var deviceType = getKeyForDeviceObj(res.results[i]);
+      var row = [];
+      columns.forEach(function(c){
+        c = c.replace(/\s/g,'');
+        var parentCategory = c.split(".")[0];
+        var dataCategory = c.split(".")[1];
+        row.push(res.results[i][deviceType][parentCategory][dataCategory]);
+      });
+      console.log(row);
       //Add a row for the device to the table
-      resultTable.row.add([res[i][deviceType].general.name, res[i][deviceType].general.last_contact_time, res[i][deviceType].location.realname, '']);
+      resultTable.row.add(row);
     }
     //Draw the table and show the results modal
     resultTable.draw(false);
     $("#report-display-modal").modal('show');
-    console.log(res);
   })
   .fail(function(xhr){
     console.log(xhr);
@@ -637,6 +696,18 @@ function updatePermission(userId, permission, value){
   });
 }
 
+function deleteReport(reportId){
+  var req = getRequestObject('/reports/id/' + reportId, null, 'DELETE');
+  req.done(function(result){
+    swal('Success', 'The report has been deleted.', 'success');
+    getAllSavedReports();
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+    swal('Update Failed', 'Failed to delete the report. Check the console for more details.', 'error');
+  });
+}
+
 function getUserEditButton(userId, permission, value){
   if (value == true || value == 1){
     return '<button type="button" class="btn btn-success btn-circle" onclick="updatePermission(\''+userId+'\',\''+permission+'\',false);"><i class="fa fa-check"></i></button>';
@@ -690,6 +761,53 @@ function fillDataForLineItem(id, data){
   $("#input-value-" + data.order).val(data.value);
 }
 
+function getReportOptions(){
+  var options = [];
+  //Make sure it has the most recent fields available to it
+  options.push(new Option('--- General ---',''));
+  for (var key in window.reporting_fields.general){
+    options.push(new Option(window.reporting_fields.general[key],"general." + key));
+  }
+  options.push(new Option('--- Location ---',''));
+  for (var key in window.reporting_fields.location){
+    options.push(new Option(window.reporting_fields.location[key],"location." + key));
+  }
+  options.push(new Option('--- Purchasing ---',''));
+  for (var key in window.reporting_fields.purchasing){
+    options.push(new Option(window.reporting_fields.purchasing[key],"purchasing." + key));
+  }
+  options.push(new Option('--- Hardware ---',''));
+  for (var key in window.reporting_fields.hardware){
+    options.push(new Option(window.reporting_fields.hardware[key],"hardware." + key));
+  }
+  options.push(new Option('--- Applications ---',''));
+  for (var key in window.reporting_fields.applications){
+    options.push(new Option(window.reporting_fields.applications[key],"applications." + key));
+  }
+  return options;
+}
+
+function addMultipleReportLineItems(lineItems){
+  //First get the view template to be used for all line items
+  $.get("/app-views/report-line-item.html", function(data) {
+    //for every line item, add it to the view
+    for (var i = 0; i < lineItems.length; i++){
+      //make a copy of the report data to use as a template
+      var template = data;
+      template = template.replace(/{ID}/g, i);
+      $("#advance-report-criteria").append(template);
+      //Add all of the select options
+      var options = getReportOptions();
+      options.forEach(function(o){
+        $("#field-value-"+i).append(o);
+      });
+      //Populate all of the data
+      fillDataForLineItem(i,lineItems[i]);
+    }
+    advanced_search_line_item_count = lineItems.length;
+  });
+}
+
 //Keep a count of how many line items there are for advanced search
 window.advanced_search_line_item_count = 0;
 function addReportLineItem(lineItemToFill){
@@ -698,26 +816,20 @@ function addReportLineItem(lineItemToFill){
     //Fill in the id for querying data later
     data = data.replace(/{ID}/g, window.advanced_search_line_item_count);
     $("#advance-report-criteria").append(data);
-    //Make sure it has the most recent fields available to it
-    $(".advanced-report-field-dropdown").append(new Option('--- General ---',''));
-    for (var key in window.reporting_fields.general){
-      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.general[key],"general." + key));
-    }
-    $(".advanced-report-field-dropdown").append(new Option('--- Location ---',''));
-    for (var key in window.reporting_fields.location){
-      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.location[key],"location." + key));
-    }
-    $(".advanced-report-field-dropdown").append(new Option('--- Purchasing ---',''));
-    for (var key in window.reporting_fields.purchasing){
-      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.purchasing[key],"purchasing." + key));
-    }
-    $(".advanced-report-field-dropdown").append(new Option('--- Hardware ---',''));
-    for (var key in window.reporting_fields.hardware){
-      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.hardware[key],"hardware." + key));
-    }
-    $(".advanced-report-field-dropdown").append(new Option('--- Applications ---',''));
-    for (var key in window.reporting_fields.applications){
-      $(".advanced-report-field-dropdown").append(new Option(window.reporting_fields.applications[key],"applications." + key));
+    //Get the select options to add to the report
+    var options = getReportOptions();
+    options.forEach(function(o){
+      $("#field-value-"+window.advanced_search_line_item_count).append(o);
+    });
+    //Clone select options ito the fields to select
+    if (window.advanced_search_line_item_count == 0){
+      var $options = $(".advanced-report-field-dropdown > option").clone();
+      $("#fields-to-select").selectpicker();
+      $('#fields-to-select').append($options);
+      $("#fields-to-select").selectpicker("refresh");
+      //Disable the first and/or for the first criteria
+      $("#include-value-0").prop('disabled', 'true');
+      $("#remove-line-item-button-0").remove();
     }
     //If the line item isn't null, fill in the data now
     if (lineItemToFill != null){
@@ -792,40 +904,49 @@ function renderPage(){
     updateQueryStringParam('tab',target.substring(1,target.length));
   });
   if (sessionStorage.getItem("is_admin") == "true"){
-    console.log('get settings');
     getSettingsForAdmin();
+  } else {
+    //Hide the settings tab
+    $(".settings-view").remove();
   }
 }
 
 var urlParams = new URLSearchParams(window.location.search);
 function changeViewBack(){
   //If there is something in session storage, show that
-  var lastTab = sessionStorage.getItem("last-view");
-  if (lastTab != null){
-    changeView(lastTab);
-  }
+  var lastURLParams = JSON.parse(sessionStorage.getItem("last-view"));
+  changeView(lastURLParams['tab']);
 }
 
 function changeView(newView){
   //Keep a record of the last tab for a back button
-  if ("last-view" in sessionStorage && sessionStorage.getItem("last-view") != urlParams.get('tab')){
-    sessionStorage.setItem("last-view", urlParams.get('tab'));
-  } else if (!("last-view" in sessionStorage)){
-    sessionStorage.setItem("last-view", urlParams.get('tab'));
+  var savedObject = {};
+  for(var param of urlParams.entries()) {
+    savedObject[param[0]] = param[1];
   }
+  sessionStorage.setItem('last-view', JSON.stringify(savedObject));
   //Hide all other views
   $(".view-pane").hide();
   //remove the active class
   $(".sidebar-button").removeClass('active');
-  //Show the new one, update the url
-  resetURLParams();
-  updateQueryStringParam('tab',newView);
+  //If the new view is save report type, save the url params
+  if (!(newView == 'create-new-report-view' && urlParams.has('reportType') && urlParams.has('type'))){
+    //Show the new one, update the url
+    resetURLParams();
+    updateQueryStringParam('tab',newView);
+  }
   $("#" + newView).show();
   //Add the active class
   //$("#" + newView).addClass('active');
 }
 
 function changeReportView(deviceType, operation){
+  //Set the title at the top of the card
+  if (deviceType == 'computer'){
+    $("#report-name-field").html('New Computer Report');
+  } else {
+    $("#report-name-field").html('New Mobile Report');
+  }
   changeView('create-new-report-view');
   //Add the url params for the type
   updateQueryStringParam('reportType', deviceType);

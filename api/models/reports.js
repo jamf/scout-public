@@ -169,6 +169,24 @@ exports.insertReportObject = function(reportObject){
   });
 }
 
+exports.deleteReport = function(reportId){
+  return new Promise(function(resolve,reject) {
+    db.get().query('DELETE FROM reports WHERE id = ?', [reportId], function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        db.get().query('DELETE FROM reports_line_item WHERE report_id = ?', [reportId], function(error, results, fields) {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        });
+      }
+    });
+  });
+}
+
 exports.getReports = function(){
   return new Promise(function(resolve,reject) {
     db.get().query('SELECT reports.*, users.email FROM reports JOIN users ON reports.created_by = users.id', function(error, results, fields) {

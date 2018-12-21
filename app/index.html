@@ -141,7 +141,7 @@
                             </ul>
                             <!-- /.nav-second-level -->
                         </li>
-                        <li>
+                        <li class="settings-view">
                             <a onclick="changeView('settings-view');"><i class="fa fa-gear fa-fw"></i> Settings</a>
                         </li>
 
@@ -429,7 +429,7 @@
            <div id="mobile-reports-view" class="view-pane" style="display:none;">
              <div class="row">
                <div class="col-lg-12" align="right">
-                 <br/><button type="submit" onclick="changeReportView('mobile','new');" class="btn btn-success">Create a new Report</button><br/><br/>
+                 <br/><button type="submit" onclick="changeReportView('mobile_device','new');" class="btn btn-success">Create a new Report</button><br/><br/>
                </div>
              </div>
              <div class="row">
@@ -515,13 +515,13 @@
                              <label for="new-report-name">New Report Name</label>
                              <input type="text" class="form-control" id="new-report-name" placeholder="Computers with iMovie Installed">
                            </div>
-                           <div class="col-lg-4">
+                           <!--<div class="col-lg-4">
                              <label for="new-report-type">New Report Type</label>
                              <select id="new-report-type" class="form-control">
                                <option value="mobile_device">Mobile Report</option>
                                <option value="computer">Computer Report</option>
                              </select>
-                           </div>
+                           </div>-->
                            <div class="col-lg-4">
                              <label for="new-report-type">Fields to Select</label>
                              <select id="fields-to-select" class="selectpicker form-control" multiple data-live-search="true">
@@ -566,7 +566,7 @@
                 </div>
               </div>
            </div>
-           <div id="settings-view" class="view-pane" style="display:none;">
+           <div id="settings-view" class="view-pane settings-view" style="display:none;">
              <div class="row">
                 <br/>
              </div>
@@ -776,7 +776,7 @@
                   <!-- this datatable is populated when the serach results are returned -->
                   <table id="report-results-table" class="table table-striped table-bordered table-hover" style="width:100%">
                      <thead>
-                      
+
                      </thead>
                      <tbody id="report-results-table-body">
                      </tbody>

@@ -141,6 +141,7 @@ if (cluster.isMaster){
   app.use('/devices', jwtCheck);
   app.use('/reports', jwtCheck);
   app.use('/users/all', jwtCheck);
+  app.use('/users/verify', jwtCheck);
   app.use('/settings', jwtCheck);
   app.use('/commands', jwtCheck);
   //Provide custom response middleware

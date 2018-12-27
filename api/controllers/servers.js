@@ -3,6 +3,7 @@ var server = require('../models/server.js');
 var db = require('../common/db.js');
 var device = require('../models/device.js');
 var schedule = require('node-schedule');
+var user = require('../models/user.js');
 var exec = require('child_process').exec;
 var cron = require('../common/cron-handler.js');
 
@@ -35,15 +36,15 @@ servers.post('/add', function(req,res) {
       //Take the server list and pass it to the handler
       cron.handleServerRecords(serverList)
       .then(function(cronResult){
-        res.status(201).send({ status : "success" });
+        return res.status(201).send({ status : "success" });
       })
       .catch(function(error){
-        res.status(206).send({ error : "Unable to verify cron jobs, please restart your server to fix this." });
+        return res.status(206).send({ error : "Unable to verify cron jobs, please restart your server to fix this." });
         console.log(error);
       });
     })
     .catch(function(error){
-      res.status(206).send({ error : "Unable to verify cron jobs, please restart your server to fix this." });
+      return res.status(206).send({ error : "Unable to verify cron jobs, please restart your server to fix this." });
       console.log(error);
     });
   })
@@ -56,7 +57,7 @@ servers.post('/add', function(req,res) {
     } else if (error.error == "Unable to setup scout admin user"){
       return res.status(206).send({ error: "Unable to setup the scout admin user, emergency access will not function."});
     }
-    res.status(500).send({ error: "Unkown error has occured"});
+    return res.status(500).send({ error: "Unkown error has occured"});
   });
 });
 
@@ -80,11 +81,11 @@ servers.post('/access/', function(req,res){
       //destroy the password from the database
       server.setScoutAdminPassword(req.body.url, null)
       .then(function(result){
-        res.status(200).send(resObj);
+        return res.status(200).send(resObj);
       })
       .catch(error => {
         console.log(error);
-        res.status(500).send({
+        return res.status(500).send({
           error: "Unable to destory password, refusing to return password"
         });
       });
@@ -96,7 +97,7 @@ servers.post('/access/', function(req,res){
   })
   .catch(error => {
     console.log(error);
-    res.status(400).send({
+    return res.status(400).send({
       error: "Unable to find server"
     });
   });
@@ -133,7 +134,7 @@ servers.put('/update/:id', function(req,res){
   }
   server.updateServer(req.params.id, req.body)
   .then(function(result){
-    res.status(200).send({success : true});
+    return res.status(200).send({success : true});
   })
   .catch(error => {
     console.log(error);
@@ -157,6 +158,12 @@ servers.delete('/delete/:id', function(req,res) {
       error : "Missing Required Fields"
     });
   }
+  //Make sure the user has permission to delete the server
+  if (!user.hasPermission(req.user,'can_delete')){
+    return res.status(401).send({
+      error : "User is not authorized to delete servers"
+    });
+  }
   var serverId = req.params.id;
   //Delete the server from the database
   server.deleteServer(serverId)
@@ -164,7 +171,19 @@ servers.delete('/delete/:id', function(req,res) {
     //If success, then delete the devices for that jps
     device.deleteDevicesByJPSId(serverId)
     .then(function(result) {
-      res.status(200).send({ status : "success" });
+      //Need to now resetup the cron jobs
+      server.getAllServers()
+      .then(function(serverList){
+        //Take the server list and pass it to the handler
+        cron.handleServerRecords(serverList)
+        .then(function(cronResult){
+          return res.status(201).send({ status : "success" });
+        })
+        .catch(function(error){
+          return res.status(206).send({ error : "Unable to verify cron jobs, please restart your server to fix this." });
+          console.log(error);
+        });
+      })
     })
     .catch(error => {
       console.log(error);

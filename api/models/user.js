@@ -15,6 +15,18 @@ exports.getUserFromEmail = function(email) {
   });
 }
 
+exports.getUserById = function(id) {
+  return new Promise(function(resolve,reject) {
+    db.get().query('SELECT * FROM users WHERE id = ?',id, function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results[0]);
+      }
+    });
+  });
+}
+
 exports.hasPermission = function(userObject, permisison){
   return (userObject[permisison] == 1 || userObject[permisison] == true);
 }

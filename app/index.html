@@ -913,6 +913,35 @@
          <!-- /.modal-dialog -->
       </div>
 
+      <div class="modal fade in" id="remove-server-modal" tabindex="-1" role="dialog" aria-labelledby="Remove Server" aria-hidden="true">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                  <h4 class="modal-title" id="myModalLabel">Remove Jamf Pro Server</h4>
+               </div>
+               <div class="modal-body">
+                 <p>Before removing this server from the Scout application, please provide your password below and confirm this action.</p>
+                 <p><b>Removing a server can not be undone, and all of it's related devices will also be removed from scout.</b></p>
+                  <div class="row">
+                     <div class="col-md-12">
+                       <div class="form-group">
+                          <label>Password</label>
+                          <input class="form-control" id="delete-server-confirm-password" type="password" placeholder="jamf1234">
+                       </div>
+                     </div>
+                     <input id="delete-server-id" style="display:none;" type="number"/>
+                  </div>
+               </div>
+               <div class="modal-footer">
+                 <button onclick="verifyDeleteServer();" class="btn btn-danger">Delete Server</button>
+               </div>
+            </div>
+            <!-- /.modal-content -->
+         </div>
+         <!-- /.modal-dialog -->
+      </div>
+
       <div class="modal fade in" id="update-server-modal" tabindex="-1" role="dialog" aria-labelledby="Update Server" aria-hidden="true">
          <div class="modal-dialog">
             <div class="modal-content">

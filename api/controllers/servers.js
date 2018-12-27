@@ -122,6 +122,12 @@ servers.put('/update/:id', function(req,res){
       error : "Missing Required Fields"
     });
   }
+  //Make sure the user has permission to delete the server
+  if (!user.hasPermission(req.user,'can_edit')){
+    return res.status(401).send({
+      error : "User is not authorized to edit servers"
+    });
+  }
   //Only allow update of certain fields
   if ("url" in req.body || "scout_admin_id" in req.body || "scout_admin_password" in req.body){
     return res.status(403).send({

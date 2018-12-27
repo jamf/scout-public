@@ -376,7 +376,7 @@ function getDeviceLive(type, serial, udid){
       } else {
         device = result.mobile_device;
       }
-      $("#device-view-name").html(device.general.name);
+      $("#device-view-name").html("<h4>"+device.general.name+"</h4>");
       for (var prop in device) {
         if (!device.hasOwnProperty(prop)) {
            continue;
@@ -396,6 +396,8 @@ function getDeviceLive(type, serial, udid){
             }
         } else if (device[prop].length == 0){
           //No values
+          var tableTab = prop + "-table-body";
+          $("#" + tableTab).append("<tr><td>No Values</td><td>No Data</td></tr>");
         }
       }
       //Show the modal

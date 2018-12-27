@@ -13,8 +13,9 @@
     </ul>
   </div>
   <div class="col-md-9">
-    <div style="height: 450px !important; overflow: scroll;">
+    <div style="height: 450px !important; overflow: scroll; background: #F0F8FF;">
     <div class="table-responsive">
+      <h4 id="tab-name">General</h4>
       <table class="table table-striped device-table" id="general-table">
         <thead>
           <tr>
@@ -120,8 +121,14 @@
 </div>
 <!-- this code handles switch between tabs -->
 <script>
+  $(".general-table").addClass("active");
   $(".tab-selector").click(function(event){
     var selectedTab = $(this).prop("class").split(' ')[0];
+    $("#tab-name").html($(this).text());
+    //remove selected from all elements
+    $(".tab-selector").removeClass("active");
+    //Add the selected class
+    $(this).addClass("active");
     //hide all of the other tables
     $(".device-table").hide();
     //Show the selected table

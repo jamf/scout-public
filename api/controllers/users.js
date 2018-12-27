@@ -41,11 +41,11 @@ users.get('/all', function(req,res){
   //get the users from the database
   user.getAllUsers()
   .then(function(userList){
-    res.status(200).send(userList);
+    return res.status(200).send(userList);
   })
   .catch(error => {
     console.log(error);
-    res.status(500).send({
+    return res.status(500).send({
       error: "Unable to get users"
     });
   });
@@ -80,7 +80,7 @@ users.post('/create', function(req, res) {
   user.createUser(req.body.email, req.body.password)
   .then(function(userObject){
     //Send a success with the token
-    res.status(201).send({
+    return res.status(201).send({
           status : "success",
           token: createToken(userObject)
     });
@@ -89,11 +89,11 @@ users.post('/create', function(req, res) {
     console.log(error);
     //Check for dupe user error
     if (error.hasOwnProperty('status')){
-      res.status(409).send({
+      return res.status(409).send({
         error: "Email already exists"
       });
     } else {
-      res.status(500).send({
+      return res.status(500).send({
         error: "Unable to create user"
       });
     }
@@ -114,7 +114,7 @@ users.post('/create', function(req, res) {
 users.post('/login/basic', function(req, res) {
   //check for all fields in request
   if (!req.body.email || !req.body.password) {
-    res.status(400).send({
+    return res.status(400).send({
       error : "Email and Password Required"
     });
   }
@@ -137,8 +137,42 @@ users.post('/login/basic', function(req, res) {
   })
   .catch(error => {
     console.error(error);
-    res.status(400).send({
+    return res.status(400).send({
       error: "Unable to log in user"
+    });
+  });
+});
+
+/**
+ * This endpoint compares a given password the the user identified by the JWT token provided
+ * @route POST /users/verify
+ * @group Users - Operations about Scout Users
+ * @param {string} password.body.required - The password for the user
+ * @returns {object} 200 - An object containing whether or not the password is valid
+ * @returns {Error}  400 - Missing required fields
+ * @returns {Error}  500 - Generic server error
+ */
+users.post('/verify', function(req,res){
+  //Make sure all of the proper fields were provided
+  if (!req.body.password || !req.user){
+    return res.status(400).send({
+      error : "Missing required fields"
+    });
+  }
+  //Get the user by Id and compare the hash to the password provided
+  user.getUserById(req.user.id)
+  .then(function(userObject){
+    var isVerified = true;
+    //Compare the pssword to the hash in the database
+    if (!userObject || !bcrypt.compareSync(req.body.password, userObject.hash)) {
+      //Incorrect hash or can't find user
+      isVerified = false;
+    }
+    return res.status(200).send({ verified : isVerified});
+  })
+  .catch(error => {
+    return res.status(500).send({
+      error: "Unable to find user"
     });
   });
 });

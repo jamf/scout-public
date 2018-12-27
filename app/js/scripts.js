@@ -376,7 +376,7 @@ function getDeviceLive(type, serial, udid){
       } else {
         device = result.mobile_device;
       }
-      $("#device-view-name").html(device.general.name);
+      $("#device-view-name").html("<h4>"+device.general.name+"</h4>");
       for (var prop in device) {
         if (!device.hasOwnProperty(prop)) {
            continue;
@@ -396,6 +396,8 @@ function getDeviceLive(type, serial, udid){
             }
         } else if (device[prop].length == 0){
           //No values
+          var tableTab = prop + "-table-body";
+          $("#" + tableTab).append("<tr><td>No Values</td><td>No Data</td></tr>");
         }
       }
       //Show the modal
@@ -464,14 +466,46 @@ function updateMobileDevices(){
   });
 }
 
+function verifyDeleteServer(){
+  var serverId = $("#delete-server-id").val();
+  if (serverId == null || serverId == ''){
+    swal('Error', 'Missing server id, unable to remove server.', 'error');
+    return;
+  }
+  //Make sure they added a password to confirm
+  var password = $("#delete-server-confirm-password").val();
+  if (password == null || password == ''){
+    swal('Error', 'A password must be provided.', 'error');
+    return;
+  }
+  //Verify the provided password is correct
+  var reqBody = { password : password};
+  var userVerify = getRequestObject('/users/verify', reqBody, 'POST');
+  userVerify.done(function(res){
+    if (res.verified){
+      //Do the server delete
+      deleteServer(serverId);
+    } else {
+      swal('Error', 'Unable to verify password.', 'error');
+    }
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+    swal('Error', 'Unable to verify password.', 'error');
+  });
+}
+
 function deleteServer(id){
+  //Make the user auth again before deleting the server
   var serverDelete = getRequestObject('/servers/delete/' + id.toString(), null, 'DELETE');
   serverDelete.done(function(res){
     console.log(res);
     swal('Server Deleted', 'The server and all of it\'s devices have been removed.', 'success');
     loadServerTable();
+    $("#remove-server-modal").modal('hide');
   })
   .fail(function(xhr){
+    $("#remove-server-modal").modal('hide');
     console.log(xhr);
   });
 }
@@ -482,7 +516,7 @@ function getServerAccess(id,url){
 }
 
 function getServerButtons(id,url){
-  return '<button onclick="updateServer(\''+id+'\',\''+url+'\');" type="button" id="edit_'+id+'" class="edit_server btn btn-info btn-circle"><i class="fa fa-pencil"></i></button>&nbsp;&nbsp;<button type="button" id="delete_'+id+'" onclick="deleteServer(\''+id+'\')" class="btn btn-danger delete_server btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;<button type="button" id="access'+id+'" onclick="getServerAccess(\''+id+'\',\''+url+'\')" class="btn btn-success delete_server btn-circle"><i class="fa fa-key"></i></button>&nbsp;&nbsp;<br/><br/><button type="button" class="btn btn-warning btn-circle"><i class="fa fa-laptop"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-warning btn-circle"><i class="fa fa-mobile"></i></button>';
+  return '<button onclick="updateServer(\''+id+'\',\''+url+'\');" type="button" id="edit_'+id+'" class="edit_server btn btn-info btn-circle"><i class="fa fa-pencil"></i></button>&nbsp;&nbsp;<button type="button" id="delete_'+id+'" onclick="$(\'#remove-server-modal\').modal(\'show\');$(\'#delete-server-id\').val('+id+');" class="btn btn-danger delete_server btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;<button type="button" id="access'+id+'" onclick="getServerAccess(\''+id+'\',\''+url+'\')" class="btn btn-success delete_server btn-circle"><i class="fa fa-key"></i></button>&nbsp;&nbsp;<br/><br/><button type="button" class="btn btn-warning btn-circle"><i class="fa fa-laptop"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-warning btn-circle"><i class="fa fa-mobile"></i></button>';
 }
 
 function loadServerTable(){

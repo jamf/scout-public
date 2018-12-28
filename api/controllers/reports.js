@@ -1,5 +1,6 @@
 var reports = require('express').Router();
 var report = require('../models/reports.js');
+var user = require('../models/user.js');
 
 reports.get('/builder/fields', function(req,res) {
   //get all of the supported fields and their UI name
@@ -60,6 +61,10 @@ reports.delete('/id/:reportId', function(req,res){
       error: "Missing report id"
     });
   }
+  //Make sure the user has permission to delete the report
+  if (!user.hasPermission(req.user, 'can_delete')){
+    return res.status(401).send({ error: "User does not have permission to delete objects."});
+  }
   //Get the report and it's line items from the database
   report.deleteReport(req.params.reportId)
   .then(function(result){
@@ -74,11 +79,46 @@ reports.delete('/id/:reportId', function(req,res){
 
 reports.put('/update/:reportId', function(req,res){
   //Make sure everything is in the request
-  if (!req.body.name || !req.body.line_items || req.body.line_items.length < 1){
+  if (!req.body.name || !req.body.line_items || req.body.line_items.length < 1 || !req.params.reportId){
     res.status(400).send({
       error: "Missing required fields"
     });
   }
+  //Make sure the user has permission to update
+  if (!user.hasPermission(req.user, 'can_edit')){
+    return res.status(401).send({ error: "User does not have permission to edit objects."});
+  }
+  //Rebuild the report object
+  var reportObj = req.body;
+  reportObj.conditions_count = req.body.line_items.length;
+  reportObj.type = req.body.type;
+  //Only overwrite fields to select if they are provided
+  if (req.body.fields_to_select){
+    reportObj.fields_to_select = req.body.fields_to_select;
+  }
+  console.log(reportObj);
+  //Copy these out so we can update the parent report object first
+  var lineItems = req.body.line_items;
+  delete reportObj.line_items;
+  //Update the parent report object
+  report.updateReportById(reportObj, req.params.reportId)
+  .then(function(result){
+    Promise.all(lineItems.map(lineItem => report.updateReportLineItem(lineItem,lineItem.item_order,req.params.reportId))).then(function(results){
+      return res.status(200).send({ "status" : "success", "id" : req.params.reportId});
+    })
+    .catch(error => {
+      console.log(error);
+      return res.status(500).send({
+        error: "Unable to update report line items"
+      });
+    });
+  })
+  .catch(error => {
+    console.log(error);
+    return res.status(500).send({
+      error: "Unable to update report"
+    });
+  });
 });
 
 //Saves a report to the database to be used later
@@ -88,6 +128,10 @@ reports.post('/save', function(req,res){
     return res.status(400).send({
       error: "Missing required fields"
     });
+  }
+  //Make sure the user has permission
+  if (!user.hasPermission(req.user, 'can_create')){
+    return res.status(401).send({ error: "User does not have permission to create objects."});
   }
   //Copy out the line items to be inserted after the parent report
   var reportObj = req.body;

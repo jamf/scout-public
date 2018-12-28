@@ -38,6 +38,10 @@ patches.post('/servers/create', function(req,res){
       error: "Missing required fields"
     });
   }
+  //Make sure the user has permission
+  if (!user.hasPermission(req.user, 'can_create')){
+    return res.status(401).send({ error: "User does not have permission to create objects."});
+  }
   //Add the server to the database
   var server = { "base_url" : req.body.url, "cron_update" : req.body.cron};
   patch.addPatchServer(server)

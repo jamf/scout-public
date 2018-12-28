@@ -28,6 +28,10 @@ servers.post('/add', function(req,res) {
       error : "Missing Required Fields"
     });
   }
+  //Make sure the user has permission
+  if (!user.hasPermission(req.user, 'can_create')){
+    return res.status(401).send({ error: "User does not have permission to create objects."});
+  }
   server.addNewServer(req.body.url, req.body.username, req.body.password, req.body.cronLimited, req.body.cronExpanded)
   .then(function(result) {
     //Need to now resetup the cron jobs

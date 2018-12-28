@@ -84,6 +84,10 @@ reports.put('/update/:reportId', function(req,res){
       error: "Missing required fields"
     });
   }
+  //Make sure the user has permission to update
+  if (!user.hasPermission(req.user, 'can_edit')){
+    return res.status(401).send({ error: "User does not have permission to edit objects."});
+  }
 });
 
 //Saves a report to the database to be used later
@@ -93,6 +97,10 @@ reports.post('/save', function(req,res){
     return res.status(400).send({
       error: "Missing required fields"
     });
+  }
+  //Make sure the user has permission
+  if (!user.hasPermission(req.user, 'can_create')){
+    return res.status(401).send({ error: "User does not have permission to create objects."});
   }
   //Copy out the line items to be inserted after the parent report
   var reportObj = req.body;

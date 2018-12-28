@@ -32,37 +32,48 @@ exports.parseIntoQuery = function(searchLineItems, reportType){
   var grouped = [];
   var i = 0;
   var lastGroupObject = null;
-  while (i < searchLineItems.length){
-    //Default to AND if no junction
-    if (searchLineItems[i].junction != 'AND' || searchLineItems[i].junction != 'OR'){
-      searchLineItems[i].junction = 'AND';
+  console.log(searchLineItems);
+  console.log(searchLineItems.length);
+  //If there are only two items, it's easy enough to just set both groupings to that condition
+  if (searchLineItems.length == 2){
+    searchLineItems.forEach(l => {
+      l.junction = searchLineItems[1].junction;
+      grouped.push(l);
+    });
+  } else {
+    while (i < searchLineItems.length){
+      //Default to AND if no junction
+      if (searchLineItems[i].junction != 'AND' || searchLineItems[i].junction != 'OR'){
+          searchLineItems[i].junction = 'AND';
+      }
+      //We found a new grouping
+      if (lastGroupObject == null && searchLineItems[i].param_one == 1){
+        //Find the object before this so we now where to include the group
+        lastGroupObject = {};
+        lastGroupObject.last_junction = searchLineItems[i].junction;
+        //Only can have one operator per parenthesis so default to this one
+        lastGroupObject.junction = searchLineItems[i + 1].junction;
+        lastGroupObject.items = [];
+        lastGroupObject.items.push(searchLineItems[i]);
+      //Add another one to the grouping
+      } else if (lastGroupObject != null && searchLineItems[i].param_two == 0){
+        //Push to the grouping
+        lastGroupObject.items.push(searchLineItems[i]);
+      //This is the end of the grouping
+      } else if (lastGroupObject != null && searchLineItems[i].param_two == 1){
+        lastGroupObject.items.push(searchLineItems[i]);
+        //reset the group placeholder and add the current one to the list of grouped objects.
+        grouped.push(lastGroupObject);
+        lastGroupObject = null;
+      } else {
+        //This isn't a grouping, just push the line item
+        grouped.push(searchLineItems[i]);
+      }
+      //continue on
+      i++;
     }
-    //We found a new grouping
-    if (lastGroupObject == null && searchLineItems[i].param_one == 1){
-      //Find the object before this so we now where to include the group
-      lastGroupObject = {};
-      lastGroupObject.last_junction = searchLineItems[i].junction;
-      //Only can have one operator per parenthesis so default to this one
-      lastGroupObject.junction = searchLineItems[i + 1].junction;
-      lastGroupObject.items = [];
-      lastGroupObject.items.push(searchLineItems[i]);
-    //Add another one to the grouping
-    } else if (lastGroupObject != null && searchLineItems[i].param_two == 0){
-      //Push to the grouping
-      lastGroupObject.items.push(searchLineItems[i]);
-    //This is the end of the grouping
-    } else if (lastGroupObject != null && searchLineItems[i].param_two == 1){
-      lastGroupObject.items.push(searchLineItems[i]);
-      //reset the group placeholder and add the current one to the list of grouped objects.
-      grouped.push(lastGroupObject);
-      lastGroupObject = null;
-    } else {
-      //This isn't a grouping, just push the line item
-      grouped.push(searchLineItems[i]);
-    }
-    //continue on
-    i++;
   }
+  console.log(grouped);
   var mongoSearchObject = {};
   //Now we are going to build a nosql object for each of the items
   for (var i = 0; i < grouped.length; i++){
@@ -100,47 +111,9 @@ exports.parseIntoQuery = function(searchLineItems, reportType){
         mongoSearchObject[operatorToNoSQL(grouped[i].junction)].push(lineItem);
       }
     }
-    console.log(mongoSearchObject);
   }
   return mongoSearchObject;
 }
-
-// exports.parseIntoQuery = function(searchLineItems, reportType){
-//   var searchObject = {};
-//   //Loop throught the query and build up the search query
-//   for (var i = 0; i < searchLineItems.length; i++){
-//     //Make sure the line item was actually filled out
-//     if (Object.keys(searchLineItems[i]).length > 0 && searchLineItems[i].value != ''){
-//       var line = searchLineItems[i];
-//       console.log(line);
-//       //see if we need to add a new conidtion or use the last one in the query
-//       var operatorsInSearch = Object.keys(searchObject);
-//       console.log(operatorsInSearch);
-//       //Check if we need to add this operator to the search object
-//       if (operatorsInSearch.length == 0 || operatorsInSearch[operatorsInSearch.length - 1] != operatorToNoSQL(line.junction)){
-//         if (i == 0){
-//           //add the new operator
-//           searchObject[operatorToNoSQL(searchLineItems[1].junction)] = [];
-//         } else {
-//           //add the new operator
-//           searchObject[operatorToNoSQL(line.junction)] = [];
-//         }
-//       }
-//       //If if it's the first item add it fto whatever the second operator is
-//       var lineItemSearchObject = getSearchObject(reportType,line.field, line.operator, line.value);
-//       console.log(lineItemSearchObject);
-//       if (i == 0){
-//         //Add the serach item to the correct operator
-//         searchObject[operatorToNoSQL(searchLineItems[1].junction)].push(lineItemSearchObject);
-//       } else {
-//         //Add the serach item to the correct operator
-//         searchObject[operatorToNoSQL(line.junction)].push(lineItemSearchObject);
-//       }
-//     }
-//   }
-//   return searchObject;
-// }
-
 
 //Get matching inventory record by category and field search
 exports.getRecordsForSearchObject = function(collection, searchObject){
@@ -152,6 +125,57 @@ exports.getRecordsForSearchObject = function(collection, searchObject){
       } else {
         console.log(result);
         resolve(result);
+      }
+    });
+  });
+}
+
+exports.updateReportById = function(reportObject, reportId){
+  return new Promise(function(resolve,reject) {
+    db.get().query('UPDATE reports SET ? WHERE id = ?', [reportObject,reportId], function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
+exports.updateReportLineItem = function(lineItem, order, reportId){
+  //Set some meta fields
+  lineItem.report_id = reportId;
+  //Check if we need to replace a parenthesis with a boolean value
+  if (lineItem.parenthesis_one == "("){
+    lineItem.parenthesis_one = true;
+  }
+  if (lineItem.parenthesis_two == ")"){
+    lineItem.parenthesis_two = true;
+  }
+  return new Promise(function(resolve,reject) {
+    //First make sure this line item exists
+    db.get().query('SELECT item_order,report_id FROM reports_line_item WHERE item_order = ? AND report_id = ?', [order,reportId], function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        //If it already exists, update it, else insert a new one
+        if (results.length > 0){
+          db.get().query('UPDATE reports_line_item SET ? WHERE item_order = ? AND report_id = ?', [lineItem,order,reportId], function(error, results, fields) {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(results);
+            }
+          });
+        } else {
+          exports.insertReportLineItem(lineItem, reportId)
+          .then(success => {
+            resolve(success);
+          })
+          .catch(error => {
+            reject(error);
+          });
+        }
       }
     });
   });

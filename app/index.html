@@ -535,10 +535,12 @@
                        <span id="selected-fields-view" style="display:none;"><h4>Selected fields: <span id="selected-fields"></span></h4></span>
                      </div>
                      <div class="col-lg-12" style="float:right;">
-                       <button type="submit" onclick="addReportLineItem();" class="btn btn-primary report-edit-button">Add Criteria</button>
-                       <button type="submit" onclick="$('#existing-report-id').val('');upsertReport(false);" class="btn btn-warning report-edit-button">Save</button>
-                       <button type="submit" onclick="$('#existing-report-id').val('');upsertReport(true);" class="btn btn-success report-edit-button">Save & Run</button>
+                       <button type="submit" onclick="addReportLineItem();" class="btn btn-primary report-create-button">Add Criteria</button>
+                       <button type="submit" onclick="$('#existing-report-id').val('');upsertReport(false);" class="btn btn-warning report-create-button">Save</button>
+                       <button type="submit" onclick="$('#existing-report-id').val('');upsertReport(true);" class="btn btn-success report-create-button">Save & Run</button>
                        <button type="submit" onclick="runExistingReportByUrl();" style="display:none;" class="btn btn-success report-view-button">Run Report</button>
+                       <button type="submit" onclick="addReportLineItem();" style="display:none;" class="btn btn-primary report-edit-button">Add Criteria</button>
+                       <button type="submit" onclick="upsertReport(false);" style="display:none;" class="btn btn-warning report-edit-button">Update Report</button>
                      </div>
                    </div>
                  </div>

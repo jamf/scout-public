@@ -19,13 +19,38 @@ function getAllSavedReports(){
     computerReports.clear();
     mobileReports.clear();
     for (var i = 0; i < reportsList.length; i++){
-      var actionButtons = '<button type="button" class="btn btn-success btn-circle" onclick="viewReportResults(\''+reportsList[i].id+'\');"><i class="fa fa-play-circle"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-info btn-circle" onclick="loadReportById(\''+reportsList[i].id+'\');"><i class="fa fa-eye"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-warning btn-circle"><i class="fa fa-pencil"></i></button>&nbsp;&nbsp;<button onclick="deleteReport(\''+reportsList[i].id+'\');" type="button" class="btn btn-danger btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;';
+      var actionButtons = '<button type="button" class="btn btn-success btn-circle" onclick="viewReportResults(\''+reportsList[i].id+'\');"><i class="fa fa-play-circle"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-info btn-circle" onclick="loadReportById(\''+reportsList[i].id+'\');"><i class="fa fa-eye"></i></button>&nbsp;&nbsp;<button type="button" onclick="editReportById(\''+reportsList[i].id+'\');" class="btn btn-warning btn-circle"><i class="fa fa-pencil"></i></button>&nbsp;&nbsp;<button onclick="deleteReport(\''+reportsList[i].id+'\');" type="button" class="btn btn-danger btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;';
       if (reportsList[i].type == 'computer'){
         computerReports.row.add([reportsList[i].name, reportsList[i].created, reportsList[i].email, reportsList[i].conditions_count, actionButtons]).draw(false);
       } else {
         mobileReports.row.add([reportsList[i].name, reportsList[i].created, reportsList[i].email, reportsList[i].conditions_count, actionButtons]).draw(false);
       }
     }
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+  });
+}
+
+function editReportById(reportId){
+  reloadReportPane(false);
+  $("#existing-report-id").val(reportId);
+  //Make the request to the server to get a saved report
+  var report = getRequestObject('/reports/id/' + reportId, null, 'GET');
+  report.done(function(reportObject){
+    console.log(reportObject);
+    //Load the existing report view
+    $("#new-report-parent").show();
+    addMultipleReportLineItems(reportObject.line_items);
+    //Fill in and show the fields to select
+    var fieldsToSelectArr = reportObject.fields_to_select.split(',');
+    $('#fields-to-select').selectpicker('val', fieldsToSelectArr);
+    $("#fields-to-select").selectpicker("refresh");
+    //Show the new report UI
+    changeReportView('computer', 'edit');
+    $("#report-name-field").html(reportObject.name);
+    $("#new-report-name").val(reportObject.name);
+    updateQueryStringParam('reportId',reportId);
   })
   .fail(function(xhr){
     console.log(xhr);
@@ -87,15 +112,29 @@ function updateExistingReport(){
       swal('Save Failed.', 'It looks like one of your selected fields was a header field. Please select a field to display and save the report again.', 'error');
       return;
     }
-    lineItems.push({ "order" : i, "condition" : $("#include-value-" + i).val(), "parenthesis_one" : $("#param-one-value-" + i).val(), "operator" : $("#operator-value-" + i).val(), "value" : $("#input-value-" + i).val(), "field" : $("#field-value-" + i).val(), "parenthesis_two" : $("#param-two-value-" + i).val()});
+    lineItems.push({ "item_order" : i, "condition" : $("#include-value-" + i).val(), "parenthesis_one" : $("#param-one-value-" + i).val(), "operator" : $("#operator-value-" + i).val(), "value" : $("#input-value-" + i).val(), "field" : $("#field-value-" + i).val(), "parenthesis_two" : $("#param-two-value-" + i).val()});
+  }
+  //Try to get report type
+  urlParams = new URLSearchParams(window.location.search);
+  var reportType = "mobile_device";
+  if (urlParams.has('reportType')){
+    reportType = urlParams.get('reportType');
   }
   //Create the report object and post everything to the server
-  var reqBody = { name : $("#new-report-name").val(), line_items : lineItems};
-  var post = getRequestObject('/reports/update/', reqBody, 'PUT');
+  var reqBody = { name : $("#new-report-name").val(), type: reportType, line_items : lineItems,fields_to_select : $("#fields-to-select").val().join(", ")};
+  console.log(reqBody);
+  var post = getRequestObject('/reports/update/' + reportId, reqBody, 'PUT');
   post.done(function(res){
     swal('Report Saved', 'The report has been saved.', 'success');
     //Reset the new report div and reload the table with the new report
+    //Reset the new report div and reload the table with the new report
     reloadReportPane(true);
+    //Change views back to report list
+    if (reportType == 'computer'){
+      changeView('computer-reports-view');
+    } else if (reportType == 'mobile_device'){
+      changeView('mobile-reports-view');
+    }
   })
   .fail(function(xhr){
     swal('Save Failed.', 'The report has not been saved.', 'error');
@@ -135,7 +174,7 @@ function saveNewReport(shouldRun){
       swal('Save Failed.', 'It looks like one of your selected fields was a header field. Please select a field to display and save the report again.', 'error');
       return;
     }
-    lineItems.push({ "order" : i, "condition" : $("#include-value-" + i).val(), "parenthesis_one" : $("#param-one-value-" + i).val(), "operator" : $("#operator-value-" + i).val(), "value" : $("#input-value-" + i).val(), "field" : $("#field-value-" + i).val(), "parenthesis_two" : $("#param-two-value-" + i).val()});
+    lineItems.push({ "item_order" : i, "condition" : $("#include-value-" + i).val(), "parenthesis_one" : $("#param-one-value-" + i).val(), "operator" : $("#operator-value-" + i).val(), "value" : $("#input-value-" + i).val(), "field" : $("#field-value-" + i).val(), "parenthesis_two" : $("#param-two-value-" + i).val()});
   }
   //Try to get report type
   urlParams = new URLSearchParams(window.location.search);
@@ -828,17 +867,17 @@ function fillDataForLineItem(id, data){
   console.log(data);
   //Fill in all of the data
   if (data.condition != ''){
-    $("#include-value-" + data.order).val(data.condition);
+    $("#include-value-" + data.item_order).val(data.condition);
   }
   if (data.parenthesis_one != 0){
-    $("#param-one-value-" + data.order).val('(');
+    $("#param-one-value-" + data.item_order).val('(');
   }
   if (data.parenthesis_two != 0){
-    $("#param-two-value-" + data.order).val(')');
+    $("#param-two-value-" + data.item_order).val(')');
   }
-  $("#field-value-" + data.order).val(data.field);
-  $("#operator-value-" + data.order).val(data.operator);
-  $("#input-value-" + data.order).val(data.value);
+  $("#field-value-" + data.item_order).val(data.field);
+  $("#operator-value-" + data.item_order).val(data.operator);
+  $("#input-value-" + data.item_order).val(data.value);
 }
 
 function getReportOptions(){
@@ -1062,10 +1101,16 @@ function changeReportView(deviceType, operation){
   //if it's view, then remove the add criteria buttons and save
   if (operation == 'view'){
     $(".report-view-button").show();
+    $(".report-create-button").hide();
     $(".report-edit-button").hide();
+  } else if (operation == 'edit') {
+    $(".report-edit-button").show();
+    $(".report-view-button").hide();
+    $(".report-create-button").hide();
   } else {
     $(".report-view-button").hide();
-    $(".report-edit-button").show();
+    $(".report-create-button").show();
+    $(".report-edit-button").hide();
   }
 }
 //resets all url params that is not navigation based

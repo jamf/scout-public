@@ -273,7 +273,6 @@ function viewReportResults(reportId){
         var dataCategory = c.split(".")[1];
         row.push(res.results[i][deviceType][parentCategory][dataCategory]);
       });
-      console.log(row);
       //Add a row for the device to the table
       resultTable.row.add(row);
     }

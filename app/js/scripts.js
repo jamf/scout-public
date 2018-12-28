@@ -943,6 +943,24 @@ function renderPage(){
     //Hide the settings tab
     $(".settings-view").remove();
   }
+  //Show the selected fields for a report in the UI
+  $("#fields-to-select").change(function(){
+    $("#selected-fields-view").show();
+    $("#selected-fields").html('');
+    var size = $("#fields-to-select option:selected").length;
+    //Hide the fields div
+    if (size == 0){
+      $("#selected-fields-view").hide();
+    } else {
+      $("#fields-to-select option:selected").each(function(index, e){
+        if (index < size-1){
+          $("#selected-fields").append($(this).text() + ', ');
+        } else {
+          $("#selected-fields").append($(this).text());
+        }
+      });
+    }
+  });
 }
 
 var urlParams = new URLSearchParams(window.location.search);

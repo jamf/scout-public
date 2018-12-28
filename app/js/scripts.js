@@ -765,14 +765,26 @@ function updatePermission(userId, permission, value){
 }
 
 function deleteReport(reportId){
-  var req = getRequestObject('/reports/id/' + reportId, null, 'DELETE');
-  req.done(function(result){
-    swal('Success', 'The report has been deleted.', 'success');
-    getAllSavedReports();
+  //Prompt to make sure they actually want to delete the report
+  swal({
+    title: "Are you sure?",
+    text: "This action can not be undone.",
+    icon: "warning",
+    buttons: true,
+    dangerMode: true,
   })
-  .fail(function(xhr){
-    console.log(xhr);
-    swal('Update Failed', 'Failed to delete the report. Check the console for more details.', 'error');
+  .then((willDelete) => {
+    if (willDelete) {
+      var req = getRequestObject('/reports/id/' + reportId, null, 'DELETE');
+      req.done(function(result){
+        swal('Success', 'The report has been deleted.', 'success');
+        getAllSavedReports();
+      })
+      .fail(function(xhr){
+        console.log(xhr);
+        swal('Update Failed', 'Failed to delete the report. You may not have permission to delete reports. Check the console for more details.', 'error');
+      });
+    }
   });
 }
 

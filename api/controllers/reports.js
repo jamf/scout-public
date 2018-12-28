@@ -1,5 +1,6 @@
 var reports = require('express').Router();
 var report = require('../models/reports.js');
+var user = require('../models/user.js');
 
 reports.get('/builder/fields', function(req,res) {
   //get all of the supported fields and their UI name
@@ -59,6 +60,10 @@ reports.delete('/id/:reportId', function(req,res){
     return res.status(400).send({
       error: "Missing report id"
     });
+  }
+  //Make sure the user has permission to delete the report
+  if (!user.hasPermission(req.user, 'can_delete')){
+    return res.status(401).send({ error: "User does not have permission to delete objects."});
   }
   //Get the report and it's line items from the database
   report.deleteReport(req.params.reportId)

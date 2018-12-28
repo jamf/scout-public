@@ -239,6 +239,11 @@ function prettyPrintColumnName(input){
 }
 
 function viewReportResults(reportId){
+  $.Toast.showToast({
+    "title": "Calculating report results... Some larger reports may take several seconds to load.",
+    "icon": "loading",
+    "duration": 60000
+  });
   var getReport = getRequestObject('/reports/search/' + reportId, null, 'GET');
   getReport.done(function(res){
     console.log(res);
@@ -274,7 +279,10 @@ function viewReportResults(reportId){
     }
     //Draw the table and show the results modal
     resultTable.draw(false);
-    $("#report-display-modal").modal('show');
+    changeView('reports-results-view');
+    updateQueryStringParam('reportId', reportId);
+    $.Toast.hideToast();
+    //$("#report-display-modal").modal('show');
   })
   .fail(function(xhr){
     console.log(xhr);

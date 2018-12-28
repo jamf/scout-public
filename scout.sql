@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.6.37)
 # Database: scout
-# Generation Time: 2018-12-12 22:46:23 +0000
+# Generation Time: 2018-12-28 21:58:42 +0000
 # ************************************************************
 
 
@@ -83,7 +83,7 @@ DROP TABLE IF EXISTS `reports_line_item`;
 
 CREATE TABLE `reports_line_item` (
   `report_id` int(11) NOT NULL,
-  `order` int(11) NOT NULL,
+  `item_order` int(11) NOT NULL,
   `condition` varchar(12) DEFAULT '',
   `parenthesis_one` tinyint(1) DEFAULT '0',
   `field` varchar(255) NOT NULL DEFAULT '',

@@ -671,6 +671,7 @@ function viewMDMCommands(type){
 function sendMDMCommand(deviceType, mdmCommand){
   if (window.devices_to_send_mdm_commands.length == 0){
     swal('Send Failed', 'No devices have been selected.', 'error');
+    changeView('ios-view');
     return;
   }
   //Prompt to ensure they actually want to send the command
@@ -682,10 +683,16 @@ function sendMDMCommand(deviceType, mdmCommand){
     dangerMode: true,
   })
   .then((willSend) => {
+    $.Toast.showToast({
+      "title": "Waiting for a response from the Jamf Pro Servers... This could take a bit if there are a lot of servers.",
+      "icon": "loading",
+      "duration": 60000
+    });
     if (willSend) {
       var devicesObj = { mdmCommand : mdmCommand, deviceType : deviceType, deviceList : window.devices_to_send_mdm_commands};
       var req = getRequestObject('/commands/create', devicesObj, 'POST');
       req.done(function(data){
+        $.Toast.hideToast();
         swal("The MDM Commands are on their way! They may take a few minutes to complete.", {
           icon: "success",
         });
@@ -1086,6 +1093,11 @@ function changeView(newView){
     //Show the new one, update the url
     resetURLParams();
     updateQueryStringParam('tab',newView);
+  }
+  //If we are going to the mdm command view, make sure devices are selected
+  if (window.devices_to_send_mdm_commands.length == 0 && newView == 'mobile-commands-view'){
+    swal('Error', 'Please select some devices before visiting this page.', 'error');
+    changeView('ios-view');
   }
   $("#" + newView).show();
   //Add the active class

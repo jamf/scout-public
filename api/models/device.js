@@ -71,6 +71,37 @@ exports.getExpandedInventory = function(url, username, password, device, jssServ
   });
 }
 
+exports.sendMDMCommandToDeviceList = function(serverObj, commandName){
+  return new Promise(function(resolve,reject) {
+    console.log(serverObj);
+    //Build the xml based on the command
+    var bodyObj = getMDMCommandObjForList(commandName,serverObj.device_list);
+    var builder = new xml2js.Builder();
+    var data = builder.buildObject(obj);
+    //Get the server details from the url
+    server.getServerFromURL(serverObj.server_url)
+    .then(function(serverDetails){
+      //Build the request to the JPS
+        axiosInstance.post(serverObj.server_url + '/JSSResource/mobiledevicecommands/command', data, {
+          auth: {
+            username: serverDetails[0].username,
+            password: db.decryptString(serverDetails[0].password)
+          },
+          headers: {'Content-Type': 'text/xml'}
+        })
+        .then(function (response) {
+          resolve(response.data);
+        })
+        .catch(function (error) {
+          reject(error);
+        });
+    })
+    .catch(function (error) {
+      reject(error);
+    });
+ });
+
+}
 
 exports.createMDMCommand = function(url, jss_device_id, commandName){
   return new Promise(function(resolve,reject) {
@@ -113,23 +144,47 @@ function convertDataTablesDevices(dataTablesArray){
   return newList;
 }
 
-//TODO: GROUP DEVICE IDS BY SERVER INSTEAD OF SENDING A COMMAND FOR EACH DEVICE
 exports.sendMDMCommandToDevices = function(devicesList, commandName){
   return new Promise(function(resolve,reject) {
     var convertedDevices = convertDataTablesDevices(devicesList);
     //For every device, the server for the device and some more details like the jss id
     Promise.all(convertedDevices.map(device => exports.getDeviceByUDIDAndSerial(device.jss_serial, device.jss_udid)))
     .then(function(devicesWithServers){
-      //Now send the mdm commands TODO: THROTTLE THIS
-      Promise.all(devicesWithServers.map(d => exports.createMDMCommand(d[0].url,d[0].jss_id,commandName)))
+      //Now let's group devices by server id so we don't have to send extra API calls
+      var serverList = [];
+      //Loop all of if the devices with it's associated server details
+      devicesWithServers.forEach(device => {
+        device = device[0];
+        //Check if a server object for this device already exists
+        var foundServer = false;
+        for (i = 0; i < serverList.length && !foundServer; i++){
+          //Found a match
+          if (serverList[i].server_id == device.server_id){
+            serverList[i].device_list.push(device.jss_id);
+            foundServer = true;
+          }
+        }
+        //If we didn't find a match, create a new server object
+        if (!foundServer){
+          var s = {server_id : device.server_id, server_url : device.url, server_username : device.username, server_password : device.password};
+          s.device_list = [];
+          s.device_list.push(device.jss_id);
+          serverList.push(s);
+        }
+      });
+      console.log(serverList);
+      //Now for each server, send the command's to it's devices
+      Promise.all(serverList.map(s => exports.sendMDMCommandToDeviceList(s,commandName)))
       .then(function(results){
         resolve(results);
       })
       .catch(function (error) {
+        console.log(error);
         reject(error);
       });
     })
     .catch(function (error) {
+      console.log(error);
       reject(error);
     });
   });
@@ -363,6 +418,23 @@ exports.insertFullInventory = function(deviceObj){
       }
     });
   });
+}
+
+function getMDMCommandObjForList(commandName, deviceList){
+  //Format the list of device ids in a way the JPS is expecting
+  var formattedDevices = [];
+  deviceList.forEach(deviceId => {
+    var deviceObj = { "mobile_device" : { "id" : deviceId}};
+    formattedDevices.push(deviceObj);
+  });
+  return obj = {
+     "mobile_device_command":{
+        "general":{
+           "command": commandName
+        },
+        "mobile_devices": formattedDevices
+     }
+  };
 }
 
 function getMDMCommandObj(commandName, jss_device_id){

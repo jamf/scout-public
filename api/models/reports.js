@@ -34,8 +34,12 @@ exports.parseIntoQuery = function(searchLineItems, reportType){
   var lastGroupObject = null;
   console.log(searchLineItems);
   console.log(searchLineItems.length);
+  //Ignore parenthis for one item seraches and make it always an AND
+  if (searchLineItems.length == 1){
+    searchLineItems[0].junction = 'AND';
+    grouped.push(searchLineItems[0]);
   //If there are only two items, it's easy enough to just set both groupings to that condition
-  if (searchLineItems.length == 2){
+  } else if (searchLineItems.length == 2){
     searchLineItems.forEach(l => {
       l.junction = searchLineItems[1].junction;
       grouped.push(l);
@@ -48,13 +52,13 @@ exports.parseIntoQuery = function(searchLineItems, reportType){
       }
       //We found a new grouping
       if (lastGroupObject == null && searchLineItems[i].param_one == 1){
-        //Find the object before this so we now where to include the group
-        lastGroupObject = {};
-        lastGroupObject.last_junction = searchLineItems[i].junction;
-        //Only can have one operator per parenthesis so default to this one
-        lastGroupObject.junction = searchLineItems[i + 1].junction;
-        lastGroupObject.items = [];
-        lastGroupObject.items.push(searchLineItems[i]);
+          //Find the object before this so we now where to include the group
+          lastGroupObject = {};
+          lastGroupObject.last_junction = searchLineItems[i].junction;
+          //Only can have one operator per parenthesis so default to this one
+          lastGroupObject.junction = searchLineItems[i + 1].junction;
+          lastGroupObject.items = [];
+          lastGroupObject.items.push(searchLineItems[i]);
       //Add another one to the grouping
       } else if (lastGroupObject != null && searchLineItems[i].param_two == 0){
         //Push to the grouping
@@ -120,10 +124,8 @@ exports.getRecordsForSearchObject = function(collection, searchObject){
   return new Promise(function(resolve,reject) {
     db.getNoSQL().collection(collection).find(searchObject).toArray(function(err, result) {
       if (err){
-        console.log('ERROR');
         reject(err);
       } else {
-        console.log(result);
         resolve(result);
       }
     });
@@ -227,10 +229,14 @@ exports.insertReportLineItem = function(lineItem, reportId){
   lineItem.report_id = reportId;
   //Check if we need to replace a parenthesis with a boolean value
   if (lineItem.parenthesis_one == "("){
-    lineItem.parenthesis_one = true;
+    lineItem.parenthesis_one = 1;
+  } else {
+    lineItem.parenthesis_one = 0;
   }
   if (lineItem.parenthesis_two == ")"){
-    lineItem.parenthesis_two = true;
+    lineItem.parenthesis_two = 1;
+  } else {
+    lineItem.parenthesis_two = 0;
   }
   return new Promise(function(resolve,reject) {
     db.get().query('INSERT INTO reports_line_item SET ?', [lineItem], function(error, results, fields) {
@@ -269,7 +275,9 @@ function getSearchObject(collection, field, operation, searchValue){
   var pathString = collection + "." + field;
   //Build the actual search object
   var searchObject = {};
-  searchObject[pathString] = operationToObject(operation, searchValue);
+  var operationObject = operationToObject(operation, searchValue);
+  console.log(operationObject);
+  searchObject[pathString] = operationObject;
   return searchObject;
 }
 
@@ -282,6 +290,14 @@ function operatorToNoSQL(value){
 }
 
 function operationToObject(operation, value){
+  var nubmerSearch = /^\d+$/;
+  //Check what type of value is and cast it to the correct object
+  if (value.toLowerCase() == "true" || value.toLowerCase() == "false"){
+    value = Boolean(value);
+  } else if (nubmerSearch.test(value)){
+    value = Number(value);
+  }
+  //if we didn't cast it's probably a string
   if (operation == "equals"){
     return { "$eq" : value};
   } else if (operation == "does not equal"){

@@ -71,11 +71,11 @@ exports.getExpandedInventory = function(url, username, password, device, jssServ
   });
 }
 
-exports.sendMDMCommandToDeviceList = function(serverObj, commandName){
+exports.sendMDMCommandToDeviceList = function(serverObj, commandName, options){
   return new Promise(function(resolve,reject) {
     console.log(serverObj);
     //Build the xml based on the command
-    var bodyObj = getMDMCommandObjForList(commandName,serverObj.device_list);
+    var bodyObj = getMDMCommandObjForList(commandName,serverObj.device_list,options);
     var builder = new xml2js.Builder();
     var data = builder.buildObject(obj);
     //Get the server details from the url
@@ -144,7 +144,7 @@ function convertDataTablesDevices(dataTablesArray){
   return newList;
 }
 
-exports.sendMDMCommandToDevices = function(devicesList, commandName){
+exports.sendMDMCommandToDevices = function(devicesList, commandName, options){
   return new Promise(function(resolve,reject) {
     var convertedDevices = convertDataTablesDevices(devicesList);
     //For every device, the server for the device and some more details like the jss id
@@ -174,7 +174,7 @@ exports.sendMDMCommandToDevices = function(devicesList, commandName){
       });
       console.log(serverList);
       //Now for each server, send the command's to it's devices
-      Promise.all(serverList.map(s => exports.sendMDMCommandToDeviceList(s,commandName)))
+      Promise.all(serverList.map(s => exports.sendMDMCommandToDeviceList(s,commandName,options)))
       .then(function(results){
         resolve(results);
       })
@@ -353,6 +353,8 @@ exports.upsertFullInventory = function(deviceObjFromJSS, jss_server_id){
       collectionName = 'mobile_device';
     }
     var jss_id = deviceObjFromJSS[collectionName].general.id;
+    //Sanatize the name because jss uses wierd curly apostrophe
+    deviceObjFromJSS[collectionName].general.name = deviceObjFromJSS[collectionName].general.name.replace(/’/g, "'");
     //See if there is already a record for this device
     exports.getFullInventoryByJSSAndServerId(collectionName, jss_id, jss_server_id)
     .then(function(existingDevice){
@@ -420,14 +422,14 @@ exports.insertFullInventory = function(deviceObj){
   });
 }
 
-function getMDMCommandObjForList(commandName, deviceList){
+function getMDMCommandObjForList(commandName, deviceList, options){
   //Format the list of device ids in a way the JPS is expecting
   var formattedDevices = [];
   deviceList.forEach(deviceId => {
     var deviceObj = { "mobile_device" : { "id" : deviceId}};
     formattedDevices.push(deviceObj);
   });
-  return obj = {
+  var commandObj =  obj = {
      "mobile_device_command":{
         "general":{
            "command": commandName
@@ -435,6 +437,15 @@ function getMDMCommandObjForList(commandName, deviceList){
         "mobile_devices": formattedDevices
      }
   };
+  //Setup some custom fields for certian commands
+  if (commandName == 'DeviceName'){
+    commandObj.mobile_device_command.general.device_name = options.device_name;
+  } else if (commandName == 'DeviceLock' && 'lock_message' in options){
+    commandObj.mobile_device_command.general.lock_message = options.lock_message;
+  } else if (commandName == 'EnableLostMode'){
+    commandObj.mobile_device_command.general.lost_mode_message = options.lost_mode_message;
+  }
+  return commandObj;
 }
 
 function getMDMCommandObj(commandName, jss_device_id){

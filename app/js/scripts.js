@@ -546,6 +546,32 @@ function updateMobileDevices(){
   });
 }
 
+function verifyEraseDevices(){
+  //Make sure they added a password to confirm
+  var password = $("#erase-devices-confirm-password").val();
+  if (password == null || password == ''){
+    swal('Error', 'A password must be provided.', 'error');
+    return;
+  }
+  //Verify the provided password is correct
+  var reqBody = { password : password};
+  var userVerify = getRequestObject('/users/verify', reqBody, 'POST');
+  userVerify.done(function(res){
+    if (res.verified){
+      //Do the MDM command
+      createMDMCommand('iOS', 'EraseDevice');
+      $("#erase-devices-modal").modal('hide');
+    } else {
+      $("#erase-devices-modal").modal('hide');
+      swal('Error', 'Unable to verify password, or user is not an admin.', 'error');
+    }
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+    swal('Error', 'Unable to verify password, or user is not an admin.', 'error');
+  });
+}
+
 function verifyDeleteServer(){
   var serverId = $("#delete-server-id").val();
   if (serverId == null || serverId == ''){
@@ -668,6 +694,29 @@ function viewMDMCommands(type){
   changeView('mobile-commands-view');
 }
 
+function createMDMCommand(deviceType, mdmCommand){
+  $.Toast.showToast({
+    "title": "Waiting for a response from the Jamf Pro Servers... This could take a bit if there are a lot of servers.",
+    "icon": "loading",
+    "duration": 60000
+  });
+  var devicesObj = { mdmCommand : mdmCommand, deviceType : deviceType, deviceList : window.devices_to_send_mdm_commands};
+  var req = getRequestObject('/commands/create', devicesObj, 'POST');
+  req.done(function(data){
+    $.Toast.hideToast();
+    swal("The MDM Commands are on their way! They may take a few minutes to complete.", {
+      icon: "success",
+    });
+  })
+  .fail(function(xhr){
+    $.Toast.hideToast();
+    swal("The MDM Commands failed to send. Check the console for more details.", {
+      icon: "error",
+    });
+    console.log(xhr);
+  });
+}
+
 function sendMDMCommand(deviceType, mdmCommand){
   if (window.devices_to_send_mdm_commands.length == 0){
     swal('Send Failed', 'No devices have been selected.', 'error');
@@ -683,26 +732,30 @@ function sendMDMCommand(deviceType, mdmCommand){
     dangerMode: true,
   })
   .then((willSend) => {
-    $.Toast.showToast({
-      "title": "Waiting for a response from the Jamf Pro Servers... This could take a bit if there are a lot of servers.",
-      "icon": "loading",
-      "duration": 60000
-    });
     if (willSend) {
-      var devicesObj = { mdmCommand : mdmCommand, deviceType : deviceType, deviceList : window.devices_to_send_mdm_commands};
-      var req = getRequestObject('/commands/create', devicesObj, 'POST');
-      req.done(function(data){
-        $.Toast.hideToast();
-        swal("The MDM Commands are on their way! They may take a few minutes to complete.", {
-          icon: "success",
-        });
-      })
-      .fail(function(xhr){
-        console.log(xhr);
-      });
-      // swal("The MDM Commands are on their way! They may take a few minutes to complete.", {
-      //   icon: "success",
-      // });
+      //Verify a admin password if it's an erease device command
+      if (mdmCommand == 'EraseDevice'){
+        $("#erase-devices-modal").modal('show');
+      } else if (mdmCommand == 'DeviceName'){
+        console.log('yeah');
+        swal({
+  title: "An input!",
+  text: "Write something interesting:",
+  type: "input",
+  showCancelButton: true,
+  closeOnConfirm: false,
+  inputPlaceholder: "Write something"
+}, function (inputValue) {
+  if (inputValue === false) return false;
+  if (inputValue === "") {
+    swal.showInputError("You need to write something!");
+    return false
+  }
+  swal("Nice!", "You wrote: " + inputValue, "success");
+});
+      } else {
+        createMDMCommand(deviceType, mdmCommand);
+      }
     } else {
       swal("No commands have been sent.");
     }

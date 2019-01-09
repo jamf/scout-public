@@ -188,6 +188,7 @@ reports.get('/search/:reportId', function(req,res){
     });
     var searchObject = report.parseIntoQuery(lineItemsConverted,reportObj.type);
     var respObj = { fields_to_select : reportObj.fields_to_select};
+    console.log(searchObject);
     //Now perform the query
     report.getRecordsForSearchObject(reportObj.type, searchObject)
     .then(function(results){

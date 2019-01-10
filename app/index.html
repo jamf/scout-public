@@ -387,6 +387,47 @@
                                 </div>
                             </div>
                           </div>
+                          <div class="col-lg-4">
+                            <div class="panel panel-success">
+                                <div class="panel-heading">
+                                   Disable Lost Mode
+                                </div>
+                                <div class="panel-body">
+                                    <p>This command will disable lost mode on device(s). This will unlock the device or devices.</p>
+                                </div>
+                                <div class="panel-footer">
+                                    <button type="button" onclick="sendMDMCommand('ios', 'DisableLostMode');" class="btn btn-success">Send Command</button>
+                                </div>
+                            </div>
+                          </div>
+                          <div class="col-lg-4">
+                            <div class="panel panel-danger">
+                                <div class="panel-heading">
+                                  Erase Device
+                                </div>
+                                <div class="panel-body">
+                                    <p>This command will completly wipe the selected devices. Use with extreme caution, this can not be undone.</p>
+                                </div>
+                                <div class="panel-footer">
+                                    <button type="button" onclick="sendMDMCommand('ios', 'EraseDevice');" class="btn btn-success">Send Command</button>
+                                </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-lg-4">
+                            <div class="panel panel-info">
+                                <div class="panel-heading">
+                                   Set Device Name
+                                </div>
+                                <div class="panel-body">
+                                    <p>This command can be used to set the device name to a string of your choosing. </p>
+                                </div>
+                                <div class="panel-footer">
+                                    <button type="button" onclick="sendMDMCommand('ios', 'DeviceName');" class="btn btn-success">Send Command</button>
+                                </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                    </div>
@@ -967,6 +1008,34 @@
                </div>
                <div class="modal-footer">
                  <button onclick="verifyDeleteServer();" class="btn btn-danger">Delete Server</button>
+               </div>
+            </div>
+            <!-- /.modal-content -->
+         </div>
+         <!-- /.modal-dialog -->
+      </div>
+
+      <div class="modal fade in" id="erase-devices-modal" tabindex="-1" role="dialog" aria-labelledby="Remove Server" aria-hidden="true">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                  <h4 class="modal-title" id="myModalLabel">Erase Devices</h4>
+               </div>
+               <div class="modal-body">
+                 <p>Before erasing the selected devices, please provide your password below and confirm this action.</p>
+                 <p><b>Erasing a device can not be undone. You must be an adminstrator to perform this action.</b></p>
+                  <div class="row">
+                     <div class="col-md-12">
+                       <div class="form-group">
+                          <label>Password</label>
+                          <input class="form-control" id="erase-devices-confirm-password" type="password" placeholder="jamf1234">
+                       </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="modal-footer">
+                 <button onclick="verifyEraseDevices();" class="btn btn-danger">I really want to wipe these devices.</button>
                </div>
             </div>
             <!-- /.modal-content -->

@@ -280,6 +280,7 @@ function viewReportResults(reportId){
     resultTable.draw(false);
     changeView('reports-results-view');
     updateQueryStringParam('reportId', reportId);
+    updateQueryStringParam('type', 'view');
     $.Toast.hideToast();
     //$("#report-display-modal").modal('show');
   })
@@ -1044,7 +1045,14 @@ function renderPage(){
   if (urlParams.has('type') && urlParams.has('serial') && urlParams.has('udid')){
     getDeviceLive(urlParams.get('type'), urlParams.get('serial'), urlParams.get('udid'));
   }
-  if (urlParams.has('tab')){
+  //Check if we should show a report
+  if (urlParams.has('type') && urlParams.get('type') == 'view' && urlParams.has('reportId')){
+    viewReportResults(urlParams.get('reportId'));
+  }
+  //Redirect back if report view without any report id
+  if (urlParams.has('tab') && urlParams.get('tab') == 'reports-results-view' && !urlParams.has('reportId')){
+    changeView('computer-reports-view');
+  } else if (urlParams.has('tab')){
     changeView(urlParams.get('tab'));
   }
   //Get all of the Jamf Pro Servers

@@ -32,8 +32,6 @@ exports.parseIntoQuery = function(searchLineItems, reportType){
   var grouped = [];
   var i = 0;
   var lastGroupObject = null;
-  console.log(searchLineItems);
-  console.log(searchLineItems.length);
   //Ignore parenthis for one item seraches and make it always an AND
   if (searchLineItems.length == 1){
     searchLineItems[0].junction = 'AND';
@@ -46,8 +44,11 @@ exports.parseIntoQuery = function(searchLineItems, reportType){
     });
   } else {
     while (i < searchLineItems.length){
-      //Default to AND if no junction
-      if (searchLineItems[i].junction != 'AND' || searchLineItems[i].junction != 'OR'){
+      if (i == 0 && searchLineItems[i].junction != 'AND' && searchLineItems[i].junction != 'OR'){
+        searchLineItems[i].junction = searchLineItems[i+1].junction;
+      } else
+      //Default to AND if no junction unless i + 1 exsits and isn't AND
+      if (searchLineItems[i].junction != 'AND' && searchLineItems[i].junction != 'OR'){
           searchLineItems[i].junction = 'AND';
       }
       //We found a new grouping
@@ -77,7 +78,6 @@ exports.parseIntoQuery = function(searchLineItems, reportType){
       i++;
     }
   }
-  console.log(grouped);
   var mongoSearchObject = {};
   //Now we are going to build a nosql object for each of the items
   for (var i = 0; i < grouped.length; i++){
@@ -272,10 +272,14 @@ exports.getReportById = function(reportId){
 }
 
 function getSearchObject(collection, field, operation, searchValue){
+  //Overrite some fields that are different for mobile devices
+  if (field == 'general.name' && collection == 'mobile_device'){
+    field = 'general.display_name';
+  }
   var pathString = collection + "." + field;
   //Build the actual search object
   var searchObject = {};
-  var operationObject = operationToObject(operation, searchValue);
+  var operationObject = operationToObject(operation, searchValue, field);
   console.log(operationObject);
   searchObject[pathString] = operationObject;
   return searchObject;
@@ -289,12 +293,13 @@ function operatorToNoSQL(value){
   }
 }
 
-function operationToObject(operation, value){
+function operationToObject(operation, value, field){
   var nubmerSearch = /^\d+$/;
   //Check what type of value is and cast it to the correct object
   if (value.toLowerCase() == "true" || value.toLowerCase() == "false"){
     value = Boolean(value);
-  } else if (nubmerSearch.test(value)){
+  //Phone is a string in the JPS TODO: Add other non-conforming fields
+  } else if (nubmerSearch.test(value) && !field.includes('phone')){
     value = Number(value);
   }
   //if we didn't cast it's probably a string
@@ -307,9 +312,11 @@ function operationToObject(operation, value){
   } else if (operation == "is less than"){
     return { "$lt" : value};
   } else if (operation == "contains"){
-    return `/.*${value}.*/`;
+    var pattern = `.*${value}.*`
+    return new RegExp(pattern);
   } else if (operation == "does not contain"){
-    return "{ $not: /.*"+value+".*/ }";
+    var pattern = `.*${value}.*`
+    return { $not: new RegExp(pattern) };
   }
   return '';
 }

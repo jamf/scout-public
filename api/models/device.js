@@ -440,7 +440,7 @@ function getMDMCommandObjForList(commandName, deviceList, options){
   //Setup some custom fields for certian commands
   if (commandName == 'DeviceName'){
     commandObj.mobile_device_command.general.device_name = options.device_name;
-  } else if (commandName == 'DeviceLock' && 'lock_message' in options){
+  } else if (commandName == 'DeviceLock' && options != undefined && 'lock_message' in options){
     commandObj.mobile_device_command.general.lock_message = options.lock_message;
   } else if (commandName == 'EnableLostMode'){
     commandObj.mobile_device_command.general.lost_mode_message = options.lost_mode_message;

@@ -215,7 +215,7 @@ exports.deleteReport = function(reportId){
 
 exports.getReports = function(){
   return new Promise(function(resolve,reject) {
-    db.get().query('SELECT reports.*, users.email FROM reports JOIN users ON reports.created_by = users.id', function(error, results, fields) {
+    db.get().query('SELECT reports.*, users.email FROM reports JOIN users ON reports.created_by = users.id ORDER BY reports.created DESC', function(error, results, fields) {
       if (error) {
         reject(error);
       } else {

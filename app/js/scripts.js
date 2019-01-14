@@ -1,3 +1,15 @@
+function getOrgDetails(){
+  var details = getRequestObject('/settings/organization/details', null, 'GET');
+  details.done(function(detailsObject){
+    if ('header_name' in detailsObject){
+      $("#header_display_name").html(detailsObject.header_name);
+    }
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+  });
+}
+
 function getSupportedReportFields(){
   var fields = getRequestObject('/reports/builder/fields', null, 'GET');
   fields.done(function(fieldsObject){
@@ -927,7 +939,8 @@ function updateSettings(){
   //Make the request to the server
   var req = getRequestObject('/settings/all', newFile, 'PUT')
   req.done(function(result){
-    swal('Success!', 'Your settings have been saved successfully. The server can now be restarted.', 'success');
+    getOrgDetails();
+    swal('Success!', 'Your settings have been saved successfully. The server MUST be restarted in order for the changes to take affect.', 'warning');
   })
   .fail(function(xhr){
     console.log(xhr);
@@ -1067,6 +1080,7 @@ function renderPage(){
   } else if (urlParams.has('tab')){
     changeView(urlParams.get('tab'));
   }
+  getOrgDetails();
   //Get all of the Jamf Pro Servers
   loadServerTable();
   updateComputers();

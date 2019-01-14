@@ -1,6 +1,21 @@
+require('dotenv').config();
 var adminController = require('express').Router();
 var user = require('../models/user.js');
 var admin = require('../models/admin.js');
+
+adminController.get('/organization/details', function(req,res){
+  //try to get the org name from the env settings
+  try {
+    if (!process.env.HEADER_DISPLAY_NAME){
+      return res.status(200).send({ header_name : 'Scout'});
+    } else {
+      return res.status(200).send({ header_name : process.env.HEADER_DISPLAY_NAME});
+    }
+  } catch (exc){
+    console.log(exc);
+    return res.status(500).send({ error : 'Unable to read server settings.'});
+  }
+});
 
 adminController.get('/all', function(req,res){
   //Make sure the user is an admin

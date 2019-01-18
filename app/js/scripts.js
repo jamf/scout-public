@@ -1017,6 +1017,10 @@ function getReportOptions(){
   for (var key in window.reporting_fields.hardware){
     options.push(new Option(window.reporting_fields.hardware[key],"hardware." + key));
   }
+  options.push(new Option('--- Extension Attributes ---',''));
+  for (var key in window.reporting_fields.extension_attributes){
+    options.push(new Option(window.reporting_fields.extension_attributes[key],"extension_attributes." + key));
+  }
   options.push(new Option('--- Applications ---',''));
   for (var key in window.reporting_fields.applications){
     options.push(new Option(window.reporting_fields.applications[key],"applications." + key));

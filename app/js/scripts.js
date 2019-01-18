@@ -86,9 +86,9 @@ function loadReportById(reportId){
   //Make the request to the server to get a saved report
   var report = getRequestObject('/reports/id/' + reportId, null, 'GET');
   report.done(function(reportObject){
-    console.log(reportObject);
     //Load the existing report view
     $("#new-report-parent").hide();
+    console.log(reportObject.line_items);
     addMultipleReportLineItems(reportObject.line_items);
     //Fill in and show the fields to select
     //Show the new report UI
@@ -236,7 +236,7 @@ function reloadReportPane(loadFirstItem){
   //Clear out the existing report id in case one was added
   $("#existing-report-id").val('');
   //reset selected fields
-  $("#fields-to-select").val('');
+  $('#fields-to-select').selectpicker('destroy');
   $("#new-report-name").val('New Report Name');
   $("#new-report-parent").show();
   //reload the saved reports from the server
@@ -692,7 +692,6 @@ function loadPatchServersTable(){
   var patchServers = getRequestObject('/patches/servers', null, 'GET');
   //render the table after the servers are loaded from the DB
   patchServers.done(function(patchServerList){
-    console.log(patchServerList);
     //Add to the server table
     for (i = 0; i < patchServerList.length; i++){
       patchServersTable.row.add([patchServerList[i].base_url, patchServerList[i].cron_update]);
@@ -957,7 +956,6 @@ function getSettingsItemHTML(title, id, value){
 }
 
 function fillDataForLineItem(id, data){
-  console.log(data);
   //Fill in all of the data
   if (data.condition != ''){
     $("#include-value-" + data.item_order).val(data.condition);
@@ -1041,6 +1039,7 @@ function addReportLineItem(lineItemToFill){
     });
     //Clone select options ito the fields to select
     if (window.advanced_search_line_item_count == 0){
+      $("#fields-to-select-parent").html('<select id="fields-to-select" class="selectpicker form-control" multiple data-live-search="true"></select>');
       var $options = $(".advanced-report-field-dropdown > option").clone();
       $("#fields-to-select").selectpicker();
       $('#fields-to-select').append($options);

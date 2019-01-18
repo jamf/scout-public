@@ -10,6 +10,23 @@ function getOrgDetails(){
   });
 }
 
+function refreshAllDevices(){
+  $.Toast.showToast({
+    "title": "Refreshing all devices, this could take awhile if there are a lot of servers in scout.",
+    "icon": "loading",
+    "duration": 60000
+  });
+  var reqBody = {type : 'limited'};
+  var result = getRequestObject('/devices/refresh/all', reqBody, 'PUT');
+  result.done(function(r){
+    $.Toast.hideToast();
+    swal('Devices Updating...', 'The devices are continuing to update in the background, try refreshing the devices view in a few secords or more.', 'success');
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+  });
+}
+
 window.reporting_fields = {};
 function getSupportedReportFields(){
   var fields = getRequestObject('/reports/builder/fields', null, 'GET');

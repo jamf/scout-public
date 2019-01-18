@@ -1,18 +1,65 @@
 var devices = require('express').Router();
 var device = require('../models/device.js');
 var report = require('../models/export.js');
+var server = require('../models/server.js');
 var inventory = require('../models/inventory.js');
 var db = require('../common/db.js');
 
 devices.get('/server/:orgName', function(req,res) {
   device.getDevicesByOrg(req.params.orgName)
   .then(function(deviceList){
-    res.status(200).send({
+    return res.status(200).send({
       devices : deviceList
     });
   })
   .catch(error => {
-    res.status(500).send({
+    return res.status(500).send({
+      error: "Unable to get devices"
+    });
+  });
+});
+
+devices.put('/refresh/all', function(req,res){
+  //First check the update type and make sure it's supported
+  console.log(req.body.type);
+  if (req.body.type != 'limited'){
+    return res.status(400).send({ error: "Unsupported update method" });
+  }
+  //Get all of the servers, then for all of those servers, get all devices
+  server.getAllServers()
+  .then(function(serverList){
+    console.log(serverList);
+    //Loop every server and get all of their devices
+    Promise.all(serverList.map(s => server.getAllDevices(s.url, s.id, s.username, db.decryptString(s.password))))
+    .then(function(allDevices){
+      //Now upsert all of these devices
+      Promise.all(allDevices.map(d => device.upsertDevice(d))).then(function(result){
+        return res.status(200).send({ status: "success"});
+      })
+      .catch(error => {
+        return res.status(500).send({ error: "Unable to upsert new device records"});
+      });
+    })
+    .catch(error => {
+      return res.status(500).send({ error: "Unable to get devices from Jamf Pro Server "});
+    });
+  })
+  .catch(error => {
+    return res.status(500).send({ error: "Unable to get list of servers"});
+  });
+});
+
+devices.post('/paged/:deviceType', function(req,res) {
+  var start = parseInt(req.body.start);
+  var len = parseInt(req.body.length);
+  var search = req.body.search.value;
+  device.getDeviceWithSearch(req.params.deviceType, search)
+  .then(function(deviceList){
+    var obj = getDataTablesRes(req.body.draw,deviceList.slice(start, start + len),deviceList.length,deviceList.length,req.params.deviceType);
+    return res.status(200).send(obj);
+  })
+  .catch(error => {
+    return res.status(500).send({
       error: "Unable to get devices"
     });
   });
@@ -25,26 +72,10 @@ devices.post('/paged/:deviceType', function(req,res) {
   device.getDeviceWithSearch(req.params.deviceType, search)
   .then(function(deviceList){
     var obj = getDataTablesRes(req.body.draw,deviceList.slice(start, start + len),deviceList.length,deviceList.length,req.params.deviceType);
-    res.status(200).send(obj);
+    return res.status(200).send(obj);
   })
   .catch(error => {
-    res.status(500).send({
-      error: "Unable to get devices"
-    });
-  });
-});
-
-devices.post('/paged/:deviceType', function(req,res) {
-  var start = parseInt(req.body.start);
-  var len = parseInt(req.body.length);
-  var search = req.body.search.value;
-  device.getDeviceWithSearch(req.params.deviceType, search)
-  .then(function(deviceList){
-    var obj = getDataTablesRes(req.body.draw,deviceList.slice(start, start + len),deviceList.length,deviceList.length,req.params.deviceType);
-    res.status(200).send(obj);
-  })
-  .catch(error => {
-    res.status(500).send({
+    return res.status(500).send({
       error: "Unable to get devices"
     });
   });
@@ -53,12 +84,12 @@ devices.post('/paged/:deviceType', function(req,res) {
 devices.get('/', function(req,res) {
   device.getAllDevices()
   .then(function(deviceList){
-    res.status(200).send({
+    return res.status(200).send({
       devices : deviceList
     });
   })
   .catch(error => {
-    res.status(500).send({
+    return res.status(500).send({
       error: "Unable to get devices"
     });
   });
@@ -68,10 +99,10 @@ devices.get('/csv', function(req,res) {
   report.writeCSVOfAllDevices()
   .then(function(stream){
     //Send the server path
-    res.status(200).send({ "status" : "success", "path" : process.env.SCOUT_URL + stream.path.substring(1,stream.path.length)});
+    return res.status(200).send({ "status" : "success", "path" : process.env.SCOUT_URL + stream.path.substring(1,stream.path.length)});
   })
   .catch(error => {
-    res.status(500).send({
+    return res.status(500).send({
       error: "Unable to write file"
     });
   });
@@ -81,10 +112,10 @@ devices.get('/csv', function(req,res) {
 devices.get('/computers/expanded/:id', function(req,res){
   inventory.getExpandedInventoryById('computers',req.params.id)
   .then(function(result){
-    res.status(200).send(result);
+    return res.status(200).send(result);
   })
   .catch(error => {
-    res.status(500).send({
+    return res.status(500).send({
       error: "Unable to find device record"
     });
   });
@@ -101,16 +132,16 @@ devices.post('/live/:collection', function(req,res){
     //Now hit the JPS API
     device.getExpandedInventory(deviceObj[0].url,deviceObj[0].username, db.decryptString(deviceObj[0].password), deviceObj[0], deviceObj[0].id)
     .then(function(jpsAPIResponse){
-      res.status(200).send(jpsAPIResponse);
+      return res.status(200).send(jpsAPIResponse);
     })
     .catch(error => {
-      res.status(500).send({
+      return res.status(500).send({
         error: "Unable to hit the JPS API for this device"
       });
     });
   })
   .catch(error => {
-    res.status(400).send({
+    return res.status(400).send({
       error: "Unable to find device record"
     });
   });
@@ -124,16 +155,16 @@ devices.get('/live/:collection/:id', function(req,res){
     //Now use the server details to callout to the JPS
     device.getExpandedInventory(deviceObj[0].url,deviceObj[0].username, db.decryptString(deviceObj[0].password), deviceObj[0], deviceObj[0].id)
     .then(function(jpsAPIResponse){
-      res.status(200).send(jpsAPIResponse);
+      return res.status(200).send(jpsAPIResponse);
     })
     .catch(error => {
-      res.status(500).send({
+      return res.status(500).send({
         error: "Unable to hit the JPS API for this device"
       });
     });
   })
   .catch(error => {
-    res.status(400).send({
+    return res.status(400).send({
       error: "Unable to find device record"
     });
   });
@@ -142,12 +173,12 @@ devices.get('/live/:collection/:id', function(req,res){
 devices.get('/computers', function(req,res) {
   device.getDeviceByPlatform('computer')
   .then(function(deviceList){
-    res.status(200).send({
+    return res.status(200).send({
       devices : deviceList
     });
   })
   .catch(error => {
-    res.status(500).send({
+    return res.status(500).send({
       error: "Unable to get devices"
     });
   });
@@ -156,12 +187,12 @@ devices.get('/computers', function(req,res) {
 devices.get('/mobiledevices', function(req,res) {
   device.getDeviceByPlatform('mobile')
   .then(function(deviceList){
-    res.status(200).send({
+    return res.status(200).send({
       devices : deviceList
     });
   })
   .catch(error => {
-    res.status(500).send({
+    return res.status(500).send({
       error: "Unable to get devices"
     });
   });
@@ -170,12 +201,12 @@ devices.get('/mobiledevices', function(req,res) {
 devices.get('/tvs', function(req,res) {
   device.getDeviceByPlatform('tv')
   .then(function(deviceList){
-    res.status(200).send({
+    return res.status(200).send({
       devices : deviceList
     });
   })
   .catch(error => {
-    res.status(500).send({
+    return res.status(500).send({
       error: "Unable to get devices"
     });
   });
@@ -184,11 +215,11 @@ devices.get('/tvs', function(req,res) {
 devices.get('/count/:deviceType', function(req,res) {
   device.getDeviceByPlatform(req.params.deviceType)
   .then(function(deviceList){
-    res.status(200).send({ "size" : deviceList.length});
+    return res.status(200).send({ "size" : deviceList.length});
   })
   .catch(error => {
     console.log(error);
-    res.status(500).send({
+    return res.status(500).send({
       error: "Unable to get devices"
     });
   });

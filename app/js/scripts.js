@@ -1,3 +1,15 @@
+function getOrgDetails(){
+  var details = getRequestObject('/settings/organization/details', null, 'GET');
+  details.done(function(detailsObject){
+    if ('header_name' in detailsObject){
+      $("#header_display_name").html(detailsObject.header_name);
+    }
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+  });
+}
+
 function getSupportedReportFields(){
   var fields = getRequestObject('/reports/builder/fields', null, 'GET');
   fields.done(function(fieldsObject){
@@ -7,6 +19,18 @@ function getSupportedReportFields(){
   .fail(function(xhr){
     console.log(xhr);
   });
+}
+
+function formatDate(date) {
+  return date.getMonth()+1 + "/" + date.getDate() + "/" + date.getFullYear();
+}
+
+function attemptDestroyTable(tableName){
+  //Destroy an existing table if there is one
+  if ($.fn.DataTable.isDataTable('#' + tableName)) {
+    $('#' + tableName).dataTable().fnDestroy();
+    $('#' + tableName).empty();
+  }
 }
 
 function getAllSavedReports(){
@@ -21,9 +45,9 @@ function getAllSavedReports(){
     for (var i = 0; i < reportsList.length; i++){
       var actionButtons = '<button type="button" class="btn btn-success btn-circle" onclick="viewReportResults(\''+reportsList[i].id+'\');"><i class="fa fa-play-circle"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-info btn-circle" onclick="loadReportById(\''+reportsList[i].id+'\');"><i class="fa fa-eye"></i></button>&nbsp;&nbsp;<button type="button" onclick="editReportById(\''+reportsList[i].id+'\');" class="btn btn-warning btn-circle"><i class="fa fa-pencil"></i></button>&nbsp;&nbsp;<button onclick="deleteReport(\''+reportsList[i].id+'\');" type="button" class="btn btn-danger btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;';
       if (reportsList[i].type == 'computer'){
-        computerReports.row.add([reportsList[i].name, reportsList[i].created, reportsList[i].email, reportsList[i].conditions_count, actionButtons]).draw(false);
+        computerReports.row.add([reportsList[i].name, formatDate(new Date(reportsList[i].created)), reportsList[i].email, reportsList[i].conditions_count, actionButtons]).draw(false);
       } else {
-        mobileReports.row.add([reportsList[i].name, reportsList[i].created, reportsList[i].email, reportsList[i].conditions_count, actionButtons]).draw(false);
+        mobileReports.row.add([reportsList[i].name, formatDate(new Date(reportsList[i].created)), reportsList[i].email, reportsList[i].conditions_count, actionButtons]).draw(false);
       }
     }
   })
@@ -62,9 +86,9 @@ function loadReportById(reportId){
   //Make the request to the server to get a saved report
   var report = getRequestObject('/reports/id/' + reportId, null, 'GET');
   report.done(function(reportObject){
-    console.log(reportObject);
     //Load the existing report view
     $("#new-report-parent").hide();
+    console.log(reportObject.line_items);
     addMultipleReportLineItems(reportObject.line_items);
     //Fill in and show the fields to select
     //Show the new report UI
@@ -212,7 +236,7 @@ function reloadReportPane(loadFirstItem){
   //Clear out the existing report id in case one was added
   $("#existing-report-id").val('');
   //reset selected fields
-  $("#fields-to-select").val('');
+  $('#fields-to-select').selectpicker('destroy');
   $("#new-report-name").val('New Report Name');
   $("#new-report-parent").show();
   //reload the saved reports from the server
@@ -668,7 +692,6 @@ function loadPatchServersTable(){
   var patchServers = getRequestObject('/patches/servers', null, 'GET');
   //render the table after the servers are loaded from the DB
   patchServers.done(function(patchServerList){
-    console.log(patchServerList);
     //Add to the server table
     for (i = 0; i < patchServerList.length; i++){
       patchServersTable.row.add([patchServerList[i].base_url, patchServerList[i].cron_update]);
@@ -915,7 +938,8 @@ function updateSettings(){
   //Make the request to the server
   var req = getRequestObject('/settings/all', newFile, 'PUT')
   req.done(function(result){
-    swal('Success!', 'Your settings have been saved successfully. The server can now be restarted.', 'success');
+    getOrgDetails();
+    swal('Success!', 'Your settings have been saved successfully. The server MUST be restarted in order for the changes to take affect.', 'warning');
   })
   .fail(function(xhr){
     console.log(xhr);
@@ -932,7 +956,6 @@ function getSettingsItemHTML(title, id, value){
 }
 
 function fillDataForLineItem(id, data){
-  console.log(data);
   //Fill in all of the data
   if (data.condition != ''){
     $("#include-value-" + data.item_order).val(data.condition);
@@ -1016,6 +1039,7 @@ function addReportLineItem(lineItemToFill){
     });
     //Clone select options ito the fields to select
     if (window.advanced_search_line_item_count == 0){
+      $("#fields-to-select-parent").html('<select id="fields-to-select" class="selectpicker form-control" multiple data-live-search="true"></select>');
       var $options = $(".advanced-report-field-dropdown > option").clone();
       $("#fields-to-select").selectpicker();
       $('#fields-to-select').append($options);
@@ -1055,6 +1079,7 @@ function renderPage(){
   } else if (urlParams.has('tab')){
     changeView(urlParams.get('tab'));
   }
+  getOrgDetails();
   //Get all of the Jamf Pro Servers
   loadServerTable();
   updateComputers();

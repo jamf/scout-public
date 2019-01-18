@@ -60,6 +60,13 @@ if (cluster.isMaster){
   });
   //Get a count of the machines cores and spin up that many threads
   var coreCount = require('os').cpus().length;
+  //see if their is a core count provided that could be less than whats on the system
+  if (process.env.THREAD_COUNT){
+    var threadCountSetByUser = parseInt(process.env.THREAD_COUNT);
+    if (threadCountSetByUser < coreCount){
+      coreCount = threadCountSetByUser;
+    }
+  }
   for (var i = 0; i < coreCount; i++){
     cluster.fork();
   }

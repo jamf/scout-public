@@ -38,7 +38,7 @@
                <span class="icon-bar"></span>
                <span class="icon-bar"></span>
                </button>
-               <a class="navbar-brand" href="index.html">Scout</a>
+               <a class="navbar-brand" href="index.html"><span id="header_display_name">Scout</span></a>
             </div>
             <!-- /.navbar-header -->
             <ul class="nav navbar-top-links navbar-right">
@@ -594,9 +594,12 @@
                            </div>-->
                            <div class="col-lg-4">
                              <label for="new-report-type">Fields to Select</label>
-                             <select id="fields-to-select" class="selectpicker form-control" multiple data-live-search="true">
+                             <div id="fields-to-select-parent">
+                               <select id="fields-to-select" class="selectpicker form-control" multiple data-live-search="true">
 
-                             </select>
+                               </select>
+                             </div>
+
                            </div>
                          </div>
                        </div>

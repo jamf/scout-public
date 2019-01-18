@@ -471,6 +471,7 @@ function getDeviceLive(type, serial, udid){
   //Get expanded inventory from server
   var liveResult = getRequestObject('/devices/live/' + type, reqBody, 'POST');
   liveResult.done(function(result){
+    console.log(result);
     //Get the view to inject into the modal
     $.get("/app-views/device-view.html", function(data) {
       $("#device-pane-view").html(data);
@@ -486,6 +487,32 @@ function getDeviceLive(type, serial, udid){
         if (!device.hasOwnProperty(prop)) {
            continue;
         }
+        //Three values for the extension attributes
+        if (prop == 'extension_attributes'){
+          //If there are some to display
+          if (device[prop].length > 0){
+            for (var i = 0; i < device[prop].length; i++) {
+              //Add a line item to the table
+              $("#extension_attributes-table-body").append("<tr><td>"+device[prop][i]["name"]+"</td><td>"+device[prop][i]["type"]+"</td><td>"+device[prop][i]["value"]+"</td></tr>");
+            }
+          }
+        } else if (prop == 'certificates'){
+          //If there are some to display
+          if (device[prop].length > 0){
+            for (var i = 0; i < device[prop].length; i++) {
+              //Add a line item to the table
+              $("#certificates-table-body").append("<tr><td>"+device[prop][i]["common_name"]+"</td><td>"+device[prop][i]["identity"]+"</td><td>"+device[prop][i]["expires_utc"]+"</td></tr>");
+            }
+          }
+        } else if (prop == 'configuration_profiles'){
+          //If there are some to display
+          if (device[prop].length > 0){
+            for (var i = 0; i < device[prop].length; i++) {
+              //Add a line item to the table
+              $("#configuration_profiles-table").append("<tr><td>"+device[prop][i]["name"]+"</td><td>"+device[prop][i]["uuid"]+"</td><td>"+device[prop][i]["is_removable"]+"</td></tr>");
+            }
+          }
+        } else
         //If there is a length object, it's a list type
         if (device[prop].length == undefined){
           //Get the table for the given key

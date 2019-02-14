@@ -8,6 +8,8 @@ Scout is a easy to use webapp that allows you to aggregate multiple Devices from
  - Scout is also a fully functional Patch server that can even aggregate patches from multiple other servers!
  - Some screenshots can be found here: https://imgur.com/a/qEfd0KM
  - View complete install instructions below
+ 
+ Contribute To Development: https://www.bountysource.com/trackers/91218894-jacobschultz-scout-public
 
 # Running Server (Required)
  - Start by installing node, mysql and mongo. Then run the install script in the root of the project. This will write your .env settings file, create and import the database, install the required node modules, then start the server. If this app is being run in a production enviornment, or with real data it's recommended that a 'production' setup guide is followed. There are guides for both Ubuntu and Red Hat at the root of this repo. 

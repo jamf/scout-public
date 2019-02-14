@@ -125,7 +125,7 @@ open('./api/.env', 'w') do |f|
   f.puts "NOSQL_HOST=#{nosql_host}"
   f.puts "NOSQL_DB=#{nosql_db_name}"
   f.puts "NOSQL_USER=#{nosql_user}"
-  f.puts "NOSQL_PASS=#{nosql_pass}"
+  f.puts "NOSQL_PASS=#{nosql_password}"
 end
 
 print "\n.env file has been written, now installing node modules.\n"

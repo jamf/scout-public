@@ -9,8 +9,19 @@ var state = {
   pool: null
 }
 
+exports.closeMongoConnection = function(){
+  try {
+    mongoConnection.close();
+    return true;
+  } catch (exc){
+    console.log(exc);
+    return false;
+  }
+};
+
 //Stores the connection to mongoDB
 var mongoDBO;
+var mongoConnection;
 
 //Called at least once in the app or worker scripts
 exports.connect = function(callback) {
@@ -41,6 +52,7 @@ exports.connectNoSQL = function(callback){
       callback(err);
     }
     mongoDBO = db.db(process.env.NOSQL_DB);
+    mongoConnection = db;
     callback();
   });
 }

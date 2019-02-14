@@ -1,0 +1,63 @@
+{
+  "general" : {
+    "id" : "Id",
+    "name" : "Name",
+    "ble_capable" : "BLE Capable",
+    "capacity_mb" : "Capacity (MB)",
+    "cloud_backup_enabled" : "Cloud Backup Enabled",
+    "device_locator_service_enabled" : "Find my iPhone Enabled",
+    "device_ownership_level" : "Ownership Level",
+    "ip_address" : "IP Address",
+    "last_backup_time_utc" : "Last Backup Time",
+    "last_inventory_update_utc" : "Last Inventory Update",
+    "managed" : "Is Managed",
+    "model" : "Device Model",
+    "model_number" : "Model Number",
+    "model_identifier" : "Model Identifier",
+    "os_build" : "OS Build",
+    "os_version" : "OS Version",
+    "phone_number" : "Phone Number",
+    "supervised" : "Supervised",
+    "serial_number" : "Serial Number",
+    "udid" : "UDID",
+    "asset_tag" : "Asset Tag",
+    "initial_entry_date" : "Initial Entry Date",
+    "itunes_store_account_is_active" : "Has iTunes Store Account"
+  },
+  "location" : {
+    "username" : "Username",
+    "realname" : "Real Name",
+    "email_address" : "Email Address",
+    "position" : "Position",
+    "phone" : "Phone",
+    "department" : "Department",
+    "building" : "Building",
+    "room" : "Room"
+  },
+  "network" : {
+    "current_carrier_network" : "Current Carrier Network",
+    "current_mobile_country_code" : "Current Carrier Country Code",
+    "data_roaming_enabled" : "Data Roaming Enabled",
+    "iccid" : "ICCID",
+    "imei" : "IMEI"
+  },
+  "purchasing" : {
+    "is_purchased" : "Is Purchased",
+    "is_leased" : "Is Leased"
+  },
+  "applications" : {
+    "application_name" : "Application Name",
+    "application_version" : "Application Version",
+    "identifier" : "Application Identifier"
+  },
+  "extension_attributes" : {
+    "name" : "Extension Attribute Name",
+    "type" : "Extension Attribute Type",
+    "value" : "Extension Attribute Value"
+  },
+  "configuration_profiles" : {
+    "display_name" : "Configuration Profile Name",
+    "version" : "Configuration Profile Version",
+    "identifier" : "Configuration Profile Identifier"
+  }
+}

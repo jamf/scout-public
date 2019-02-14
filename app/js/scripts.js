@@ -10,11 +10,30 @@ function getOrgDetails(){
   });
 }
 
+function refreshAllDevices(){
+  $.Toast.showToast({
+    "title": "Refreshing all devices, this could take awhile if there are a lot of servers in scout.",
+    "icon": "loading",
+    "duration": 60000
+  });
+  var reqBody = {type : 'limited'};
+  var result = getRequestObject('/devices/refresh/all', reqBody, 'PUT');
+  result.done(function(r){
+    $.Toast.hideToast();
+    swal('Devices Updating...', 'The devices are continuing to update in the background, try refreshing the devices view in a few secords or more.', 'success');
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+  });
+}
+
+window.reporting_fields = {};
 function getSupportedReportFields(){
   var fields = getRequestObject('/reports/builder/fields', null, 'GET');
   fields.done(function(fieldsObject){
     //Store this as a global object so it can also be added to the report builder without making the request again
-    window.reporting_fields = fieldsObject;
+    window.reporting_fields.computer = fieldsObject.computer;
+    window.reporting_fields.mobile = fieldsObject.mobile;
   })
   .fail(function(xhr){
     console.log(xhr);
@@ -471,6 +490,7 @@ function getDeviceLive(type, serial, udid){
   //Get expanded inventory from server
   var liveResult = getRequestObject('/devices/live/' + type, reqBody, 'POST');
   liveResult.done(function(result){
+    console.log(result);
     //Get the view to inject into the modal
     $.get("/app-views/device-view.html", function(data) {
       $("#device-pane-view").html(data);
@@ -486,6 +506,32 @@ function getDeviceLive(type, serial, udid){
         if (!device.hasOwnProperty(prop)) {
            continue;
         }
+        //Three values for the extension attributes
+        if (prop == 'extension_attributes'){
+          //If there are some to display
+          if (device[prop].length > 0){
+            for (var i = 0; i < device[prop].length; i++) {
+              //Add a line item to the table
+              $("#extension_attributes-table-body").append("<tr><td>"+device[prop][i]["name"]+"</td><td>"+device[prop][i]["type"]+"</td><td>"+device[prop][i]["value"]+"</td></tr>");
+            }
+          }
+        } else if (prop == 'certificates'){
+          //If there are some to display
+          if (device[prop].length > 0){
+            for (var i = 0; i < device[prop].length; i++) {
+              //Add a line item to the table
+              $("#certificates-table-body").append("<tr><td>"+device[prop][i]["common_name"]+"</td><td>"+device[prop][i]["identity"]+"</td><td>"+device[prop][i]["expires_utc"]+"</td></tr>");
+            }
+          }
+        } else if (prop == 'configuration_profiles'){
+          //If there are some to display
+          if (device[prop].length > 0){
+            for (var i = 0; i < device[prop].length; i++) {
+              //Add a line item to the table
+              $("#configuration_profiles-table").append("<tr><td>"+device[prop][i]["name"]+"</td><td>"+device[prop][i]["uuid"]+"</td><td>"+device[prop][i]["is_removable"]+"</td></tr>");
+            }
+          }
+        } else
         //If there is a length object, it's a list type
         if (device[prop].length == undefined){
           //Get the table for the given key
@@ -972,27 +1018,65 @@ function fillDataForLineItem(id, data){
 }
 
 function getReportOptions(){
+  //See if there is a report type to use
+  var urlParams = new URLSearchParams(window.location.search);
   var options = [];
-  //Make sure it has the most recent fields available to it
-  options.push(new Option('--- General ---',''));
-  for (var key in window.reporting_fields.general){
-    options.push(new Option(window.reporting_fields.general[key],"general." + key));
-  }
-  options.push(new Option('--- Location ---',''));
-  for (var key in window.reporting_fields.location){
-    options.push(new Option(window.reporting_fields.location[key],"location." + key));
-  }
-  options.push(new Option('--- Purchasing ---',''));
-  for (var key in window.reporting_fields.purchasing){
-    options.push(new Option(window.reporting_fields.purchasing[key],"purchasing." + key));
-  }
-  options.push(new Option('--- Hardware ---',''));
-  for (var key in window.reporting_fields.hardware){
-    options.push(new Option(window.reporting_fields.hardware[key],"hardware." + key));
-  }
-  options.push(new Option('--- Applications ---',''));
-  for (var key in window.reporting_fields.applications){
-    options.push(new Option(window.reporting_fields.applications[key],"applications." + key));
+  if (urlParams.has('reportType') && urlParams.get('reportType') == 'mobile_device'){
+      //Make sure it has the most recent fields available to it
+      options.push(new Option('--- General ---',''));
+      for (var key in window.reporting_fields.mobile.general){
+        options.push(new Option(window.reporting_fields.mobile.general[key],"general." + key));
+      }
+      options.push(new Option('--- Location ---',''));
+      for (var key in window.reporting_fields.mobile.location){
+        options.push(new Option(window.reporting_fields.mobile.location[key],"location." + key));
+      }
+      options.push(new Option('--- Network ---',''));
+      for (var key in window.reporting_fields.mobile.network){
+        options.push(new Option(window.reporting_fields.mobile.network[key],"network." + key));
+      }
+      options.push(new Option('--- Purchasing ---',''));
+      for (var key in window.reporting_fields.mobile.purchasing){
+        options.push(new Option(window.reporting_fields.mobile.purchasing[key],"purchasing." + key));
+      }
+      options.push(new Option('--- Extension Attributes ---',''));
+      for (var key in window.reporting_fields.mobile.extension_attributes){
+        options.push(new Option(window.reporting_fields.mobile.extension_attributes[key],"extension_attributes." + key));
+      }
+      options.push(new Option('--- Applications ---',''));
+      for (var key in window.reporting_fields.mobile.applications){
+        options.push(new Option(window.reporting_fields.mobile.applications[key],"applications." + key));
+      }
+      options.push(new Option('--- Configuration Profiles ---',''));
+      for (var key in window.reporting_fields.mobile.configuration_profiles){
+        options.push(new Option(window.reporting_fields.mobile.configuration_profiles[key],"configuration_profiles." + key));
+      }
+  } else {
+      //Make sure it has the most recent fields available to it
+      options.push(new Option('--- General ---',''));
+      for (var key in window.reporting_fields.computer.general){
+        options.push(new Option(window.reporting_fields.computer.general[key],"general." + key));
+      }
+      options.push(new Option('--- Location ---',''));
+      for (var key in window.reporting_fields.computer.location){
+        options.push(new Option(window.reporting_fields.computer.location[key],"location." + key));
+      }
+      options.push(new Option('--- Purchasing ---',''));
+      for (var key in window.reporting_fields.computer.purchasing){
+        options.push(new Option(window.reporting_fields.computer.purchasing[key],"purchasing." + key));
+      }
+      options.push(new Option('--- Hardware ---',''));
+      for (var key in window.reporting_fields.computer.hardware){
+        options.push(new Option(window.reporting_fields.computer.hardware[key],"hardware." + key));
+      }
+      options.push(new Option('--- Extension Attributes ---',''));
+      for (var key in window.reporting_fields.computer.extension_attributes){
+        options.push(new Option(window.reporting_fields.computer.extension_attributes[key],"extension_attributes." + key));
+      }
+      options.push(new Option('--- Applications ---',''));
+      for (var key in window.reporting_fields.computer.applications){
+        options.push(new Option(window.reporting_fields.computer.applications[key],"applications." + key));
+      }
   }
   return options;
 }
@@ -1073,6 +1157,7 @@ function renderPage(){
   if (urlParams.has('type') && urlParams.get('type') == 'view' && urlParams.has('reportId')){
     viewReportResults(urlParams.get('reportId'));
   }
+  console.log(urlParams.get('tab'));
   //Redirect back if report view without any report id
   if (urlParams.has('tab') && urlParams.get('tab') == 'reports-results-view' && !urlParams.has('reportId')){
     changeView('computer-reports-view');
@@ -1193,6 +1278,7 @@ function changeView(newView){
 }
 
 function changeReportView(deviceType, operation){
+  reloadReportPane(true);
   //Set the title at the top of the card
   if (deviceType == 'computer'){
     $("#report-name-field").html('New Computer Report');

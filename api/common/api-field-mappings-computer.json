@@ -48,5 +48,10 @@
     "name" : "Installed Application Name",
     "path" : "Installed Application Path",
     "version" : "Installed Application Version"
+  },
+  "extension_attributes" : {
+    "name" : "Extension Attribute Name",
+    "type" : "Extension Attribute Type",
+    "value" : "Extension Attribute Value"
   }
 }

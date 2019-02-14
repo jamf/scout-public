@@ -73,17 +73,24 @@ db.connect(function(err) {
           Promise.all(fullApiDevices.map(deviceObj => devices.upsertFullInventory(deviceObj, jss_id))).then(function(results){
             logger.log('info', 'Inserted %d expanded inventories', results.length);
             logger.log('info', '===============================FINISH UPDATE====================================\n');
+            //Mongo should auto handle closing the connection, but just to safe, close it here
+            var killMongoResult = db.closeMongoConnection();
+            console.log('Closed Mongo Connection? ' + killMongoResult);
             process.exit(0);
           })
           .catch(error => {
             logger.log('error', 'Unable to insert all expanded inventories');
             logger.log('error', error);
+            console.log(error);
+            var killMongoResult = db.closeMongoConnection();
             process.exit(1);
           });
         })
         .catch(error => {
           logger.log('error', 'Unable to insert all expanded inventories');
           logger.log('error', error);
+          console.log(error);
+          var killMongoResult = db.closeMongoConnection();
           process.exit(1);
         });
       });

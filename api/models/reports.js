@@ -6,9 +6,14 @@ exports.getSupportedFields = function(){
   return new Promise(function(resolve,reject) {
     try {
       //get the current mapping of API supported fields, to UI friendly strings
-      var fileString = fs.readFileSync(path.resolve(__dirname, '../common/api-field-mappings.json'), 'utf-8');
+      var computerMappings = fs.readFileSync(path.resolve(__dirname, '../common/api-field-mappings-computer.json'), 'utf-8');
+      //get the current mappings for mobile as well
+      var mobileMappings = fs.readFileSync(path.resolve(__dirname, '../common/api-field-mappings-mobile.json'), 'utf-8');
       //parse to an object and return
-      resolve(JSON.parse(fileString));
+      var fields = {};
+      fields.computer = JSON.parse(computerMappings);
+      fields.mobile = JSON.parse(mobileMappings);
+      resolve(fields);
     } catch (e){
       reject(e);
     }
@@ -272,6 +277,10 @@ exports.getReportById = function(reportId){
 }
 
 function getSearchObject(collection, field, operation, searchValue){
+  console.log(collection);
+  console.log(field);
+  console.log(operation);
+  console.log(searchValue);
   //Overrite some fields that are different for mobile devices
   if (field == 'general.name' && collection == 'mobile_device'){
     field = 'general.display_name';
@@ -280,8 +289,8 @@ function getSearchObject(collection, field, operation, searchValue){
   //Build the actual search object
   var searchObject = {};
   var operationObject = operationToObject(operation, searchValue, field);
-  console.log(operationObject);
   searchObject[pathString] = operationObject;
+  console.log(searchObject);
   return searchObject;
 }
 

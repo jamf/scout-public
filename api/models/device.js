@@ -172,7 +172,6 @@ exports.sendMDMCommandToDevices = function(devicesList, commandName, options){
           serverList.push(s);
         }
       });
-      console.log(serverList);
       //Now for each server, send the command's to it's devices
       Promise.all(serverList.map(s => exports.sendMDMCommandToDeviceList(s,commandName,options)))
       .then(function(results){

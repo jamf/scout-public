@@ -28,10 +28,15 @@ devices.put('/refresh/all', function(req,res){
   //Get all of the servers, then for all of those servers, get all devices
   server.getAllServers()
   .then(function(serverList){
-    console.log(serverList);
     //Loop every server and get all of their devices
     Promise.all(serverList.map(s => server.getAllDevices(s.url, s.id, s.username, db.decryptString(s.password))))
-    .then(function(allDevices){
+    .then(function(allDevicesAndServers){
+      //All devices and servers is an array servers of array of objects
+      var allDevices = [];
+      allDevicesAndServers.forEach(function(serverDevices){
+        //Push the devices from the server to the all devices array so we just have a list of devices
+        allDevices = allDevices.concat(serverDevices);
+      });
       //Now upsert all of these devices
       Promise.all(allDevices.map(d => device.upsertDevice(d))).then(function(result){
         return res.status(200).send({ status: "success"});
@@ -65,21 +70,21 @@ devices.post('/paged/:deviceType', function(req,res) {
   });
 });
 
-devices.post('/paged/:deviceType', function(req,res) {
-  var start = parseInt(req.body.start);
-  var len = parseInt(req.body.length);
-  var search = req.body.search.value;
-  device.getDeviceWithSearch(req.params.deviceType, search)
-  .then(function(deviceList){
-    var obj = getDataTablesRes(req.body.draw,deviceList.slice(start, start + len),deviceList.length,deviceList.length,req.params.deviceType);
-    return res.status(200).send(obj);
-  })
-  .catch(error => {
-    return res.status(500).send({
-      error: "Unable to get devices"
-    });
-  });
-});
+// devices.post('/paged/:deviceType', function(req,res) {
+//   var start = parseInt(req.body.start);
+//   var len = parseInt(req.body.length);
+//   var search = req.body.search.value;
+//   device.getDeviceWithSearch(req.params.deviceType, search)
+//   .then(function(deviceList){
+//     var obj = getDataTablesRes(req.body.draw,deviceList.slice(start, start + len),deviceList.length,deviceList.length,req.params.deviceType);
+//     return res.status(200).send(obj);
+//   })
+//   .catch(error => {
+//     return res.status(500).send({
+//       error: "Unable to get devices"
+//     });
+//   });
+// });
 
 devices.get('/', function(req,res) {
   device.getAllDevices()
@@ -237,7 +242,7 @@ function getDataTablesRes(draw, data, totalRecords, filteredRecords,platform){
   for (i = 0; i < data.length; i++){
     //Get the text for the view live button
     var liveViewButton = '<button type="button" class="btn btn-info btn-circle" onclick="getDeviceLive(\''+platform+'\',\''+data[i].jss_serial+'\',\''+ data[i].jss_udid+'\')"><i class="fa fa-eye"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-warning btn-circle" onclick="alert(\'MDM Commands coming soon.\');"><i class="fa fa-paper-plane"></i></button>';
-    var item = [ data[i].jss_name, data[i].org_name, data[i].jss_Model, data[i].jss_serial, data[i].jss_last_inventory, data[i].jss_udid, getBoolVal(data[i].jss_managed),liveViewButton];
+    var item = [ data[i].jss_name, data[i].org_name, data[i].jss_Model, data[i].jss_serial, new Date(data[i].jss_last_inventory).toLocaleDateString(), data[i].jss_udid, getBoolVal(data[i].jss_managed),liveViewButton];
     dataList.push(item);
   }
   return { "draw" : parseInt(draw), "recordsTotal" : totalRecords, "recordsFiltered" :  filteredRecords, "data" : dataList};

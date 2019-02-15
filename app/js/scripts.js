@@ -10,7 +10,7 @@ function getOrgDetails(){
   });
 }
 
-function refreshAllDevices(){
+function refreshAllDevices(showPrompt){
   $.Toast.showToast({
     "title": "Refreshing all devices, this could take awhile if there are a lot of servers in scout.",
     "icon": "loading",
@@ -20,7 +20,9 @@ function refreshAllDevices(){
   var result = getRequestObject('/devices/refresh/all', reqBody, 'PUT');
   result.done(function(r){
     $.Toast.hideToast();
-    swal('Devices Updating...', 'The devices are continuing to update in the background, try refreshing the devices view in a few secords or more.', 'success');
+    if (showPrompt){
+      swal('Devices Updating...', 'The devices are continuing to update in the background, try refreshing the devices view in a few secords or more. NOTE: A manual refresh of the page is required since this is happening async in the background.', 'success');
+    }
   })
   .fail(function(xhr){
     console.log(xhr);
@@ -378,6 +380,7 @@ function addServerToDatabase(url,username,password,cronLimited,cronExpanded){
     } else {
       swal('Server Added', 'The server has been added.', 'success');
     }
+    refreshAllDevices(false);
     loadServerTable();
   })
   .fail(function(jqXHR, textStatus, errorThrown){

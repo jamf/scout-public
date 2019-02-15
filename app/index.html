@@ -196,6 +196,8 @@
                       </div>
                       <!-- /.panel-heading -->
                       <div class="panel-body">
+                        <button type="button" style="display:none;" id="send-computer-command-button" onclick="viewMDMCommands('computers-table');" class="btn btn-success">Send MDM Commands</button>
+                        <br/>
                         <br/>
                         <table id="computers-table" class="table table-striped table-bordered table-hover" style="width:100%">
                            <thead>
@@ -342,7 +344,7 @@
                                     <p>This command will update the inventory of the device in it's Jamf Pro Server. It will be reflected in scout upon next server update.</p>
                                 </div>
                                 <div class="panel-footer">
-                                    <button type="button" onclick="sendMDMCommand('ios', 'UpdateInventory');" class="btn btn-success">Send Command</button>
+                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'UpdateInventory');" class="btn btn-success">Send Command</button>
                                 </div>
                             </div>
                           </div>
@@ -355,7 +357,7 @@
                                     <p>This command will lock the device or devices it's sent to and require the user to enter their passcode.</p>
                                 </div>
                                 <div class="panel-footer">
-                                    <button type="button" onclick="sendMDMCommand('ios', 'DeviceLock');" class="btn btn-success">Send Command</button>
+                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'DeviceLock');" class="btn btn-success">Send Command</button>
                                 </div>
                             </div>
                           </div>
@@ -368,7 +370,7 @@
                                     <p>This command will clear any passcode set on the device. Useful if the user forgot their passcode and is locked out of their device.</p>
                                 </div>
                                 <div class="panel-footer">
-                                    <button type="button" onclick="sendMDMCommand('ios', 'ClearPasscode');" class="btn btn-success">Send Command</button>
+                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'ClearPasscode');" class="btn btn-success">Send Command</button>
                                 </div>
                             </div>
                           </div>
@@ -383,7 +385,7 @@
                                     <p>This command will enable lost mode on device(s). This will lock the device. This is useful if a device has been lost or misplaced.</p>
                                 </div>
                                 <div class="panel-footer">
-                                    <button type="button" onclick="sendMDMCommand('ios', 'EnableLostMode');" class="btn btn-success">Send Command</button>
+                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'EnableLostMode');" class="btn btn-success">Send Command</button>
                                 </div>
                             </div>
                           </div>
@@ -396,7 +398,7 @@
                                     <p>This command will disable lost mode on device(s). This will unlock the device or devices.</p>
                                 </div>
                                 <div class="panel-footer">
-                                    <button type="button" onclick="sendMDMCommand('ios', 'DisableLostMode');" class="btn btn-success">Send Command</button>
+                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'DisableLostMode');" class="btn btn-success">Send Command</button>
                                 </div>
                             </div>
                           </div>
@@ -409,7 +411,7 @@
                                     <p>This command will completly wipe the selected devices. Use with extreme caution, this can not be undone.</p>
                                 </div>
                                 <div class="panel-footer">
-                                    <button type="button" onclick="sendMDMCommand('ios', 'EraseDevice');" class="btn btn-success">Send Command</button>
+                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'EraseDevice');" class="btn btn-success">Send Command</button>
                                 </div>
                             </div>
                           </div>
@@ -424,7 +426,7 @@
                                     <p>This command can be used to set the device name to a string of your choosing. </p>
                                 </div>
                                 <div class="panel-footer">
-                                    <button type="button" onclick="sendMDMCommand('ios', 'DeviceName');" class="btn btn-success">Send Command</button>
+                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'DeviceName');" class="btn btn-success">Send Command</button>
                                 </div>
                             </div>
                           </div>
@@ -434,6 +436,111 @@
                 </div>
               </div>
            </div>
+
+           <div id="computer-commands-view" class="view-pane" style="display:none;">
+             <div class="row">
+                <br/>
+             </div>
+             <div class="row">
+                <div class="col-lg-12">
+                   <div class="panel panel-default">
+                      <div class="panel-heading">
+                         Computer Commands
+                      </div>
+                      <!-- /.panel-heading -->
+                      <div class="panel-body" id="commands-panel-body">
+                        <h1><span id="selected-computer-count">0</span> Selected Device(s)</h1>
+                        <br/>
+                        <div class="row">
+                          <div class="col-lg-4">
+                            <div class="panel panel-warning">
+                                <div class="panel-heading">
+                                   Lock Device
+                                </div>
+                                <div class="panel-body">
+                                    <p>Lock the device with a specified password.</p>
+                                </div>
+                                <div class="panel-footer">
+                                    <button type="button" onclick="sendMDMCommand('computer', 'DeviceLock');" class="btn btn-success">Send Command</button>
+                                </div>
+                            </div>
+                          </div>
+                          <div class="col-lg-4">
+                            <div class="panel panel-danger">
+                                <div class="panel-heading">
+                                   Erase Device
+                                </div>
+                                <div class="panel-body">
+                                    <p>Erase the device and set a specified passcode.</p>
+                                </div>
+                                <div class="panel-footer">
+                                    <button type="button" onclick="sendMDMCommand('computer', 'EraseDevice');" class="btn btn-success">Send Command</button>
+                                </div>
+                            </div>
+                          </div>
+                          <div class="col-lg-4">
+                            <div class="panel panel-danger">
+                                <div class="panel-heading">
+                                   Delete User
+                                </div>
+                                <div class="panel-body">
+                                    <p>Remove an user from a device with a specified username. DEP device is required.</p>
+                                </div>
+                                <div class="panel-footer">
+                                    <button type="button" onclick="sendMDMCommand('computer', 'DeleteUser');" class="btn btn-success">Send Command</button>
+                                </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="row">
+                          <div class="col-lg-4">
+                            <div class="panel panel-info">
+                                <div class="panel-heading">
+                                   Unlock User Account
+                                </div>
+                                <div class="panel-body">
+                                    <p>Unlock a user on a device with a specified username. DEP device is required.</p>
+                                </div>
+                                <div class="panel-footer">
+                                    <button type="button" onclick="sendMDMCommand('computer', 'UnlockUserAccount');" class="btn btn-success">Send Command</button>
+                                </div>
+                            </div>
+                          </div>
+                          <div class="col-lg-4">
+                            <div class="panel panel-info">
+                                <div class="panel-heading">
+                                   Enable Bluetooth
+                                </div>
+                                <div class="panel-body">
+                                    <p>Enable bluetooth on the device. macOS 10.13.4 or later is required.</p>
+                                </div>
+                                <div class="panel-footer">
+                                    <button type="button" onclick="sendMDMCommand('computer', 'SettingsEnableBluetooth');" class="btn btn-success">Send Command</button>
+                                </div>
+                            </div>
+                          </div>
+                          <div class="col-lg-4">
+                            <div class="panel panel-warning">
+                                <div class="panel-heading">
+                                   Disable Bluetooth
+                                </div>
+                                <div class="panel-body">
+                                    <p>Disable bluetooth on the device. macOS 10.13.4 or later is required.</p>
+                                </div>
+                                <div class="panel-footer">
+                                    <button type="button" onclick="sendMDMCommand('computer', 'SettingsDisableBluetooth');" class="btn btn-success">Send Command</button>
+                                </div>
+                            </div>
+                          </div>
+                        </div>
+
+                      </div>
+                   </div>
+                </div>
+              </div>
+           </div>
+
            <div id="computer-reports-view" class="view-pane" style="display:none;">
              <div class="row">
                <div class="col-lg-12" align="right">

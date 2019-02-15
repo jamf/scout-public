@@ -71,18 +71,27 @@ exports.getExpandedInventory = function(url, username, password, device, jssServ
   });
 }
 
-exports.sendMDMCommandToDeviceList = function(serverObj, commandName, options){
+exports.sendMDMCommandToDeviceList = function(serverObj, commandName, options, platform){
   return new Promise(function(resolve,reject) {
     console.log(serverObj);
+    var apiVerb = 'mobiledevicecommands';
+    if (platform == 'computer'){
+      apiVerb = 'computercommands'
+    }
     //Build the xml based on the command
-    var bodyObj = getMDMCommandObjForList(commandName,serverObj.device_list,options);
+    var bodyObj = {};
+    if (platform == 'computer'){
+      bodyObj = getMDMCommandObjForComputerList(commandName,serverObj.device_list,options);
+    } else {
+      bodyObj = getMDMCommandObjForMobileDeviceList(commandName,serverObj.device_list,options);
+    }
     var builder = new xml2js.Builder();
     var data = builder.buildObject(obj);
     //Get the server details from the url
     server.getServerFromURL(serverObj.server_url)
     .then(function(serverDetails){
       //Build the request to the JPS
-        axiosInstance.post(serverObj.server_url + '/JSSResource/mobiledevicecommands/command', data, {
+        axiosInstance.post(serverObj.server_url + '/JSSResource/'+apiVerb+'/command', data, {
           auth: {
             username: serverDetails[0].username,
             password: db.decryptString(serverDetails[0].password)
@@ -144,7 +153,7 @@ function convertDataTablesDevices(dataTablesArray){
   return newList;
 }
 
-exports.sendMDMCommandToDevices = function(devicesList, commandName, options){
+exports.sendMDMCommandToDevices = function(devicesList, commandName, options, platform){
   return new Promise(function(resolve,reject) {
     var convertedDevices = convertDataTablesDevices(devicesList);
     //For every device, the server for the device and some more details like the jss id
@@ -173,7 +182,7 @@ exports.sendMDMCommandToDevices = function(devicesList, commandName, options){
         }
       });
       //Now for each server, send the command's to it's devices
-      Promise.all(serverList.map(s => exports.sendMDMCommandToDeviceList(s,commandName,options)))
+      Promise.all(serverList.map(s => exports.sendMDMCommandToDeviceList(s,commandName,options,platform)))
       .then(function(results){
         resolve(results);
       })
@@ -422,7 +431,7 @@ exports.insertFullInventory = function(deviceObj){
   });
 }
 
-function getMDMCommandObjForList(commandName, deviceList, options){
+function getMDMCommandObjForMobileDeviceList(commandName, deviceList, options){
   //Format the list of device ids in a way the JPS is expecting
   var formattedDevices = [];
   deviceList.forEach(deviceId => {
@@ -444,6 +453,30 @@ function getMDMCommandObjForList(commandName, deviceList, options){
     commandObj.mobile_device_command.general.lock_message = options.lock_message;
   } else if (commandName == 'EnableLostMode'){
     commandObj.mobile_device_command.general.lost_mode_message = options.lost_mode_message;
+  }
+  return commandObj;
+}
+
+
+function getMDMCommandObjForComputerList(commandName, deviceList, options){
+  //Format the list of device ids in a way the JPS is expecting
+  var formattedDevices = [];
+  deviceList.forEach(deviceId => {
+    var deviceObj = { "computer" : { "id" : deviceId}};
+    formattedDevices.push(deviceObj);
+  });
+  var commandObj =  obj = {
+     "computer_command":{
+        "general":{
+           "command": commandName
+        },
+        "computers": formattedDevices
+     }
+  };
+  if ((commandName == 'DeleteUser' || commandName == 'UnlockUserAccount') && options != undefined && 'user_name' in options){
+    commandObj.mobile_device_command.general.user_name = options.user_name;
+  } else if ((commandName == 'DeviceLock' || commandName == 'EraseDevice') && options != undefined && 'passcode' in options){
+    commandObj.mobile_device_command.general.passcode = options.passcode;
   }
   return commandObj;
 }

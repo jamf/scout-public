@@ -2,7 +2,7 @@ var commands = require('express').Router();
 var device = require('../models/device.js');
 var db = require('../common/db.js');
 
-commands.post('/create', function(req,res) {
+commands.post('/create/:platform', function(req,res) {
   //Make sure the user has permissions
   if (!req.user || !hasPermission(req.user, 'can_mdm')){
     //This user isn't authorized, exit
@@ -13,11 +13,11 @@ commands.post('/create', function(req,res) {
     return res.status(401).send({ error : "The user must be an admin for the EraseDeviceCommand" });
   }
   //Make sure the request if valid
-  if (!req.body.mdmCommand || !req.body.deviceType || req.body.deviceList.length < 1){
-    return res.status(400).send({ error : "Missing required fields" });
+  if (!req.body.mdmCommand || !req.body.deviceType || req.body.deviceList.length < 1 || !req.params.platform){
+    return res.status(400).send({ error : "Missing required fields or invalid request" });
   }
   //Send the MDM commands
-  device.sendMDMCommandToDevices(req.body.deviceList, req.body.mdmCommand, req.body.options)
+  device.sendMDMCommandToDevices(req.body.deviceList, req.body.mdmCommand, req.body.options, req.params.platform)
   .then(function(results){
     return res.status(200).send({ status : "success" });
   })

@@ -335,7 +335,7 @@ exports.insertNewDevice = function(deviceData){
 exports.updateDevice = function(deviceData, deviceId, type){
   var updateObj = {jss_name : deviceData.jss_name, jss_serial : deviceData.jss_serial, jss_last_inventory : deviceData.jss_last_inventory, jss_model : deviceData.jss_model, jss_managed : deviceData.jss_managed, jss_udid : deviceData.jss_udid};
   return new Promise(function(resolve,reject) {
-    db.get().query('UPDATE devices SET ? WHERE jss_udid = ? AND jss_id = ? AND device_type = ?', [updateObj, deviceData.jss_udid, deviceData.jss_id,type], function(error, results, fields) {
+    db.get().query('UPDATE devices SET ? WHERE jss_udid = ? AND device_type = ?', [updateObj, deviceData.jss_udid, type], function(error, results, fields) {
       if (error) {
         reject(error);
       } else {

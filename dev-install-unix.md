@@ -2,9 +2,11 @@
 The following guide will help you setup a instance of scout running on your local machine. Scout is developed mostly on a mac, but this guide should work just as well for any unix based desktop including Ubuntu. 
 ___
 ### Contribute to Scout Development Goals Here: 
-https://www.bountysource.com/trackers/91218894-jacobschultz-scout-public
+Bounty Tracker: https://www.bountysource.com/trackers/91218894-jacobschultz-scout-public
 
-BTC: 14W4tYFsgde3MDtWTNTReYirEEBj4TZTZo
+BTC: bc1qk65ygcy0rr2xldqxahhls9syczd37adupw3zfe
+BCH: bitcoincash:qqkfthkny87hm86z2uew7dl5tzrtua9uncwn0d304x
+LTC: ltc1qtxu5nan0w45jln8x6ug889na7lu7y9ff2djget
 ___
 ### Installation Steps: Getting the required software 
 1. Start by installing MySQL Community Edition for your platform of choice. After it's installed, create the scout database, then import the sql file at the root of scout:

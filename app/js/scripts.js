@@ -10,7 +10,7 @@ function getOrgDetails(){
   });
 }
 
-function refreshAllDevices(){
+function refreshAllDevices(showPrompt){
   $.Toast.showToast({
     "title": "Refreshing all devices, this could take awhile if there are a lot of servers in scout.",
     "icon": "loading",
@@ -20,7 +20,9 @@ function refreshAllDevices(){
   var result = getRequestObject('/devices/refresh/all', reqBody, 'PUT');
   result.done(function(r){
     $.Toast.hideToast();
-    swal('Devices Updating...', 'The devices are continuing to update in the background, try refreshing the devices view in a few secords or more.', 'success');
+    if (showPrompt){
+      swal('Devices Updating...', 'The devices are continuing to update in the background, try refreshing the devices view in a few secords or more. NOTE: A manual refresh of the page is required since this is happening async in the background.', 'success');
+    }
   })
   .fail(function(xhr){
     console.log(xhr);
@@ -378,6 +380,7 @@ function addServerToDatabase(url,username,password,cronLimited,cronExpanded){
     } else {
       swal('Server Added', 'The server has been added.', 'success');
     }
+    refreshAllDevices(false);
     loadServerTable();
   })
   .fail(function(jqXHR, textStatus, errorThrown){
@@ -573,6 +576,15 @@ function getDeviceLive(type, serial, udid){
 
 function updateComputers(){
   var computerTable = $("#computers-table").DataTable(getDataTablesRequest('computer'));
+  computerTable.on( 'select', function ( e, dt, type, indexes ) {
+    var rows = computerTable.rows( { selected: true } ).data();
+    //If something is selected
+    if (rows.length > 0){
+      $("#send-computer-command-button").show();
+    } else {
+      $("#send-computer-command-button").hide();
+    }
+  });
   var computers = getRequestObject('/devices/count/computer', null, 'GET');
   //Get a count of the total devices seperate since data tables can't handle success functions
   computers.done(function(computers){
@@ -630,7 +642,8 @@ function verifyEraseDevices(){
   userVerify.done(function(res){
     if (res.verified){
       //Do the MDM command
-      createMDMCommand('iOS', 'EraseDevice');
+      var options = {};
+      createMDMCommand('iOS', 'EraseDevice', options);
       $("#erase-devices-modal").modal('hide');
     } else {
       $("#erase-devices-modal").modal('hide');
@@ -759,19 +772,29 @@ function viewMDMCommands(type){
   for (var i = 0; i < rows.length; i++){
     window.devices_to_send_mdm_commands.push(rows[i]);
   }
-  $("#selected-devices-count").html(rows.length);
-  //show them the possible commands
-  changeView('mobile-commands-view');
+  if (type == 'computers-table'){
+    $("#selected-computer-count").html(rows.length);
+    //show them the possible commands
+    changeView('computer-commands-view');
+  } else {
+    $("#selected-devices-count").html(rows.length);
+    //show them the possible commands
+    changeView('mobile-commands-view');
+  }
 }
 
-function createMDMCommand(deviceType, mdmCommand){
+function createMDMCommand(deviceType, mdmCommand, options){
+  var platform = 'computer';
+  if (deviceType.includes('mobile')){
+    platform = 'mobile_device';
+  }
   $.Toast.showToast({
     "title": "Waiting for a response from the Jamf Pro Servers... This could take a bit if there are a lot of servers.",
     "icon": "loading",
     "duration": 60000
   });
-  var devicesObj = { mdmCommand : mdmCommand, deviceType : deviceType, deviceList : window.devices_to_send_mdm_commands};
-  var req = getRequestObject('/commands/create', devicesObj, 'POST');
+  var devicesObj = { mdmCommand : mdmCommand, deviceType : deviceType, deviceList : window.devices_to_send_mdm_commands, options : options};
+  var req = getRequestObject('/commands/create/'+platform, devicesObj, 'POST');
   req.done(function(data){
     $.Toast.hideToast();
     swal("The MDM Commands are on their way! They may take a few minutes to complete.", {
@@ -790,7 +813,11 @@ function createMDMCommand(deviceType, mdmCommand){
 function sendMDMCommand(deviceType, mdmCommand){
   if (window.devices_to_send_mdm_commands.length == 0){
     swal('Send Failed', 'No devices have been selected.', 'error');
-    changeView('ios-view');
+    if (deviceType == 'computer'){
+      changeView('macos-view');
+    } else {
+      changeView('ios-view');
+    }
     return;
   }
   //Prompt to ensure they actually want to send the command
@@ -803,28 +830,37 @@ function sendMDMCommand(deviceType, mdmCommand){
   })
   .then((willSend) => {
     if (willSend) {
+      var options = {};
       //Verify a admin password if it's an erease device command
       if (mdmCommand == 'EraseDevice'){
         $("#erase-devices-modal").modal('show');
-      } else if (mdmCommand == 'DeviceName'){
-        console.log('yeah');
+      } else if (mdmCommand == 'DeviceName' || mdmCommand == 'DeleteUser' || mdmCommand == 'DeviceLock' || mdmCommand == 'UnlockUserAccount'){
+        var title = 'Provide Device Name';
+        var key = 'user_name';
+        if (mdmCommand == 'DeleteUser' || mdmCommand == 'UnlockUserAccount'){
+          title = 'Provide User Name';
+        } else if (mdmCommand == 'DeviceLock'){
+          title = 'Provide a 6 character passcode';
+          key = 'passcode';
+        }
         swal({
-  title: "An input!",
-  text: "Write something interesting:",
-  type: "input",
-  showCancelButton: true,
-  closeOnConfirm: false,
-  inputPlaceholder: "Write something"
-}, function (inputValue) {
-  if (inputValue === false) return false;
-  if (inputValue === "") {
-    swal.showInputError("You need to write something!");
-    return false
-  }
-  swal("Nice!", "You wrote: " + inputValue, "success");
-});
+          title: title,
+          text: "Enter text below:",
+          type: "input",
+          showCancelButton: true,
+          closeOnConfirm: false,
+          inputPlaceholder: "Write something"
+        }, function (inputValue) {
+          if (inputValue === false) return false;
+          if (inputValue === "") {
+            swal.showInputError("You need to write something!");
+            return false
+          }
+          options[key] = inputValue;
+          createMDMCommand(deviceType, mdmCommand, options);
+        });
       } else {
-        createMDMCommand(deviceType, mdmCommand);
+        createMDMCommand(deviceType, mdmCommand, options);
       }
     } else {
       swal("No commands have been sent.");
@@ -1269,6 +1305,10 @@ function changeView(newView){
   if (window.devices_to_send_mdm_commands.length == 0 && newView == 'mobile-commands-view'){
     swal('Error', 'Please select some devices before visiting this page.', 'error');
     changeView('ios-view');
+  }
+  if (window.devices_to_send_mdm_commands.length == 0 && newView == 'computer-commands-view'){
+    swal('Error', 'Please select some devices before visiting this page.', 'error');
+    changeView('macos-view');
   }
   $("#" + newView).show();
   //Add the active class

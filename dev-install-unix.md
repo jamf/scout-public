@@ -5,7 +5,9 @@ ___
 Bounty Tracker: https://www.bountysource.com/trackers/91218894-jacobschultz-scout-public
 
 BTC: bc1qk65ygcy0rr2xldqxahhls9syczd37adupw3zfe
+
 BCH: bitcoincash:qqkfthkny87hm86z2uew7dl5tzrtua9uncwn0d304x
+
 LTC: ltc1qtxu5nan0w45jln8x6ug889na7lu7y9ff2djget
 ___
 ### Installation Steps: Getting the required software 

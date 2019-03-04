@@ -2,9 +2,13 @@
 Scout is a web based application that can be used to aggregate devices from multiple Jamf Pro applications. It features powerful reporting features, as well as the ability to send MDM commands across multiple servers from a single pane of glass. Scout also features a fully functional patch server. It's built on a proven web stack and exposes a powerful REST API that can be used by scripts or other third party implementations. Scout is fully open source, free, and provided as is. No support or maintenance is provided. That being said, the project welcomes contributions and pull requests for new features or bug fixes. 
 ___
 ### Contribute to Scout Development Goals Here: 
-https://www.bountysource.com/trackers/91218894-jacobschultz-scout-public
+Bounty Tracker: https://www.bountysource.com/trackers/91218894-jacobschultz-scout-public
 
-BTC: 14W4tYFsgde3MDtWTNTReYirEEBj4TZTZo
+BTC: bc1qk65ygcy0rr2xldqxahhls9syczd37adupw3zfe
+
+BCH: bitcoincash:qqkfthkny87hm86z2uew7dl5tzrtua9uncwn0d304x
+
+LTC: ltc1qtxu5nan0w45jln8x6ug889na7lu7y9ff2djget
 ___
 
 ## Server Requirements 

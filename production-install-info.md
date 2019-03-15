@@ -49,6 +49,21 @@ sudo apt-get install mysql-server
 ```
 sudo apt-get install -y mongodb-org
 ```
+10. It's important that we now secure the mongo installation and scout database. First, we'll create a new user with read/write on the scout database, then we'll enable auth in the mongo settings.
+```
+mongo
+
+use scout;
+db.createUser({ user : "ScoutAdmin", pwd : "supersecure", roles : [{role : "readWrite", db: "scout"}] });
+exit
+
+sudo /etc/mongod.conf (May be at a different location based on server/version - can run 'systemctl status mongodb' to see location)
+
+security:
+    authorization: "enabled"
+    
+sudo service mongod restart
+```
 ### Step Two - Installing and Configuring Node and Scout###
 1. Install the latest of node.js and some essential packages using the following commands: 
 ```

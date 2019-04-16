@@ -1273,6 +1273,32 @@
          </div>
          <!-- /.modal-dialog -->
       </div>
+
+      <div class="modal fade in" id="mdm-command-prompt" tabindex="-1" role="dialog" aria-labelledby="MDM Commands" aria-hidden="true">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                  <h4 class="modal-title"><span class="mdm-command-prompt-title"></span></h4>
+               </div>
+               <div class="modal-body">
+                <p> Please provide the following information to send this MDM Command: <b><span class="mdm-command-prompt-title"></span></b>.
+                 After you have specified this, the commands will be sent to the server. This can not be undone. </p>
+                 <p> The device type that these commands are being sent to is: <i><span id="mdm-command-prompt-device-type"></span></i>.</p>
+                   <br/>
+                   <input type="text" class="form-control" id="mdm-prompt-input-value"/>
+               </div>
+
+               <div class="modal-footer">
+                 <button class="btn btn-default" data-dismiss="modal" >Close</button>
+                 <button class="btn btn-success" data-dismiss="modal" id="send-command-button" >Send Command</button>
+
+               </div>
+            </div>
+            <!-- /.modal-content -->
+         </div>
+         <!-- /.modal-dialog -->
+      </div>
       <!-- jQuery -->
       <script src="sbadmin/jquery.min.js"></script>
       <!-- Bootstrap Core JavaScript -->

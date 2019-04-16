@@ -85,13 +85,21 @@ exports.sendMDMCommandToDeviceList = function(serverObj, commandName, options, p
     } else {
       bodyObj = getMDMCommandObjForMobileDeviceList(commandName,serverObj.device_list,options);
     }
+    console.log(bodyObj);
     var builder = new xml2js.Builder();
-    var data = builder.buildObject(obj);
+    var data = builder.buildObject(bodyObj);
     //Get the server details from the url
     server.getServerFromURL(serverObj.server_url)
     .then(function(serverDetails){
       //Build the request to the JPS
-        axiosInstance.post(serverObj.server_url + '/JSSResource/'+apiVerb+'/command', data, {
+      var postToUrl = '';
+      //Different API endpoints for computers vs. mobile devices
+      if (platform == 'computer'){
+        postToUrl = serverObj.server_url + '/JSSResource/'+apiVerb+'/command/'+commandName;
+      } else {
+        postToUrl = serverObj.server_url + '/JSSResource/'+apiVerb+'/command';
+      }
+        axiosInstance.post(postToUrl, data, {
           auth: {
             username: serverDetails[0].username,
             password: db.decryptString(serverDetails[0].password)
@@ -99,6 +107,7 @@ exports.sendMDMCommandToDeviceList = function(serverObj, commandName, options, p
           headers: {'Content-Type': 'text/xml'}
         })
         .then(function (response) {
+          console.log(response.data);
           resolve(response.data);
         })
         .catch(function (error) {
@@ -465,7 +474,7 @@ function getMDMCommandObjForComputerList(commandName, deviceList, options){
     var deviceObj = { "computer" : { "id" : deviceId}};
     formattedDevices.push(deviceObj);
   });
-  var commandObj =  obj = {
+  var commandObj = {
      "computer_command":{
         "general":{
            "command": commandName
@@ -474,9 +483,9 @@ function getMDMCommandObjForComputerList(commandName, deviceList, options){
      }
   };
   if ((commandName == 'DeleteUser' || commandName == 'UnlockUserAccount') && options != undefined && 'user_name' in options){
-    commandObj.mobile_device_command.general.user_name = options.user_name;
+    commandObj.computer_command.general.user_name = options.user_name;
   } else if ((commandName == 'DeviceLock' || commandName == 'EraseDevice') && options != undefined && 'passcode' in options){
-    commandObj.mobile_device_command.general.passcode = options.passcode;
+    commandObj.computer_command.general.passcode = options.passcode;
   }
   return commandObj;
 }

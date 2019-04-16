@@ -763,6 +763,7 @@ function loadPatchServersTable(){
 }
 
 window.devices_to_send_mdm_commands = [];
+window.platform_to_send_commands_to = '';
 function viewMDMCommands(type){
   var table = $("#" + type).DataTable();
   //Get the selected rows
@@ -772,6 +773,8 @@ function viewMDMCommands(type){
   for (var i = 0; i < rows.length; i++){
     window.devices_to_send_mdm_commands.push(rows[i]);
   }
+  //Select the platform to send mdm commands to to make sure we are sending to the right type
+  window.platform_to_send_commands_to = type;
   if (type == 'computers-table'){
     $("#selected-computer-count").html(rows.length);
     //show them the possible commands
@@ -803,9 +806,18 @@ function createMDMCommand(deviceType, mdmCommand, options){
   })
   .fail(function(xhr){
     $.Toast.hideToast();
-    swal("The MDM Commands failed to send. Check the console for more details.", {
-      icon: "error",
-    });
+    //Show some better error handling for MDM Commands
+    console.log(xhr.responseJSON.error);
+    if ('error' in xhr.responseJSON){
+      $("#mdm-error-server-url").text(xhr.responseJSON.error.url);
+      $("#mdm-error-req-data").text(xhr.responseJSON.error.req_data);
+      $("#mdm-error-res-data").html(xhr.responseJSON.error.res_data);
+      $("#mdm-error-message").modal('show');
+    } else {
+      swal("The MDM Commands failed to send. Check the console for more details.", {
+        icon: "error",
+      });
+    }
     console.log(xhr);
   });
 }
@@ -834,6 +846,7 @@ function sendMDMCommand(deviceType, mdmCommand){
       //Verify a admin password if it's an erease device command
       if (mdmCommand == 'EraseDevice'){
         $("#erase-devices-modal").modal('show');
+      // These commands require some more innput
       } else if (mdmCommand == 'DeviceName' || mdmCommand == 'DeleteUser' || mdmCommand == 'DeviceLock' || mdmCommand == 'UnlockUserAccount'){
         var title = 'Provide Device Name';
         var key = 'user_name';
@@ -843,22 +856,7 @@ function sendMDMCommand(deviceType, mdmCommand){
           title = 'Provide a 6 character passcode';
           key = 'passcode';
         }
-        swal({
-          title: title,
-          text: "Enter text below:",
-          type: "input",
-          showCancelButton: true,
-          closeOnConfirm: false,
-          inputPlaceholder: "Write something"
-        }, function (inputValue) {
-          if (inputValue === false) return false;
-          if (inputValue === "") {
-            swal.showInputError("You need to write something!");
-            return false
-          }
-          options[key] = inputValue;
-          createMDMCommand(deviceType, mdmCommand, options);
-        });
+        openMDMPrompt(deviceType, title, key, mdmCommand);
       } else {
         createMDMCommand(deviceType, mdmCommand, options);
       }
@@ -866,6 +864,39 @@ function sendMDMCommand(deviceType, mdmCommand){
       swal("No commands have been sent.");
     }
   });
+}
+
+function openMDMPrompt(deviceType, title, key, mdmCommand){
+  $(".mdm-command-prompt-title").html(title);
+  $("#mdm-command-prompt-device-type").html(deviceType);
+  //Setup the button to process the command
+  $("#send-command-button").attr('onclick', 'doMDMCommandPromptInput(\''+deviceType+'\',\''+key+'\',\''+mdmCommand+'\');');
+  $("#mdm-prompt-input-value").attr('placeholder', title);
+  //Open the modal
+  $("#mdm-command-prompt").modal('show');
+}
+
+function doMDMCommandPromptInput(deviceType, key, mdmCommand){
+  //Make sure something was filled out
+  if ($("#mdm-prompt-input-value").val() == ''){
+    swal({
+      title: "Required Field",
+      text: "Please enter a value in the field before continuing..",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((shouldReenter) => {
+      if (shouldReenter) {
+        $("#mdm-command-prompt").modal('show');
+      }
+    });
+  } else {
+    //Build the options for the request object
+    var options = {};
+    options[key] = $("#mdm-prompt-input-value").val();
+    createMDMCommand(deviceType, mdmCommand, options);
+  }
 }
 
 function doLoginLDAP(){
@@ -895,6 +926,7 @@ function doBackupPasswordRequest(){
 }
 
 function doLoginUserPass(){
+  console.log('login');
   var loginObj = {"email" : $("#login-user-username").val(), "password" : $("#login-user-password").val()};
   var req = getRequestObject('/users/login/basic', loginObj, 'POST');
   req.done(function(data){
@@ -908,6 +940,7 @@ function doLoginUserPass(){
     changeView('dashboard-view');
   })
   .fail(function(xhr){
+    console.log(xhr);
     sessionStorage.setItem("is_admin", false);
     $(".login-group").addClass("has-error");
   })
@@ -1309,6 +1342,15 @@ function changeView(newView){
   if (window.devices_to_send_mdm_commands.length == 0 && newView == 'computer-commands-view'){
     swal('Error', 'Please select some devices before visiting this page.', 'error');
     changeView('macos-view');
+  }
+  //Make sure we are switching to the right view for mdm commands
+  if (newView == 'computer-commands-view' && window.platform_to_send_commands_to != 'computers-table'){
+    swal('Error', 'Incorrect device type selected for command types, please select some new devices.', 'error');
+    changeView('macos-view');
+  }
+  if (newView == 'mobile-commands-view' && window.platform_to_send_commands_to != 'mobiledevices-table'){
+    swal('Error', 'Incorrect device type selected for command types, please select some new devices.', 'error');
+    changeView('ios-view');
   }
   $("#" + newView).show();
   //Add the active class

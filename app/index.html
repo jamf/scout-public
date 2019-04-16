@@ -87,9 +87,6 @@
                                 <li>
                                     <a class="sidebar-button" onclick="changeView('computer-reports-view');"><i class="fa fa-edit fa-fw"></i> Reports</a>
                                 </li>
-                                <li>
-                                    <a class="sidebar-button"><i class="fa fa-paper-plane fa-fw"></i> Commands</a>
-                                </li>
 
                             </ul>
                             <!-- /.nav-second-level -->
@@ -102,9 +99,6 @@
                                 </li>
                                 <li>
                                     <a class="sidebar-button" onclick="changeView('mobile-reports-view');"><i class="fa fa-edit fa-fw"></i> Reports</a>
-                                </li>
-                                <li>
-                                    <a class="sidebar-button" onclick="changeView('mobile-commands-view');"><i class="fa fa-paper-plane fa-fw"></i> Commands</a>
                                 </li>
 
                             </ul>
@@ -1269,6 +1263,58 @@
                    <br/>
                    <span id="get_backup_password" onclick="doBackupPasswordRequest();"><a href="#">If you have read and understand the above conditions, click here to get the password.</a></span>
                    <input type="text" id="backup_password_url" style="display:none;"/>
+               </div>
+
+               <div class="modal-footer">
+                 <button class="btn btn-default" data-dismiss="modal" >Close</button>
+               </div>
+            </div>
+            <!-- /.modal-content -->
+         </div>
+         <!-- /.modal-dialog -->
+      </div>
+
+      <div class="modal fade in" id="mdm-command-prompt" tabindex="-1" role="dialog" aria-labelledby="MDM Commands" aria-hidden="true">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                  <h4 class="modal-title"><span class="mdm-command-prompt-title"></span></h4>
+               </div>
+               <div class="modal-body">
+                <p> Please provide the following information to send this MDM Command: <b><span class="mdm-command-prompt-title"></span></b>.
+                 After you have specified this, the commands will be sent to the server. This can not be undone. </p>
+                 <p> The device type that these commands are being sent to is: <i><span id="mdm-command-prompt-device-type"></span></i>.</p>
+                   <br/>
+                   <input type="text" class="form-control" id="mdm-prompt-input-value"/>
+               </div>
+
+               <div class="modal-footer">
+                 <button class="btn btn-default" data-dismiss="modal" >Close</button>
+                 <button class="btn btn-success" data-dismiss="modal" id="send-command-button" >Send Command</button>
+
+               </div>
+            </div>
+            <!-- /.modal-content -->
+         </div>
+         <!-- /.modal-dialog -->
+      </div>
+
+      <div class="modal fade in" id="mdm-error-message" tabindex="-1" role="dialog" aria-labelledby="MDM Commands" aria-hidden="true">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                  <h4 class="modal-title">MDM Command Error</h4>
+               </div>
+               <div class="modal-body">
+                 <p>An error was returned from the Jamf Pro Server when attempting to send these commands. Some more details about the request are listed below. Please open a Github issue with the details of this request and it will be evaluated in a a reasonable time frame. <b>Take out any identifying or sensitive information, like your server url or device names before posting the issue</b>.</p>
+                 <p><h4>Server Url: </h4></p>
+                 <p id="mdm-error-server-url"></p>
+                 <p><h4>Request Data: </h4></p>
+                 <p id="mdm-error-req-data"></p>
+                 <p><h4>Response Data: </h4></p>
+                 <p id="mdm-error-res-data"></p>
                </div>
 
                <div class="modal-footer">

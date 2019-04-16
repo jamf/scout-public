@@ -22,7 +22,12 @@ commands.post('/create/:platform', function(req,res) {
     return res.status(200).send({ status : "success" });
   })
   .catch(error => {
-    return res.status(500).send({ status : "failed" });
+    //Show some helpful errors if it's an error from the JSS
+    if ('req_data' in error && 'url' in error && 'res_data' in error){
+      return res.status(500).send({ status : "failed", error : error});
+    } else {
+      return res.status(500).send({ status : "failed"});
+    }
   });
 });
 

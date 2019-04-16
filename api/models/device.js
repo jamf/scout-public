@@ -196,8 +196,8 @@ exports.sendMDMCommandToDevices = function(devicesList, commandName, options, pl
         resolve(results);
       })
       .catch(function (error) {
-        console.log(error);
-        reject(error);
+        let errorObject = { url : error.config.url, req_data : error.config.data, res_data : error.response.data};
+        reject(errorObject);
       });
     })
     .catch(function (error) {

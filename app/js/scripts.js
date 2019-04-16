@@ -806,9 +806,18 @@ function createMDMCommand(deviceType, mdmCommand, options){
   })
   .fail(function(xhr){
     $.Toast.hideToast();
-    swal("The MDM Commands failed to send. Check the console for more details.", {
-      icon: "error",
-    });
+    //Show some better error handling for MDM Commands
+    console.log(xhr.responseJSON.error);
+    if ('error' in xhr.responseJSON){
+      $("#mdm-error-server-url").text(xhr.responseJSON.error.url);
+      $("#mdm-error-req-data").text(xhr.responseJSON.error.req_data);
+      $("#mdm-error-res-data").html(xhr.responseJSON.error.res_data);
+      $("#mdm-error-message").modal('show');
+    } else {
+      swal("The MDM Commands failed to send. Check the console for more details.", {
+        icon: "error",
+      });
+    }
     console.log(xhr);
   });
 }

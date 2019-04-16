@@ -763,6 +763,7 @@ function loadPatchServersTable(){
 }
 
 window.devices_to_send_mdm_commands = [];
+window.platform_to_send_commands_to = '';
 function viewMDMCommands(type){
   var table = $("#" + type).DataTable();
   //Get the selected rows
@@ -772,6 +773,8 @@ function viewMDMCommands(type){
   for (var i = 0; i < rows.length; i++){
     window.devices_to_send_mdm_commands.push(rows[i]);
   }
+  //Select the platform to send mdm commands to to make sure we are sending to the right type
+  window.platform_to_send_commands_to = type;
   if (type == 'computers-table'){
     $("#selected-computer-count").html(rows.length);
     //show them the possible commands
@@ -843,22 +846,24 @@ function sendMDMCommand(deviceType, mdmCommand){
           title = 'Provide a 6 character passcode';
           key = 'passcode';
         }
-        swal({
-          title: title,
-          text: "Enter text below:",
-          type: "input",
-          showCancelButton: true,
-          closeOnConfirm: false,
-          inputPlaceholder: "Write something"
-        }, function (inputValue) {
-          if (inputValue === false) return false;
-          if (inputValue === "") {
-            swal.showInputError("You need to write something!");
-            return false
-          }
-          options[key] = inputValue;
-          createMDMCommand(deviceType, mdmCommand, options);
-        });
+        openMDMPrompt(deviceType, key, mdmCommand, options);
+        // swal({
+        //   title: title,
+        //   text: "Enter text below:",
+        //   type: "input",
+        //   showCancelButton: true,
+        //   closeOnConfirm: false,
+        //   inputPlaceholder: "Write something"
+        // })
+        // .then((inputValue) => {
+        //   if (inputValue === false) return false;
+        //   if (inputValue === "") {
+        //     swal.showInputError("You need to write something!");
+        //     return false
+        //   }
+        //   options[key] = inputValue;
+        //   createMDMCommand(deviceType, mdmCommand, options);
+        // });
       } else {
         createMDMCommand(deviceType, mdmCommand, options);
       }
@@ -866,6 +871,10 @@ function sendMDMCommand(deviceType, mdmCommand){
       swal("No commands have been sent.");
     }
   });
+}
+
+function openMDMPrompt(deviceType, key, mdmCommand, options){
+
 }
 
 function doLoginLDAP(){
@@ -895,6 +904,7 @@ function doBackupPasswordRequest(){
 }
 
 function doLoginUserPass(){
+  console.log('login');
   var loginObj = {"email" : $("#login-user-username").val(), "password" : $("#login-user-password").val()};
   var req = getRequestObject('/users/login/basic', loginObj, 'POST');
   req.done(function(data){
@@ -908,6 +918,7 @@ function doLoginUserPass(){
     changeView('dashboard-view');
   })
   .fail(function(xhr){
+    console.log(xhr);
     sessionStorage.setItem("is_admin", false);
     $(".login-group").addClass("has-error");
   })
@@ -1301,6 +1312,7 @@ function changeView(newView){
     resetURLParams();
     updateQueryStringParam('tab',newView);
   }
+  console.log(window.platform_to_send_commands_to);
   //If we are going to the mdm command view, make sure devices are selected
   if (window.devices_to_send_mdm_commands.length == 0 && newView == 'mobile-commands-view'){
     swal('Error', 'Please select some devices before visiting this page.', 'error');
@@ -1308,6 +1320,15 @@ function changeView(newView){
   }
   if (window.devices_to_send_mdm_commands.length == 0 && newView == 'computer-commands-view'){
     swal('Error', 'Please select some devices before visiting this page.', 'error');
+    changeView('macos-view');
+  }
+  //Make sure we are switching to the right view for mdm commands
+  if (newView == 'computer-commands-view' && window.platform_to_send_commands_to != 'computers-table'){
+    swal('Error', 'Incorrect device type selected for command types, please select some new devices.', 'error');
+    changeView('macos-view');
+  }
+  if (newView == 'mobile-commands-view' && window.platform_to_send_commands_to != 'mobiledevices-table'){
+    swal('Error', 'Incorrect device type selected for command types, please select some new devices.', 'error');
     changeView('macos-view');
   }
   $("#" + newView).show();

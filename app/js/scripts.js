@@ -927,6 +927,7 @@ function doBackupPasswordRequest(){
 
 function doLoginUserPass(){
   console.log('login');
+  $(".login-group").removeClass("has-error");
   var loginObj = {"email" : $("#login-user-username").val(), "password" : $("#login-user-password").val()};
   var req = getRequestObject('/users/login/basic', loginObj, 'POST');
   req.done(function(data){
@@ -947,6 +948,7 @@ function doLoginUserPass(){
 }
 
 function registerUser(){
+  $(".login-group").removeClass("has-error");
   var loginObj = {"email" : $("#register-email").val(), "password" : $("#register-password").val(), "register_pin" : $("#register-pin").val()};
   var req = getRequestObject('/users/create', loginObj, 'POST');
   req.done(function(data){
@@ -956,6 +958,18 @@ function registerUser(){
     renderPage();
   })
   .fail(function(xhr){
+    if (xhr.status == 400){
+      swal('Register Failed', 'Missing required fields, were all of the inputs filled out? ', 'error');
+    } else if (xhr.status == 401){
+      swal('Register Failed', 'Incorrect register pin', 'error');
+    } else if (xhr.status == 409){
+      swal('Register Failed', 'User with that email already exists', 'error');
+    } else if (xhr.status == 500){
+      swal('Register Failed', 'There was an unkown server error, check the serer logs.', 'error');
+    } else if (xhr.status == 404){
+      swal('Register Failed', 'The request returned a 404, not found. Ensure the server url is set probably in the env file and the /app/js/server-url.js file.', 'error');
+    }
+
     $(".login-group").addClass("has-error");
   })
 }

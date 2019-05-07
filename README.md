@@ -11,13 +11,7 @@ Scout is a easy to use webapp that allows you to aggregate multiple Devices from
  ___
 ### Contribute to Scout Development Goals Here: 
 Bounty Tracker: https://www.bountysource.com/trackers/91218894-jacobschultz-scout-public
-
-BTC: bc1qk65ygcy0rr2xldqxahhls9syczd37adupw3zfe
-
-BCH: bitcoincash:qqkfthkny87hm86z2uew7dl5tzrtua9uncwn0d304x
-
-LTC: ltc1qtxu5nan0w45jln8x6ug889na7lu7y9ff2djget
-___
+ ___
 
 # Running Server (Required)
  - Start by installing node, mysql and mongo. Then run the install script in the root of the project. This will write your .env settings file, create and import the database, install the required node modules, then start the server. If this app is being run in a production enviornment, or with real data it's recommended that a 'production' setup guide is followed. There are guides for both Ubuntu and Red Hat at the root of this repo. 

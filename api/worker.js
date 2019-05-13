@@ -97,13 +97,20 @@ db.connect(function(err) {
     } else if (serverType == 'limited'){
       logger.log('info', 'Execute Directory: %s', process.cwd());
        //Update the ScoutAdmin user's password to a new string
-      servers.updateScoutAdminUserPassword(serverURL)
-      .then(function(result){
-        logger.log('info', 'ScoutAdmin user password has been updated');
-      })
-      .catch(function(error){
-        logger.log('error', 'Error updating Scout Admin User. Remove all user details from the database to clean this up upon next worker run.');
-      });
+       try {
+         if (!(process.env.DISABLE_SCOUT_ADMIN_USER && process.env.DISABLE_SCOUT_ADMIN_USER == "false")){
+           servers.updateScoutAdminUserPassword(serverURL)
+           .then(function(result){
+             logger.log('info', 'ScoutAdmin user password has been updated');
+           })
+           .catch(function(error){
+             logger.log('error', 'Error updating Scout Admin User. Remove all user details from the database to clean this up upon next worker run.');
+           });
+         }
+       } catch (exc){
+         logger.log('error', 'Unable to get ScoutAdmin user settings');
+         logger.log('error', exc);
+       }
       console.log(serverURL);
       logger.log('info', 'Getting all devices for %s', serverURL);
       var serverId;
@@ -112,7 +119,6 @@ db.connect(function(err) {
       .then(function(serverDetails){
         //get all of the devices for that server
         serverId = serverDetails[0].id;
-        console.log(serverId);
         servers.getAllDevices(serverURL, serverDetails[0].id, serverDetails[0].username, db.decryptString(serverDetails[0].password))
         .then(function(allDevicesList){
           //Update each device in the database

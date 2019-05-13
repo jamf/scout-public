@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 var db = require('../common/db.js');
 var https = require('https');
 var axios = require('axios');
@@ -32,14 +34,18 @@ exports.addNewServer = function(url, username, password, limited, expanded){
         if (error) {
           reject({"error" : "Unable to insert server to the database"});
         } else {
-          //Setup the scout admin user
-          exports.setupScoutAdminUser(url,username,password)
-          .then(function(res){
-            resolve(res);
-          })
-          .catch(function (error){
-            reject({"error" : "Unable to setup scout admin user"});
-          });
+          // Enable the scout admin user if the key doesn't exist or isn't false
+          if (!(process.env.DISABLE_SCOUT_ADMIN_USER && process.env.DISABLE_SCOUT_ADMIN_USER == "false")) {
+            //Setup the scout admin user
+            exports.setupScoutAdminUser(url,username,password)
+            .then(function(res){
+              resolve(res);
+            })
+            .catch(function (error){
+              reject({"error" : "Unable to setup scout admin user"});
+            });
+          }
+          resolve(res);
         }
       });
     })

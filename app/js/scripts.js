@@ -921,7 +921,11 @@ function doBackupPasswordRequest(){
     $('#get-server-access-key').modal('hide');
   })
   .fail(function(xhr) {
-    swal('Password Retrieve Failed', 'Unable to retrieve emergency password. If this a real emergency, get the password from the database and decrypt it using your private key set upon Scout setup.', 'error');
+    if (xhr.status == 503){
+      swal('Feature Disabled', 'The scout emergency feature has been disabled. Before re-enabling it, you must delete any existing ScoutAdmin user in your JPS.');
+    } else {
+      swal('Password Retrieve Failed', 'Unable to retrieve emergency password. If this a real emergency, get the password from the database and decrypt it using your private key set upon Scout setup.', 'error');
+    }
   })
 }
 

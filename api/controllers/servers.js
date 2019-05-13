@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 var servers = require('express').Router();
 var server = require('../models/server.js');
 var db = require('../common/db.js');
@@ -75,6 +77,14 @@ servers.post('/add', function(req,res) {
  * @returns {Error}  400 - Unable to find server for given url or the server does not have an emergency admin setup
  */
 servers.post('/access/', function(req,res){
+  //Make sure this feature isn't disabled
+  try {
+    if (process.env.DISABLE_SCOUT_ADMIN_USER == "true"){
+      return res.status(503).send({error : 'ScoutAdmin user has been disabled'});
+    }
+  } catch (exc){
+    console.log('Unable to verify scout admin user setting, going to try to get it anyway');
+  }
   //Make sure this user has access to view passwords
   //First make sure there is a password that hasn't been destroyed
   server.getServerFromURL(req.body.url)

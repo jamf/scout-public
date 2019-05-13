@@ -67,35 +67,25 @@ users.get('/all', function(req,res){
 users.post('/create', function(req, res) {
   //check for all fields in request
   if (!req.body.email || !req.body.password || !req.body.register_pin) {
-    return res.status(400).send({
-      error : "Missing Required Fields"
-    });
+    return res.status(400).send({  error : "Missing Required Fields" });
   }
   if (req.body.register_pin != process.env.REG_PIN){
-    return res.status(401).send({
-      error : "Incorrect Register Pin"
-    });
+    return res.status(401).send({ error : "Incorrect Register Pin"});
   }
   //Insert the user into the database
   user.createUser(req.body.email, req.body.password)
   .then(function(userObject){
     //Send a success with the token
-    return res.status(201).send({
-          status : "success",
-          token: createToken(userObject)
-    });
+    return res.status(201).send({status : "success", token: createToken(userObject)});
   })
   .catch(error => {
+    console.log('User Register Failed: ');
     console.log(error);
     //Check for dupe user error
     if (error.hasOwnProperty('status')){
-      return res.status(409).send({
-        error: "Email already exists"
-      });
+      return res.status(409).send({  error: "Email already exists"  });
     } else {
-      return res.status(500).send({
-        error: "Unable to create user"
-      });
+      return res.status(500).send({error: "Unable to create user"});
     }
   });
 });
@@ -137,9 +127,7 @@ users.post('/login/basic', function(req, res) {
   })
   .catch(error => {
     console.error(error);
-    return res.status(400).send({
-      error: "Unable to log in user"
-    });
+    return res.status(400).send({ error: "Unable to log in user"});
   });
 });
 

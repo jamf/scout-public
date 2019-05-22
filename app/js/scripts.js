@@ -847,7 +847,7 @@ function sendMDMCommand(deviceType, mdmCommand){
       if (mdmCommand == 'EraseDevice'){
         $("#erase-devices-modal").modal('show');
       // These commands require some more innput
-      } else if (mdmCommand == 'DeviceName' || mdmCommand == 'DeleteUser' || mdmCommand == 'DeviceLock' || mdmCommand == 'UnlockUserAccount'){
+      } else if (mdmCommand == 'DeviceName' || mdmCommand == 'DeleteUser' || mdmCommand == 'DeviceLock' || mdmCommand == 'UnlockUserAccount' || mdmCommand == 'EnableLostMode'){
         var title = 'Provide Device Name';
         var key = 'user_name';
         if (mdmCommand == 'DeleteUser' || mdmCommand == 'UnlockUserAccount'){
@@ -855,6 +855,9 @@ function sendMDMCommand(deviceType, mdmCommand){
         } else if (mdmCommand == 'DeviceLock'){
           title = 'Provide a 6 character passcode';
           key = 'passcode';
+        } else if (mdmCommand == 'EnableLostMode'){
+          title = 'Provide a message to be displayed on the device';
+          key = 'lost_mode_message';
         }
         openMDMPrompt(deviceType, title, key, mdmCommand);
       } else {

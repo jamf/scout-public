@@ -45,7 +45,7 @@ exports.addNewServer = function(url, username, password, limited, expanded){
               reject({"error" : "Unable to setup scout admin user"});
             });
           }
-          resolve(res);
+          resolve(response);
         }
       });
     })

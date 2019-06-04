@@ -3,6 +3,7 @@ var device = require('../models/device.js');
 var report = require('../models/export.js');
 var server = require('../models/server.js');
 var inventory = require('../models/inventory.js');
+var user = require('../models/user.js');
 var db = require('../common/db.js');
 
 devices.get('/server/:orgName', function(req,res) {
@@ -211,9 +212,7 @@ devices.get('/tvs', function(req,res) {
     });
   })
   .catch(error => {
-    return res.status(500).send({
-      error: "Unable to get devices"
-    });
+    return res.status(500).send({ error: "Unable to get devices" });
   });
 });
 
@@ -223,10 +222,22 @@ devices.get('/count/:deviceType', function(req,res) {
     return res.status(200).send({ "size" : deviceList.length});
   })
   .catch(error => {
-    console.log(error);
-    return res.status(500).send({
-      error: "Unable to get devices"
-    });
+    return res.status(500).send({ error: "Unable to get devices" });
+  });
+});
+
+devices.delete('/id/:scoutDeviceId', function(req,res) {
+  //Make sure the user has permission to delete a device
+  if (!user.hasPermission(req.user, 'can_delete')){
+    //This user isn't authorized, exit
+    return res.status(401).send({ error : "User has no permissions" });
+  }
+  device.deleteDeviceByScoutId(req.params.scoutDeviceId)
+  .then(result => {
+    return res.status(200).send({status : 'success'});
+  })
+  .catch(error => {
+    return res.status(500).send({error : 'Unable to delete device by scout id'});
   });
 });
 
@@ -241,7 +252,7 @@ function getDataTablesRes(draw, data, totalRecords, filteredRecords,platform){
   var dataList = [];
   for (i = 0; i < data.length; i++){
     //Get the text for the view live button
-    var liveViewButton = '<button type="button" class="btn btn-info btn-circle" onclick="getDeviceLive(\''+platform+'\',\''+data[i].jss_serial+'\',\''+ data[i].jss_udid+'\')"><i class="fa fa-eye"></i></button>';
+    var liveViewButton = '<button type="button" class="btn btn-info btn-circle" onclick="getDeviceLive(\''+platform+'\',\''+data[i].jss_serial+'\',\''+ data[i].jss_udid+'\')"><i class="fa fa-eye"></i></button>&nbsp;<button type="button" class="btn btn-danger btn-circle" onclick="deleteDeviceByScoutId(\''+data[i].id+'\')"><i class="fa fa-trash"></i></button>';
     var item = [ data[i].jss_name, data[i].org_name, data[i].jss_Model, data[i].jss_serial, new Date(data[i].jss_last_inventory).toLocaleDateString(), data[i].jss_udid, getBoolVal(data[i].jss_managed),liveViewButton];
     dataList.push(item);
   }

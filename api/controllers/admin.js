@@ -3,6 +3,8 @@ var adminController = require('express').Router();
 var user = require('../models/user.js');
 var admin = require('../models/admin.js');
 var crontab = require('cron-tab');
+var cron = require('../common/cron-handler.js');
+var servers = require('../models/server.js');
 
 adminController.get('/organization/details', function(req,res){
   //try to get the org name from the env settings
@@ -85,6 +87,29 @@ adminController.put('/all', function(req,res){
   })
   .catch(error => {
     return res.status(500).send({error : "Unable to update file"});
+  });
+});
+
+adminController.put('/cronjobs', function(req,res) {
+  //Make sure the user is an admin
+  if (!user.hasPermission(req.user, 'is_admin')){
+    //This user isn't authorized, exit
+    return res.status(401).send({ error : "User has no permissions" });
+  }
+  //For revery server in the database, make sure our cron jobs are up to date
+  servers.getAllServers()
+  .then(function(serverList){
+    //Take the server list and pass it to the handler
+    cron.handleServerRecords(serverList)
+    .then(function(cronResult){
+      return res.status(200).send({status : "success"});
+    })
+    .catch(function(error){
+      return res.status(500).send({error : 'Unable to verify cron jobs'});
+    });
+  })
+  .catch(function(error){
+    return res.status(500).send({error : 'Unable to verify cron jobs'});
   });
 });
 

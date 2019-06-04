@@ -33,10 +33,9 @@ devices.put('/refresh/all', function(req,res){
     Promise.all(serverList.map(s => server.getAllDevices(s.url, s.id, s.username, db.decryptString(s.password))))
     .then(function(allDevicesAndServers){
       //All devices and servers is an array servers of array of objects
-      var allDevices = [];
+      var allDevices = new Set();
       allDevicesAndServers.forEach(function(serverDevices){
-        //Push the devices from the server to the all devices array so we just have a list of devices
-        allDevices = allDevices.concat(serverDevices);
+        serverDevices.forEach(d => allDevices.add(d));
       });
       //Now upsert all of these devices
       Promise.all(allDevices.map(d => device.upsertDevice(d))).then(function(result){

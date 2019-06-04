@@ -2,11 +2,13 @@
 Scout is a web based application that can be used to aggregate devices from multiple Jamf Pro servers. It features powerful reporting features, as well as the ability to send MDM commands across multiple servers from a single pane of glass. Scout also features a fully functional patch server. It's built on a proven web stack and exposes a powerful REST API that can be used by scripts or other third party implementations. Scout is fully open source, free, and provided as is. **No support or maintenance is provided.** That being said, the project welcomes contributions and pull requests for new features or bug fixes.
 
 - [Some screenshots can be found here](https://imgur.com/a/qEfd0KM)
-- [Everyone should start here with the full admin guide!](http://link.com)
+- [Everyone should start here with the full admin guide!](https://github.com/jamf/scout-public/blob/master/guides/admin-guide-full.md)
 
 A full read through of the admin guide is recommended for all users, maintainers and contributors of scout. It will help to explain the flow of data from Jamf Pro into scout, the architecture of the application, and helpful debugging steps.
 
 Full installation guides can be found in the `/guides` directory for multiple platforms. All of the frontend code lives in the `/app` directory, and the rest api server code is in the`/api` directory.  
+
+API Docs can be found for the application after installation by navigating to https://scouturl.com/api-docs. These are fully interactive swagger docs where the REST endpoints can also be tried out. Endpoints exposed by scout include things like `/devices` or `/servers` to get lists of devices and servers contained inside of scout. Anything you can do in the UI, there is a REST Endpoint for. 
  ___
 
 # Technology Stack

@@ -20,6 +20,9 @@ function refreshAllDevices(showPrompt){
   var result = getRequestObject('/devices/refresh/all', reqBody, 'PUT');
   result.done(function(r){
     $.Toast.hideToast();
+    getComputerCount();
+    getMobileDeviceCounts();
+    getTvCount();
     if (showPrompt){
       swal('Devices Updating...', 'The devices are continuing to update in the background, try refreshing the devices view in a few secords or more. NOTE: A manual refresh of the page is required since this is happening async in the background.', 'success');
     }
@@ -585,6 +588,10 @@ function updateComputers(){
       $("#send-computer-command-button").hide();
     }
   });
+  getComputerCount();
+}
+
+function getComputerCount() {
   var computers = getRequestObject('/devices/count/computer', null, 'GET');
   //Get a count of the total devices seperate since data tables can't handle success functions
   computers.done(function(computers){
@@ -597,6 +604,10 @@ function updateComputers(){
 
 function updateTvs(){
   var tvsTable = $("#tvs-table").DataTable(getDataTablesRequest('tv'));
+  getTvCount();
+}
+
+function getTvCount() {
   var tvs = getRequestObject('/devices/count/tv', null, 'GET');
   //Get a count of the total devices seperate since data tables can't handle success functions
   tvs.done(function(tvs){
@@ -619,6 +630,10 @@ function updateMobileDevices(){
       $("#send-mobile-command-button").hide();
     }
   });
+  getMobileDeviceCounts();
+}
+
+function getMobileDeviceCounts(){
   var mobile = getRequestObject('/devices/count/mobile', null, 'GET');
   //Get a count of the total devices seperate since data tables can't handle success functions
   mobile.done(function(mobiledevices){

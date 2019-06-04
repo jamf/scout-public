@@ -38,18 +38,22 @@ devices.put('/refresh/all', function(req,res){
         serverDevices.forEach(d => allDevices.add(d));
       });
       //Now upsert all of these devices
-      Promise.all(allDevices.map(d => device.upsertDevice(d))).then(function(result){
+      Promise.all([...allDevices].map(d => device.upsertDevice(d)))
+      .then(function(result){
         return res.status(200).send({ status: "success"});
       })
       .catch(error => {
+        console.log(error);
         return res.status(500).send({ error: "Unable to upsert new device records"});
       });
     })
     .catch(error => {
+      console.log(error);
       return res.status(500).send({ error: "Unable to get devices from Jamf Pro Server "});
     });
   })
   .catch(error => {
+    console.log(error);
     return res.status(500).send({ error: "Unable to get list of servers"});
   });
 });

@@ -20,6 +20,9 @@ function refreshAllDevices(showPrompt){
   var result = getRequestObject('/devices/refresh/all', reqBody, 'PUT');
   result.done(function(r){
     $.Toast.hideToast();
+    getComputerCount();
+    getMobileDeviceCounts();
+    getTvCount();
     if (showPrompt){
       swal('Devices Updating...', 'The devices are continuing to update in the background, try refreshing the devices view in a few secords or more. NOTE: A manual refresh of the page is required since this is happening async in the background.', 'success');
     }
@@ -585,6 +588,10 @@ function updateComputers(){
       $("#send-computer-command-button").hide();
     }
   });
+  getComputerCount();
+}
+
+function getComputerCount() {
   var computers = getRequestObject('/devices/count/computer', null, 'GET');
   //Get a count of the total devices seperate since data tables can't handle success functions
   computers.done(function(computers){
@@ -597,6 +604,10 @@ function updateComputers(){
 
 function updateTvs(){
   var tvsTable = $("#tvs-table").DataTable(getDataTablesRequest('tv'));
+  getTvCount();
+}
+
+function getTvCount() {
   var tvs = getRequestObject('/devices/count/tv', null, 'GET');
   //Get a count of the total devices seperate since data tables can't handle success functions
   tvs.done(function(tvs){
@@ -619,6 +630,10 @@ function updateMobileDevices(){
       $("#send-mobile-command-button").hide();
     }
   });
+  getMobileDeviceCounts();
+}
+
+function getMobileDeviceCounts(){
   var mobile = getRequestObject('/devices/count/mobile', null, 'GET');
   //Get a count of the total devices seperate since data tables can't handle success functions
   mobile.done(function(mobiledevices){
@@ -820,6 +835,33 @@ function createMDMCommand(deviceType, mdmCommand, options){
     }
     console.log(xhr);
   });
+}
+
+function deleteDeviceByScoutId(deviceId) {
+  swal({
+    title: "Confirm device deletion",
+    text: "Deleting this device will only remove it from the Scout database, not from the the Jamf Pro Server. It may repopulate following the next inventory update if it's still in the Jamf Pro Server.",
+    icon: "warning",
+    buttons: true,
+    dangerMode: true
+  })
+  .then((willDelete) => {
+    if (willDelete){
+      var deleteRequest = getRequestObject('/devices/id/'+deviceId, null, 'DELETE');
+      //render the table after the servers are loaded from the DB
+      deleteRequest.done(function(response){
+        swal('Device Removed', 'The device has been removed from scout.', 'success');
+      })
+      .fail(function(xhr) {
+        if (xhr.status == 401){
+          swal('No Permissions', 'Your user does not have permission to delete devices from scout.', 'error');
+        } else {
+          console.log(xhr);
+          swal('Delete Failed', 'Unable to delete device from scout. Check the console for more details.', 'error');
+        }
+      });
+    }
+  })
 }
 
 function sendMDMCommand(deviceType, mdmCommand){

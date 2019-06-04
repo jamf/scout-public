@@ -2,6 +2,7 @@ require('dotenv').config();
 var adminController = require('express').Router();
 var user = require('../models/user.js');
 var admin = require('../models/admin.js');
+var crontab = require('cron-tab');
 
 adminController.get('/organization/details', function(req,res){
   //try to get the org name from the env settings
@@ -9,7 +10,15 @@ adminController.get('/organization/details', function(req,res){
     if (!process.env.HEADER_DISPLAY_NAME){
       return res.status(200).send({ header_name : 'Scout'});
     } else {
-      return res.status(200).send({ header_name : process.env.HEADER_DISPLAY_NAME});
+      // Get the current cron jobs related to scout
+      crontab.load(function(err, crontab){
+        if (err) {
+          return res.status(500).send({ error : 'Unable to read server settings.'});
+        }
+        let responseObject = { header_name : process.env.HEADER_DISPLAY_NAME};
+        responseObject.cron_jobs = crontab.jobs({comment:/Scout-Update-/}).map(e => e.toString());
+        return res.status(200).send(responseObject);
+      });
     }
   } catch (exc){
     console.log(exc);

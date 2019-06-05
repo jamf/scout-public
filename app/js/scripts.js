@@ -1,12 +1,51 @@
+window.all_crons = null;
 function getOrgDetails(){
   var details = getRequestObject('/settings/organization/details', null, 'GET');
   details.done(function(detailsObject){
     if ('header_name' in detailsObject){
       $("#header_display_name").html(detailsObject.header_name);
     }
+    if ('cron_jobs' in detailsObject){
+      window.all_crons = detailsObject.cron_jobs;
+      var scoutTable = $("#cron-jobs-table").DataTable();
+      scoutTable.clear();
+      for (i = 0; i < detailsObject.cron_jobs.length; i++) {
+        let cronDetails = detailsObject.cron_jobs[i].split(' ');
+        const button = '<button onclick="viewFullCronString('+i+');" type="button" class="btn btn-info btn-circle"><i class="fa fa-eye"></i></button>';
+        scoutTable.row.add([cronDetails[0], cronDetails[3], cronDetails[4], button]);
+      }
+      scoutTable.draw(false);
+    }
   })
   .fail(function(xhr){
     console.log(xhr);
+  });
+}
+
+function viewFullCronString(index) {
+  swal('Full Cron String: ',
+    window.all_crons[i],
+    'success');
+}
+
+function updateCronJobsOnScoutServer() {
+  swal({
+    title: "Confirm Action",
+    text: "Are you sure you want to manually refresh the scout cron jobs? This will update the cron jobs with all jamf pro servers in the database. This writes directly to the system crontab file and can't be undone.",
+    icon: "warning",
+    buttons: true,
+    dangerMode: true
+  })
+  .then((willSync) => {
+    if (willSync){
+      var cronJobs = getRequestObject('/settings/cronjobs', null, 'PUT');
+      cronJobs.done(function(result){
+        swal('Cron jobs updated!', 'The cron jobs in the scout databse have been syncronized to the server. Verify they are correct in the cron job table. ','success');
+      })
+      .fail(function(xhr){
+        swal('Error', 'Scout was unable to update the cron jobs on the scout server. Please try restarting the server.','error');
+      });
+    }
   });
 }
 

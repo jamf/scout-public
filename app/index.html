@@ -75,6 +75,9 @@
                                 <li>
                                     <a class="sidebar-button" onclick="$('#add-server-modal').modal('show');"><i class="fa fa-plus fa-fw"></i> Add New</a>
                                 </li>
+                                <li>
+                                    <a class="sidebar-button" onclick="$('#add-school-server-modal').modal('show');"><i class="fa fa-plus fa-fw"></i> Add Jamf School Server</a>
+                                </li>
                             </ul>
                             <!-- /.nav-second-level -->
                         </li>
@@ -1243,6 +1246,57 @@
          </div>
          <!-- /.modal-dialog -->
       </div>
+
+      <div class="modal fade in" id="add-school-server-modal" tabindex="-1" role="dialog" aria-labelledby="Add Server" aria-hidden="true">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                  <h4 class="modal-title" id="myModalLabel">Add Jamf School Server</h4>
+               </div>
+               <div class="modal-body">
+                  <p>A sample request will be made to the Jamf School server to verify that credentials are valid and to get the Org Name and Activation Code.</p>
+                  <p>It is recommended basic inventory is taken roughly once every day, while expanded inventory should be taken on a weekly basis. Limited inventory will perform one API call per Jamf Pro Server, while expanded access will peform a call for every single device, in every single server. It's high recommended these updates are spread throughout the week for more efficent batch processing.</p>
+                  <p><i>Zuludesk instances are supported in addition to Jamf School, but they have a slightly different url format for the api, so ensure the correct URL is entered.</i></p>
+                  <p><b>The Network Id for your instance can be found in Devices > Enroll. The API Key can be Created under Organization > Settings > API. This is stored encrypted.</b></p>
+                  <div class="row">
+                     <div class="col-md-12">
+                       <div class="form-group">
+                          <label>Server API URL</label>
+                          <input class="form-control" id="add-school-server-url" type="text" placeholder="https://instance.jamfcloud.com/api">
+                       </div>
+                       <div class="form-group">
+                          <label>Network Id</label>
+                          <input class="form-control" id="add-school-server-network-id" type="text" placeholder="12345">
+                       </div>
+                       <div class="form-group">
+                          <label>API Key</label>
+                          <input class="form-control" id="add-school-server-api-key" type="password" placeholder="jamf">
+                       </div>
+                       <div id="cron-selector-limited" class="form-group">
+
+                       </div>
+                       <div class="form-group">
+                          <label>Update Frequency (Basic Inventory)</label>
+                          <input class="form-control" id="add-school-server-limited-cron" type="text" placeholder="* * * * *">
+                       </div>
+                       <div id="cron-selector-expanded" class="form-group">
+
+                       </div>
+
+                     </div>
+                  </div>
+               </div>
+               <div class="modal-footer">
+                 <button onclick="addJamfSchoolServer();" class="btn btn-success">Add Server</button>
+               </div>
+            </div>
+            <!-- /.modal-content -->
+         </div>
+         <!-- /.modal-dialog -->
+      </div>
+
+
       <div class="modal fade in" id="get-server-access-key" tabindex="-1" role="dialog" aria-labelledby="Get emergency server access" aria-hidden="true">
          <div class="modal-dialog">
             <div class="modal-content">

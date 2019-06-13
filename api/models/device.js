@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 var db = require('../common/db.js');
 var inventory = require('./inventory.js');
 var https = require('https');
@@ -15,17 +13,19 @@ var Throttle = require('promise-parallel-throttle');
 //Feel free to edit this if your server has low availablity
 const jpsMaxConnections = 3;
 var xml2js = require('xml2js');
-var winston= require('winston');
-const logger = winston.createLogger({
-    level: 'debug',
-    format: winston.format.combine(winston.format.timestamp(),winston.format.splat(), winston.format.simple()),
-    transports: [
-      new winston.transports.File({ filename: process.env.ROOT_DIR+'logs/sync.log' })
-    ]
-});
+var winston = require('winston');
+require('dotenv').config();
 
 exports.upsertDevice = function(deviceData){
   return new Promise(function(resolve,reject) {
+    const logger = winston.createLogger({
+        level: 'debug',
+        format: winston.format.combine(winston.format.timestamp(),winston.format.splat(), winston.format.simple()),
+        transports: [
+          new winston.transports.File({ filename: process.env.ROOT_DIR+'logs/sync.log' })
+        ]
+    });
+    console.log(process.env.DEBUG_LOGGING);
     if (process.env.DEBUG_LOGGING) {
       logger.log('debug', 'Upserting device by UDID: %s, Serial Number: %s', deviceData.jss_udid, deviceData.jss_serial);
     }
@@ -40,17 +40,19 @@ exports.upsertDevice = function(deviceData){
         exports.insertNewDevice(deviceData)
         .then(function(data){
           if (process.env.DEBUG_LOGGING) {
-            logger.log('debug', 'Inserted new device with id: %s', data.insertId);
+            logger.log('debug', 'Inserted new device with UDID: %s, new device Id: %s', deviceData.jss_udid, data.insertId);
           }
+          logger.end();
           resolve(data.insertId);
         })
         .catch(error => {
+          logger.end();
           reject(error);
         });
       } else {
         if (process.env.DEBUG_LOGGING) {
           logger.log('debug', 'Updating device by UDID: %s', deviceData.jss_udid);
-          logger.log('debug', deviceData);
+          logger.end();
         }
         exports.updateDevice(deviceData, deviceData.jss_id, deviceData.device_type)
         .then(function(data){

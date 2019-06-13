@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 var db = require('../common/db.js');
 var inventory = require('./inventory.js');
 var https = require('https');
@@ -13,22 +15,43 @@ var Throttle = require('promise-parallel-throttle');
 //Feel free to edit this if your server has low availablity
 const jpsMaxConnections = 3;
 var xml2js = require('xml2js');
+var winston= require('winston');
+const logger = winston.createLogger({
+    level: 'debug',
+    format: winston.format.combine(winston.format.timestamp(),winston.format.splat(), winston.format.simple()),
+    transports: [
+      new winston.transports.File({ filename: process.env.ROOT_DIR+'logs/sync.log' })
+    ]
+});
 
 exports.upsertDevice = function(deviceData){
   return new Promise(function(resolve,reject) {
+    if (process.env.DEBUG_LOGGING) {
+      logger.log('debug', 'Upserting device by UDID: %s, Serial Number: %s', deviceData.jss_udid, deviceData.jss_serial);
+    }
     //Try to get the device first
     exports.getDeviceByUDID(deviceData.jss_udid)
     .then(function(results) {
+      if (process.env.DEBUG_LOGGING) {
+        logger.log('debug', 'Found %s devices by UDID: %s', results.length, deviceData.jss_udid);
+      }
       //If it exists, update it, else insert new device
       if (results.length == 0){
         exports.insertNewDevice(deviceData)
         .then(function(data){
+          if (process.env.DEBUG_LOGGING) {
+            logger.log('debug', 'Inserted new device with id: %s', data.insertId);
+          }
           resolve(data.insertId);
         })
         .catch(error => {
           reject(error);
         });
       } else {
+        if (process.env.DEBUG_LOGGING) {
+          logger.log('debug', 'Updating device by UDID: %s', deviceData.jss_udid);
+          logger.log('debug', deviceData);
+        }
         exports.updateDevice(deviceData, deviceData.jss_id, deviceData.device_type)
         .then(function(data){
           resolve(results[0].id);
@@ -233,7 +256,7 @@ exports.getDeviceByUDIDAndSerial = function(serial, udid){
 
 exports.getDeviceByUDID = function(udid) {
   return new Promise(function(resolve,reject) {
-    db.get().query('SELECT devices.*, servers.org_name FROM devices JOIN servers ON devices.server_id = servers.id WHERE jss_udid = ?', udid, function(error, results, fields) {
+    db.get().query('SELECT devices.*, servers.org_name FROM devices JOIN servers ON devices.server_id = servers.id WHERE devices.jss_udid = ?', [udid], function(error, results, fields) {
       if (error) {
         reject(error);
       } else {
@@ -365,7 +388,7 @@ exports.deleteDeviceByScoutId = function(deviceId){
 exports.updateDevice = function(deviceData, deviceId, type){
   var updateObj = {jss_name : deviceData.jss_name, jss_serial : deviceData.jss_serial, jss_last_inventory : deviceData.jss_last_inventory, jss_model : deviceData.jss_model, jss_managed : deviceData.jss_managed, jss_udid : deviceData.jss_udid};
   return new Promise(function(resolve,reject) {
-    db.get().query('UPDATE devices SET ? WHERE jss_udid = ? AND device_type = ?', [updateObj, deviceData.jss_udid, type], function(error, results, fields) {
+    db.get().query('UPDATE devices SET ? WHERE jss_udid = ?', [updateObj, deviceData.jss_udid], function(error, results, fields) {
       if (error) {
         reject(error);
       } else {

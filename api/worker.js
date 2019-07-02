@@ -96,21 +96,6 @@ db.connect(function(err) {
       });
     } else if (serverType == 'limited'){
       logger.log('info', 'Execute Directory: %s', process.cwd());
-       //Update the ScoutAdmin user's password to a new string
-       try {
-         if (!(process.env.DISABLE_SCOUT_ADMIN_USER && process.env.DISABLE_SCOUT_ADMIN_USER == "false")){
-           servers.updateScoutAdminUserPassword(serverURL)
-           .then(function(result){
-             logger.log('info', 'ScoutAdmin user password has been updated');
-           })
-           .catch(function(error){
-             logger.log('error', 'Error updating Scout Admin User. Remove all user details from the database to clean this up upon next worker run.');
-           });
-         }
-       } catch (exc){
-         logger.log('error', 'Unable to get ScoutAdmin user settings');
-         logger.log('error', exc);
-       }
       console.log(serverURL);
       logger.log('info', 'Getting all devices for %s', serverURL);
       var serverId;
@@ -124,8 +109,28 @@ db.connect(function(err) {
           //Update each device in the database
           Promise.all(allDevicesList.map(deviceData => devices.upsertDevice(deviceData))).then(function(result){
             logger.log('info', '%d devices have been updated in the databse.', result.length);
-            logger.log('info', '===============================FINISH UPDATE====================================\n');
-            process.exit(0);
+            //Update the ScoutAdmin user's password to a new string
+              if (!process.env.DISABLE_SCOUT_ADMIN_USER || process.env.DISABLE_SCOUT_ADMIN_USER == "false"){
+                servers.updateScoutAdminUserPassword(serverURL)
+                .then(function(result){
+                  logger.log('info', 'ScoutAdmin user password has been updated for: ' + serverURL + ' Was new insert? ' + result.is_insert);
+                  process.exit(1);
+                })
+                .catch(function(error){
+                  logger.log('error', 'Error updating Scout Admin User for: ' + serverURL + ' Removing the user from the Jamf Pro Server. It will be readded next run.');
+                  servers.wipeScoutAdminUser(serverURL)
+                  .then(wipeResult => {
+                    logger.log('error', 'Successfully deleted scout admin user from both Jamf Pro and the Scout Database on the server: ' + serverURL);
+                    process.exit(1);
+                  })
+                  .catch(wipeErr => {
+                    logger.log('error', 'Unable to delete ScoutAdmin user from Jamf Pro or the scout database. Please manually delete the user from Jamf Pro and remove the details from the `scout_admin_id` column in the databse for this server.');
+                    process.exit(0);
+                  });
+                });
+              } else {
+                process.exit(1);
+              }
           })
           .catch(function(error){
             logger.log('error', 'Error inserting devices: %s', error);

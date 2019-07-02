@@ -25,7 +25,6 @@ exports.upsertDevice = function(deviceData){
           new winston.transports.File({ filename: process.env.ROOT_DIR+'logs/sync.log' })
         ]
     });
-    console.log(process.env.DEBUG_LOGGING);
     if (process.env.DEBUG_LOGGING) {
       logger.log('debug', 'Upserting device by UDID: %s, Serial Number: %s', deviceData.jss_udid, deviceData.jss_serial);
     }

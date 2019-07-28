@@ -6,17 +6,19 @@ services:
     restart: always
     ports:
       - "3306:3306"
+    volumes:
+      - ./init_sql:/docker-entrypoint-initdb.d
     environment:
       MYSQL_ROOT_PASSWORD: example
-      MYSQL_USER: boi
-      MYSQL_PASSWORD: userpassword
-      MYSQL_DATABASE: scout
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASS
+      MYSQL_DATABASE: $MYSQL_DB
   scout-mongo:
     image: bitnami/mongodb
     restart: always
     ports:
       - "27017:27017"
     environment:
-      - MONGODB_USERNAME=boi2
-      - MONGODB_PASSWORD=password123
-      - MONGODB_DATABASE=scout
+      - MONGODB_USERNAME=$NOSQL_USER
+      - MONGODB_PASSWORD=$NOSQL_PASS
+      - MONGODB_DATABASE=$NOSQL_DB

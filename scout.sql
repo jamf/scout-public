@@ -39,6 +39,7 @@ CREATE TABLE `devices` (
   `jss_Model` varchar(255) DEFAULT NULL,
   `last_update_epoch` int(11) DEFAULT NULL,
   `expanded_inventory` tinyint(1) DEFAULT '1',
+  `is_active` boolean DEFAULT TRUE,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

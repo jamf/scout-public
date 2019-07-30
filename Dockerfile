@@ -8,10 +8,6 @@ WORKDIR /home/node
 
 COPY --chown=node:node . .
 
-RUN cp ./api/package*.json ./ && npm install
-
-COPY . .
-
 EXPOSE 3000
 
 WORKDIR /home/node/api

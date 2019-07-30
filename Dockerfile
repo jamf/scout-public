@@ -1,15 +1,19 @@
 FROM node:10-alpine
 
-WORKDIR /usr/src/scout
+ENV NODE_ENV = "development"
 
-COPY ./api/package*.json ./
+USER node
 
-RUN npm install
+WORKDIR /home/node
+
+COPY --chown=node:node . .
+
+RUN cp ./api/package*.json ./ && npm install
 
 COPY . .
 
 EXPOSE 3000
 
-WORKDIR /usr/src/scout/api
+WORKDIR /home/node/api
 
 CMD [ "node", "app.js"]

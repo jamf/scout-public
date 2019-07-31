@@ -387,7 +387,7 @@ exports.deleteDeviceByScoutId = function(deviceId){
 }
 
 exports.updateDevice = function(deviceData, deviceId, type){
-  var updateObj = {jss_name : deviceData.jss_name, jss_serial : deviceData.jss_serial, jss_last_inventory : deviceData.jss_last_inventory, jss_model : deviceData.jss_model, jss_managed : deviceData.jss_managed, jss_udid : deviceData.jss_udid};
+  var updateObj = {jss_name : deviceData.jss_name, jss_serial : deviceData.jss_serial, jss_last_inventory : deviceData.jss_last_inventory, jss_model : deviceData.jss_model, jss_managed : deviceData.jss_managed, jss_udid : deviceData.jss_udid, is_active: deviceData.is_active};
   return new Promise(function(resolve,reject) {
     db.get().query('UPDATE devices SET ? WHERE jss_udid = ?', [updateObj, deviceData.jss_udid], function(error, results, fields) {
       if (error) {

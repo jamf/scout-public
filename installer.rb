@@ -12,35 +12,49 @@ print "Written by Jacob Schultz\n"
 print "Available at: github.com/jamf/scout-public\n"
 print "\n"
 
-print "Do you have a MySQL server setup and available to you? (y/n)\n"
-mysql = gets.chomp
-if (mysql != "y")
-  print "Please run this installer again after installing MySQL.\n"
-  exit
+print "Will you be running this as a local development (Docker) environment? (y/n)\n"
+docker = gets.chomp
+
+if (docker != "y")
+  print "Do you have a MySQL server setup and available to you? (y/n)\n"
+  mysql = gets.chomp
+  if (mysql != "y")
+    print "Please run this installer again after installing MySQL.\n"
+    exit
+  end
+
+  print "Please provide your MySQL Host: \n"
+  mysql_host = gets.chomp
+  print "Please provide your MySQL User: \n"
+  mysql_user = gets.chomp
+  print "Please provide your MySQL Password: \n"
+  mysql_password = STDIN.noecho(&:gets).chomp
+
+  print "Do you have a Mongo (NoSQL) server setup and available to you? (y/n)\n"
+  nosql = gets.chomp
+  if (nosql != "y")
+    print "Please run this installer again after installing Mongo.\n"
+    exit
+  end
+
+  print "Please enter your host including port for Mongo: (For example: localhost:27017) Don't include mongo://\n"
+  nosql_host = gets.chomp
+  print "Please provide your Mongo Databse name (Default is 'scout')\n"
+  nosql_db_name = gets.chomp
+  print "Please provide your Mongo Username\n"
+  nosql_user = gets.chomp
+  print "Please provide your Mongo Password\n"
+  nosql_password = gets.chomp
+else
+  print "Setting default (local) credentials for development.\n"
+  mysql_host = "localhost"
+  mysql_user = "dev_user"
+  mysql_password = "password123"
+  nosql_host = "localhost"
+  nosql_db_name = "scout"
+  nosql_user = "dev_user"
+  nosql_password = "password123"
 end
-
-print "Please provide your MySQL Host: \n"
-mysql_host = gets.chomp
-print "Please provide your MySQL User: \n"
-mysql_user = gets.chomp
-print "Please provide your MySQL Password: \n"
-mysql_password = STDIN.noecho(&:gets).chomp
-
-print "Do you have a Mongo (NoSQL) server setup and available to you? (y/n)\n"
-nosql = gets.chomp
-if (nosql != "y")
-  print "Please run this installer again after installing Mongo.\n"
-  exit
-end
-
-print "Please enter your host including port for Mongo: (For example: localhost:27017) Don't include mongo://\n"
-nosql_host = gets.chomp
-print "Please provide your Mongo Databse name (Default is 'scout')\n"
-nosql_db_name = gets.chomp
-print "Please provide your Mongo Username\n"
-nosql_user = gets.chomp
-print "Please provide your Mongo Password\n"
-nosql_password = gets.chomp
 
 print "---------------------------------------------------------------\n"
 print "Server Config\n"

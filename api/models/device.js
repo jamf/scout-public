@@ -72,7 +72,7 @@ exports.getExpandedInventory = function(url, username, password, device, jssServ
   return new Promise(function(resolve,reject) {
     //First translate mobile device to what the JPS API expects
     var scoutDeviceType = device.device_type;
-    if (device.device_type == 'mobile'){
+    if (device.device_type == 'mobile' || device.device_type == 'tv'){
       device.device_type = 'mobiledevice';
     }
     //Get the device information
@@ -417,7 +417,17 @@ exports.upsertFullInventory = function(deviceObjFromJSS, jss_server_id){
         //Return a promise based on the status of the insert
         resolve(exports.insertFullInventory(deviceObjFromJSS));
       } else {
-        resolve(exports.updateFullInventory(deviceObjFromJSS, { jss_id : jss_id, jss_server_id : jss_server_id}));
+        // check to see if the device is active or not
+        console.log(JSON.stringify(existingDevice, null, 2))
+        var timeDiff = new Date().getTime() - Date.parse(existingDevice.report_date_utc);
+        var daySinceCheckin = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        if (daySinceCheckin >= process.env.DAYS_ACTIVE) {
+          existingDevice[collectionName].general.is_active = false;
+        } else {
+          existingDevice[collectionName].general.is_active = true;
+        }
+        
+        resolve(exports.updateFullInventory(existingDevice, { jss_id : jss_id, jss_server_id : jss_server_id}));
       }
     })
     .catch(error => {

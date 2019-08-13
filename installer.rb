@@ -89,6 +89,8 @@ open('./app/js/server-url.js', 'w') do |f|
   f.puts "window.server_host = \"" + hostname + "\";"
 end
 
+print "After how many days of being dormant/not checking in would you like to flag devices as inactive?\n"
+active_days = gets.chomp
 print "Please provide an Encryption Key (MUST RE-ENTER ALL JPS SERVERS IF CHANGED - PICK A STRONG PASSWORD): \n"
 enc_key = STDIN.noecho(&:gets).chomp
 print "Please provide a JWT Key (Can be changed): \n"
@@ -123,6 +125,7 @@ print "---------------------------------------------------------------\n"
 
 #generate the .env file
 open('./api/.env', 'w') do |f|
+  f.puts "ACTIVE_DAYS=#{active_days}"
   f.puts "JWT_KEY=#{jwt_key}"
   f.puts "ENC_KEY=#{enc_key}"
   f.puts "LDAP_URL=#{ldap_url}"

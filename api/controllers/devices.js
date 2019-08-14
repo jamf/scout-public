@@ -7,6 +7,7 @@ var server = require('../models/server.js');
 var inventory = require('../models/inventory.js');
 var user = require('../models/user.js');
 var db = require('../common/db.js');
+var audit = require('../common/audit-logger.js').logActivity;
 
 devices.get('/server/:orgName', function(req,res) {
   device.getDevicesByOrg(req.params.orgName)
@@ -42,6 +43,7 @@ devices.put('/refresh/all', function(req,res){
       //Now upsert all of these devices
       Promise.all([...allDevices].map(d => device.upsertDevice(d)))
       .then(function(result){
+        audit({user: req.user.email, user_agent: req.headers['user-agent'], ip: req.connection.remoteAddress, message: "Manually refreshed devices."})
         return res.status(200).send({ status: "success"});
       })
       .catch(error => {

@@ -8,6 +8,7 @@ var schedule = require('node-schedule');
 var user = require('../models/user.js');
 var exec = require('child_process').exec;
 var cron = require('../common/cron-handler.js');
+var audit = require('../common/audit-logger.js').logActivity;
 
 /**
  * This endpoint adds a new server
@@ -77,6 +78,8 @@ servers.post('/add', function(req,res) {
  * @returns {Error}  400 - Unable to find server for given url or the server does not have an emergency admin setup
  */
 servers.post('/access/', function(req,res){
+  //Log that this endpoint is being accessed regardless of outcome
+  audit(null, 'Attempted to gain emergency access to server');
   //Make sure this feature isn't disabled
   try {
     if (process.env.DISABLE_SCOUT_ADMIN_USER == "true"){
@@ -95,6 +98,7 @@ servers.post('/access/', function(req,res){
       //destroy the password from the database
       server.setScoutAdminPassword(req.body.url, null)
       .then(function(result){
+        audit(req.user, 'ScoutAdmin password access granted');
         return res.status(200).send(resObj);
       })
       .catch(error => {

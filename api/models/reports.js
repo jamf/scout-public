@@ -329,3 +329,41 @@ function operationToObject(operation, value, field){
   }
   return '';
 }
+
+function addCommaIfRequired(s, i, length) {
+  if (i < length -1) {
+    return s += ',';
+  } else {
+    return s;
+  }
+}
+
+exports.buildExportCsv = function(fields, resultsObjects) {
+  // First write the headers
+  let csv = '';
+  for (i = 0; i < fields.length; i++) {
+    csv += addCommaIfRequired(fields[i], i, fields.length);
+  }
+  csv += '\n';
+  // Now write all of the records
+  resultsObjects.forEach(obj => {
+    for (let i = 0; i < fields.length; i++) {
+      csv += addCommaIfRequired(obj[fields[i]], i, fields.length);
+    }
+  });
+  return csv;
+}
+
+async function writeCsvFile(name, csvString){
+  return new Promise(function(resolve,reject) {
+    //write the string to the new env
+    const fileName = 'reports/' + name + '-' + new Date().getTime() + '.csv';
+    fs.writeFile(fileName, csvString, function(err) {
+      if(err) {
+        reject(err);
+      }
+      resolve(fileName);
+    });
+  });
+}
+exports.writeCsvFile = writeCsvFile;

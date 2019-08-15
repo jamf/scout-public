@@ -338,26 +338,41 @@ function addCommaIfRequired(s, i, length) {
   }
 }
 
+function getKeyForDeviceObj(obj){
+  var key = "computer";
+  //Default to computer, if it has a mobile_device key, then go with that
+  if ('mobile_device' in obj){
+    key = 'mobile_device';
+  }
+  return key;
+}
+
 exports.buildExportCsv = function(fields, resultsObjects) {
   // First write the headers
   let csv = '';
+  fields = fields.split(",");
   for (i = 0; i < fields.length; i++) {
     csv += addCommaIfRequired(fields[i], i, fields.length);
   }
   csv += '\n';
   // Now write all of the records
   resultsObjects.forEach(obj => {
+    var deviceType = getKeyForDeviceObj(obj);
     for (let i = 0; i < fields.length; i++) {
-      csv += addCommaIfRequired(obj[fields[i]], i, fields.length);
+      const c = fields[i].replace(/\s/g,'');
+      var parentCategory = c.split(".")[0];
+      var dataCategory = c.split(".")[1];
+      csv += addCommaIfRequired(obj[deviceType][parentCategory][dataCategory], i, fields.length);
     }
+    csv += '\n';
   });
   return csv;
 }
 
 async function writeCsvFile(name, csvString){
   return new Promise(function(resolve,reject) {
-    //write the string to the new env
-    const fileName = 'reports/' + name + '-' + new Date().getTime() + '.csv';
+    //write the string to the new env, randomize so these can't be found easy
+    const fileName = 'reports/' + db.getRandomString(10) + '-' + name + '-' + new Date().getTime() + '.csv';
     fs.writeFile(fileName, csvString, function(err) {
       if(err) {
         reject(err);

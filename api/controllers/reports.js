@@ -1,6 +1,7 @@
 var reports = require('express').Router();
 var report = require('../models/reports.js');
 var user = require('../models/user.js');
+const audit = require('../common/audit-logger').logActivity;
 
 reports.get('/builder/fields', function(req,res) {
   //get all of the supported fields and their UI name
@@ -63,11 +64,13 @@ reports.delete('/id/:reportId', function(req,res){
   }
   //Make sure the user has permission to delete the report
   if (!user.hasPermission(req.user, 'can_delete')){
+    audit({user: req.user, user_agent: req.headers['user-agent'], ip: req.connection.remoteAddress, message: "Failed attempt to delete a report."});
     return res.status(401).send({ error: "User does not have permission to delete objects."});
   }
   //Get the report and it's line items from the database
   report.deleteReport(req.params.reportId)
   .then(function(result){
+    audit({user: req.user, user_agent: req.headers['user-agent'], ip: req.connection.remoteAddress, message: `Successfully deleted report ${req.params.reportId}`});
     return res.status(200).send({status : 'success'});
   })
   .catch(error => {
@@ -86,6 +89,7 @@ reports.put('/update/:reportId', function(req,res){
   }
   //Make sure the user has permission to update
   if (!user.hasPermission(req.user, 'can_edit')){
+    audit({user: req.user, user_agent: req.headers['user-agent'], ip: req.connection.remoteAddress, message: `Failed attempt to create a update report.`});
     return res.status(401).send({ error: "User does not have permission to edit objects."});
   }
   //Rebuild the report object
@@ -104,6 +108,7 @@ reports.put('/update/:reportId', function(req,res){
   report.updateReportById(reportObj, req.params.reportId)
   .then(function(result){
     Promise.all(lineItems.map(lineItem => report.updateReportLineItem(lineItem,lineItem.item_order,req.params.reportId))).then(function(results){
+      audit({user: req.user, user_agent: req.headers['user-agent'], ip: req.connection.remoteAddress, message: `Successfully created report ${req.params.reportId}`, reportObj});
       return res.status(200).send({ "status" : "success", "id" : req.params.reportId});
     })
     .catch(error => {
@@ -131,6 +136,7 @@ reports.post('/save', function(req,res){
   }
   //Make sure the user has permission
   if (!user.hasPermission(req.user, 'can_create')){
+    audit({user: req.user, user_agent: req.headers['user-agent'], ip: req.connection.remoteAddress, message: `Failed attempt to create a report.`});
     return res.status(401).send({ error: "User does not have permission to create objects."});
   }
   //Copy out the line items to be inserted after the parent report
@@ -153,6 +159,7 @@ reports.post('/save', function(req,res){
     //the insert id is the report id
     var newReportId = result.insertId;
     Promise.all(lineItems.map(lineItem => report.insertReportLineItem(lineItem, newReportId))).then(function(results){
+      audit({user: req.user, user_agent: req.headers['user-agent'], ip: req.connection.remoteAddress, message: `Successfully deleted report ${req.params.reportId}`});
       return res.status(200).send({ "status" : "success", "id" : newReportId});
     })
     .catch(error => {
@@ -193,6 +200,7 @@ reports.get('/search/:reportId', function(req,res){
     .then(function(results){
       respObj.results = results;
       respObj.mongo_query = searchObject;
+      audit({user: req.user, user_agent: req.headers['user-agent'], ip: req.connection.remoteAddress, details: {mongo_query: searchObject, results: respObj.results}, message: `Report ran for report ${req.params.reportId}`});
       return res.status(200).send(respObj);
     })
     .catch(error => {

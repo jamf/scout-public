@@ -1,7 +1,8 @@
 var commands = require('express').Router();
 var device = require('../models/device.js');
 var db = require('../common/db.js');
-var audit = require('../common/audit-logger').logActivity;
+var audit = require('../common/logger.js').logActivity;
+var logError = require('../common/logger.js').logError;
 
 commands.post('/create/:platform', function(req,res) {
   //Make sure the user has permissions
@@ -26,6 +27,7 @@ commands.post('/create/:platform', function(req,res) {
     return res.status(200).send({ status : "success" });
   })
   .catch(error => {
+    logError({message: "Failed to send MDM command to devices.", user: req.user, error});
     //Show some helpful errors if it's an error from the JSS
     if ('req_data' in error && 'url' in error && 'res_data' in error){
       return res.status(500).send({ status : "failed", error : error});

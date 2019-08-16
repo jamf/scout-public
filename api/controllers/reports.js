@@ -1,7 +1,8 @@
 var reports = require('express').Router();
 var report = require('../models/reports.js');
 var user = require('../models/user.js');
-const audit = require('../common/audit-logger').logActivity;
+const audit = require('../common/logger.js').logActivity;
+const logError = require('../common/logger.js').logError;
 
 reports.get('/builder/fields', function(req,res) {
   //get all of the supported fields and their UI name
@@ -27,6 +28,7 @@ reports.get('/', function(req,res){
   })
   .catch(error => {
     console.log(error);
+    logError({message: "Unable to get reports.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to get reports"
     });
@@ -48,6 +50,7 @@ reports.get('/id/:reportId', function(req,res){
   })
   .catch(error => {
     console.log(error);
+    logError({message: "Unable to get report.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to get report"
     });
@@ -74,6 +77,7 @@ reports.delete('/id/:reportId', function(req,res){
     return res.status(200).send({status : 'success'});
   })
   .catch(error => {
+    logError({message: "Unable to delete report or it's line items.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to delete report or it's line items."
     });
@@ -113,6 +117,7 @@ reports.put('/update/:reportId', function(req,res){
     })
     .catch(error => {
       console.log(error);
+      logError({message: "Unable to update report line items.", user: req.user, error});
       return res.status(500).send({
         error: "Unable to update report line items"
       });
@@ -120,6 +125,7 @@ reports.put('/update/:reportId', function(req,res){
   })
   .catch(error => {
     console.log(error);
+    logError({message: "Unable to update report.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to update report"
     });
@@ -164,6 +170,7 @@ reports.post('/save', function(req,res){
     })
     .catch(error => {
       console.log(error);
+      logError({message: "Unable to insert report line items.", user: req.user, error});
       return res.status(500).send({
         error: "Unable to insert report line items"
       });
@@ -171,6 +178,7 @@ reports.post('/save', function(req,res){
   })
   .catch(error => {
     console.log(error);
+    logError({message: "Unable to insert new report.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to insert new report"
     });
@@ -205,6 +213,7 @@ reports.get('/search/:reportId', function(req,res){
     })
     .catch(error => {
       console.log(error);
+      logError({message: "Unable to perform search.", user: req.user, error});
       return res.status(500).send({
         error: "Unable to perform search"
       });
@@ -212,6 +221,7 @@ reports.get('/search/:reportId', function(req,res){
   })
   .catch(error => {
     console.log(error);
+    logError({message: "Unable to get report.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to get report"
     });
@@ -235,6 +245,7 @@ reports.post('/search', function(req,res) {
   })
   .catch(error => {
     console.log(error);
+    logError({message: "Unable to perform search.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to perform search"
     });

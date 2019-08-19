@@ -5,7 +5,8 @@ var admin = require('../models/admin.js');
 var crontab = require('cron-tab');
 var cron = require('../common/cron-handler.js');
 var servers = require('../models/server.js');
-var audit = require('../common/audit-logger.js').logActivity;
+var audit = require('../common/logger.js').logActivity;
+var logError = require('../common/logger.js').logError;
 
 adminController.get('/organization/details', function(req,res){
   //try to get the org name from the env settings
@@ -20,6 +21,7 @@ adminController.get('/organization/details', function(req,res){
         // Get the current cron jobs related to scout
         crontab.load(function(err, crontab){
           if (err) {
+            logError({message: "Unable to read server settings.", user: req.user, error: err});
             return res.status(500).send({ error : 'Unable to read server settings.'});
           }
           let responseObject = { header_name : process.env.HEADER_DISPLAY_NAME};
@@ -30,6 +32,7 @@ adminController.get('/organization/details', function(req,res){
     }
   } catch (exc){
     console.log(exc);
+    logError({message: "Unable to read server settings.", user: req.user, error: exc});
     return res.status(500).send({ error : 'Unable to read server settings.'});
   }
 });
@@ -49,6 +52,7 @@ adminController.get('/all', function(req,res){
     return res.status(200).send(settings);
   })
   .catch(error => {
+    logError({message: "Unable to read settings.", user: req.user, error});
     return res.status(500).send({error: "Unable to read settings"});
   });
 });
@@ -72,6 +76,7 @@ adminController.put('/user', function(req,res){
   })
   .catch(error => {
     console.log(error);
+    logError({message: "Unable to update user record.", user: req.user, error});
     return res.status(500).send({error : "Unable to update user record"});
   });
 })
@@ -93,6 +98,7 @@ adminController.put('/all', function(req,res){
     return res.status(200).send({status : "success"});
   })
   .catch(error => {
+    logError({message: "Unable to update file.", user: req.user, error});
     return res.status(500).send({error : "Unable to update file"});
   });
 });
@@ -114,10 +120,12 @@ adminController.put('/cronjobs', function(req,res) {
       return res.status(200).send({status : "success"});
     })
     .catch(function(error){
+      logError({message: "Unable to verify cron jobs.", user: req.user, error});
       return res.status(500).send({error : 'Unable to verify cron jobs'});
     });
   })
   .catch(function(error){
+    logError({message: "Unable to verify cron jobs.", user: req.user, error});
     return res.status(500).send({error : 'Unable to verify cron jobs'});
   });
 });

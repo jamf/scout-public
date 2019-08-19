@@ -8,7 +8,8 @@ var schedule = require('node-schedule');
 var user = require('../models/user.js');
 var exec = require('child_process').exec;
 var cron = require('../common/cron-handler.js');
-var audit = require('../common/audit-logger.js').logActivity;
+var audit = require('../common/logger.js').logActivity;
+var logError = require('../common/logger.js').logError;
 
 /**
  * This endpoint adds a new server
@@ -46,17 +47,20 @@ servers.post('/add', function(req,res) {
         return res.status(201).send({ status : "success" });
       })
       .catch(function(error){
+        logError({message: "Unable to verify cron jobs, please restart your server to fix this.", user: req.user, error});
         return res.status(206).send({ error : "Unable to verify cron jobs, please restart your server to fix this." });
         console.log(error);
       });
     })
     .catch(function(error){
+      logError({message: "Unable to verify cron jobs, please restart your server to fix this.", user: req.user, error});
       return res.status(206).send({ error : "Unable to verify cron jobs, please restart your server to fix this." });
       console.log(error);
     });
   })
   .catch(error => {
     console.log(error);
+    logError({message: error.error, user: req.user, error});
     if (error.error == "Unable to contact server"){
       return res.status(401).send({ error: "Unable to contact JPS Server - check creds and try again"});
     } else if (error.error == "Unable to insert server to the database"){
@@ -103,6 +107,7 @@ servers.post('/access/', function(req,res){
       })
       .catch(error => {
         console.log(error);
+        logError({message: "Unable to destory password, refusing to return password.", user: req.user, error});
         return res.status(500).send({
           error: "Unable to destory password, refusing to return password"
         });
@@ -115,6 +120,7 @@ servers.post('/access/', function(req,res){
   })
   .catch(error => {
     console.log(error);
+    logError({message: "Unable to find server.", user: req.user, error}); 
     return res.status(400).send({
       error: "Unable to find server"
     });
@@ -162,6 +168,7 @@ servers.put('/update/:id', function(req,res){
   })
   .catch(error => {
     console.log(error);
+    logError({message: "Unable to update JPS server.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to update JPS server"
     });
@@ -208,12 +215,14 @@ servers.delete('/delete/:id', function(req,res) {
           .then(result => {
             return res.status(201).send({ status : "success" });
           })
-          .catch(err => {
+          .catch(error => {
             console.log(err);
+            logError({message: "Unable to remove ScoutAdmin user", user: req.user, error});
             return res.status(206).send({ error : "Unable to remove ScoutAdmin user" });
           });
         })
         .catch(function(error){
+          logError({message: "Unable to verify cron jobs.", user: req.user, error});
           return res.status(206).send({ error : "Unable to verify cron jobs, please restart your server to fix this." });
           console.log(error);
         });
@@ -221,6 +230,7 @@ servers.delete('/delete/:id', function(req,res) {
     })
     .catch(error => {
       console.log(error);
+      logError({message: "Unable to delete devices.", user: req.user, error});
       res.status(500).send({
         error: "Unable to delete devices"
       });
@@ -228,6 +238,7 @@ servers.delete('/delete/:id', function(req,res) {
   })
   .catch(error => {
     console.log(error);
+    logError({message: "Unable to delete JPS server.", user: req.user, error});
     res.status(500).send({
       error: "Unable to delete JPS server"
     });
@@ -256,6 +267,7 @@ servers.get('/', function(req,res) {
   })
   .catch(error => {
     console.log(error);
+    logError({message: "Unable to get servers.", user: req.user, error});
     res.status(500).send({
       error: "Unable to get servers"
     });

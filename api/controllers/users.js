@@ -5,7 +5,8 @@ var secretKey = process.env.JWT_KEY;
 var bcrypt = require('bcrypt-nodejs');
 var ldap = require('ldapjs');
 var jwttoken = require('jsonwebtoken');
-var audit = require('../common/audit-logger.js').logActivity;
+var audit = require('../common/logger.js').logActivity;
+var logError = require('../common/logger.js').logError;
 
 
 function createToken(user) {
@@ -48,6 +49,7 @@ users.get('/all', function(req,res){
   })
   .catch(error => {
     console.log(error);
+    logError({message: "Unable to get users.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to get users"
     });
@@ -86,6 +88,7 @@ users.post('/create', function(req, res) {
   .catch(error => {
     console.log('User Register Failed: ');
     console.log(error);
+    logError({message: "Unable to create users.", user: req.user, error});
     //Check for dupe user error
     if (error.hasOwnProperty('status')){
       return res.status(409).send({  error: "Email already exists"  });
@@ -133,6 +136,7 @@ users.post('/login/basic', function(req, res) {
     res.status(200).send(resp);
   })
   .catch(error => {
+    logError({message: "Unable to log in user.", user: req.user, error});
     console.error(error);
     return res.status(400).send({ error: "Unable to log in user"});
   });
@@ -166,6 +170,7 @@ users.post('/verify', function(req,res){
     return res.status(200).send({ verified : isVerified});
   })
   .catch(error => {
+    logError({message: "Unable to find user.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to find user"
     });

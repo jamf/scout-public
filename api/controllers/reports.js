@@ -185,6 +185,36 @@ reports.post('/save', function(req,res){
   });
 });
 
+reports.post('/export/:reportId', async function(req,res) {
+  //Make sure a report Id was provided
+  if (!req.params.reportId){
+    return res.status(400).send({ error: "Missing required fields" });
+  }
+  // Get the report and it's results
+  report.getReportById(req.params.reportId)
+  .then(async function(reportObj){
+    var lineItemsConverted = [];
+    reportObj.line_items.forEach(function(l){
+      lineItemsConverted.push(report.convertDbLineItem(l));
+    });
+    var searchObject = report.parseIntoQuery(lineItemsConverted,reportObj.type);
+    var reportBuilder = { fields_to_select : reportObj.fields_to_select};
+    report.getRecordsForSearchObject(reportObj.type, searchObject)
+    .then(async function(results){
+      // Build a csv then write it out
+      const csvString = report.buildExportCsv(reportBuilder.fields_to_select, results);
+      const fileName = await report.writeCsvFile(reportObj.name, csvString);
+      return res.status(200).send({ status : 'success', path: process.env.SCOUT_URL + '/' + fileName});
+    })
+    .catch(err => {
+      return res.status(500).send({error: "Unable to query for results"  });
+    })
+  })
+  .catch(error => {
+    return res.status(500).send({error: "Unable to get report"  });
+  });
+});
+
 //Does an advanced search by id
 reports.get('/search/:reportId', function(req,res){
   //Make sure a report Id was provided

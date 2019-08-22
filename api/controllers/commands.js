@@ -2,6 +2,19 @@ var commands = require('express').Router();
 var device = require('../models/device.js');
 var db = require('../common/db.js');
 
+/**
+ * This endpoint TODO
+ * @route POST /commands/create/{platform}
+ * @group Commands - Operations about Jamf Pro Commands
+ * @param {string} mdmCommand.body.optional - TODO
+ * @param {string} deviceType.body.optional - TODO
+ * @param {string} deviceList.body.optional - TODO
+ * @param {string} platform.body.optional - 
+ * @returns {object} 200 - Success TODO
+ * @returns {Error}  401 - User has no permissions, The user must be an admin for the EraseDeviceCommand
+ * @returns {Error}  400 - Missing required fields or invalid request
+ * @returns {Error}  500 - Request data, Response data, or url has an error
+ */
 commands.post('/create/:platform', function(req,res) {
   //Make sure the user has permissions
   if (!req.user || !hasPermission(req.user, 'can_mdm')){

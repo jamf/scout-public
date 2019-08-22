@@ -8,6 +8,14 @@ var inventory = require('../models/inventory.js');
 var user = require('../models/user.js');
 var db = require('../common/db.js');
 
+/**
+ * This endpoint returns a list of devices by organization
+ * @route GET /devices/server/{orgName}
+ * @group Devices - Operations about Scout devices
+ * @param {string} orgName.body.required - The organization's name to search for corresponding devices
+ * @returns {object} 200 - An array of all devices from an organization
+ * @returns {Error} 500 - Unable to query the database
+ */
 devices.get('/server/:orgName', function(req,res) {
   device.getDevicesByOrg(req.params.orgName)
   .then(function(deviceList){
@@ -22,6 +30,15 @@ devices.get('/server/:orgName', function(req,res) {
   });
 });
 
+/**
+ * This endpoint refreshes every server and every device on each server
+ * @route PUT /devices/refresh/all
+ * @group Devices - Operations about Scout devices
+ * @param {string} type.body.required - TODO
+ * @returns {object} 200 - Successfully upserts the devices, return a status message
+ * @returns {Error} 500 - Unable to upsert new device records, Unable to get devices from Jamf Pro Server, Unable to get list of servers
+ * @returns {Error} 400 - Type is not limited
+ */
 devices.put('/refresh/all', function(req,res){
   //First check the update type and make sure it's supported
   console.log(req.body.type);
@@ -60,6 +77,17 @@ devices.put('/refresh/all', function(req,res){
   });
 });
 
+/**
+ * This endpoint TODO
+ * @route POST /devices/paged/{deviceType}
+ * @group Devices - Operations about Scout devices
+ * @param {int} start.body.required - TODO
+ * @param {int} length.body.required - TODO
+ * @param {string} search.value.body.required - TODO ??maybe wrong
+ * @param {string} deviceType.params.required - TODO ??also probably wrong
+ * @returns {object} 200 - Successfully 
+ * @returns {Error} 500 - Unable to get devices
+ */
 devices.post('/paged/:deviceType', function(req,res) {
   var start = parseInt(req.body.start);
   var len = parseInt(req.body.length);
@@ -92,6 +120,13 @@ devices.post('/paged/:deviceType', function(req,res) {
 //   });
 // });
 
+/**
+ * This endpoint shows all devices 
+ * @route GET /devices/
+ * @group Devices - Operations about Scout devices
+ * @returns {object} 200 - An array of all devices
+ * @returns {Error} 500 - Unable to get devices
+ */
 devices.get('/', function(req,res) {
   device.getAllDevices()
   .then(function(deviceList){
@@ -106,6 +141,13 @@ devices.get('/', function(req,res) {
   });
 });
 
+/**
+ * This endpoint TODO
+ * @route GET /devices/csv
+ * @group Devices - Operations about Scout devices
+ * @returns {object} 200 - An array of all devices
+ * @returns {Error} 500 - Unable to write file
+ */
 devices.get('/csv', function(req,res) {
   report.writeCSVOfAllDevices()
   .then(function(stream){
@@ -119,6 +161,13 @@ devices.get('/csv', function(req,res) {
   });
 });
 
+/**
+ * This endpoint returns all computers in inventory records by id
+ * @route GET /devices/computers/expanded/{deviceId}
+ * @group Devices - Operations about Scout devices
+ * @returns {object} 200 - An array of all devices associated with an id
+ * @returns {Error} 500 - Unable to find device record
+ */
 //Gets an expanded inventory record by id
 devices.get('/computers/expanded/:id', function(req,res){
   inventory.getExpandedInventoryById('computers',req.params.id)
@@ -132,6 +181,16 @@ devices.get('/computers/expanded/:id', function(req,res){
   });
 });
 
+/**
+ * This endpoint TODO 
+ * @route POST /devices/live/{deviceCollection}
+ * @group Devices - Operations about Scout devices
+ * @param {string} serial.body.required - TODO
+ * @param {string} udid.body.required - TODO
+ * @returns {object} 400 - The Seriel or UDID is empty sends a message
+ * @returns {Error} 500 - Unable to hit the JPS API for this device
+ * @returns {Error} 400 - Unable to find device record
+ */
 //Gets a device live from the JPS by UDID and serial
 devices.post('/live/:collection', function(req,res){
   //Make sure required fields are in the post
@@ -158,6 +217,15 @@ devices.post('/live/:collection', function(req,res){
   });
 });
 
+/**
+ * This endpoint TODO 
+ * @route GET /devices/live/{deviceCollection}/{deviceId} TODO correct?
+ * @group Devices - Operations about Scout devices
+ * @param {string} id.body.required - TODO
+ * @returns {object} 200 - TODO
+ * @returns {Error} 500 - Unable to hit the JPS API for this device
+ * @returns {Error} 400 - Unable to find device record
+ */
 //Gets a device live from the JPS by scout id
 devices.get('/live/:collection/:id', function(req,res){
   //First get the device object from the databse to lookup server details
@@ -181,6 +249,13 @@ devices.get('/live/:collection/:id', function(req,res){
   });
 });
 
+/**
+ * This endpoint shows all computers 
+ * @route GET /devices/computers
+ * @group Devices - Operations about Scout devices
+ * @returns {object} 200 - An array of all computers
+ * @returns {Error} 500 - Unable to get computers TODO
+ */
 devices.get('/computers', function(req,res) {
   device.getDeviceByPlatform('computer')
   .then(function(deviceList){
@@ -195,6 +270,13 @@ devices.get('/computers', function(req,res) {
   });
 });
 
+/**
+ * This endpoint shows all mobile devices 
+ * @route GET /devices/mobiledevices
+ * @group Devices - Operations about Scout devices
+ * @returns {object} 200 - An array of all mobile devices
+ * @returns {Error} 500 - Unable to get mobile devices TODO
+ */
 devices.get('/mobiledevices', function(req,res) {
   device.getDeviceByPlatform('mobile')
   .then(function(deviceList){
@@ -209,6 +291,13 @@ devices.get('/mobiledevices', function(req,res) {
   });
 });
 
+/**
+ * This endpoint shows all tvs 
+ * @route GET /devices/tvs
+ * @group Devices - Operations about Scout devices
+ * @returns {object} 200 - An array of all tvs
+ * @returns {Error} 500 - Unable to get tvs TODO
+ */
 devices.get('/tvs', function(req,res) {
   device.getDeviceByPlatform('tv')
   .then(function(deviceList){
@@ -221,6 +310,14 @@ devices.get('/tvs', function(req,res) {
   });
 });
 
+/**
+ * This endpoint counts all devices of a certain device type
+ * @route GET /devices/count/{deviceType}
+ * @group Devices - Operations about Scout devices
+ * @param {string} deviceType.body.required - Type of device to count
+ * @returns {object} 200 - The number of devices of given type
+ * @returns {Error} 500 - Unable to get devices TODO
+ */
 devices.get('/count/:deviceType', function(req,res) {
   device.getDeviceByPlatform(req.params.deviceType)
   .then(function(deviceList){
@@ -231,6 +328,15 @@ devices.get('/count/:deviceType', function(req,res) {
   });
 });
 
+/**
+ * This endpoint deletes a scout device with a given id
+ * @route DELETE /devices/id/{scoutDeviceId}
+ * @group Devices - Operations about Scout devices
+ * @param {string} scoutDeviceId.body.required - Id of scout device to delete
+ * @returns {object} 200 - The Scout device was deleted successfully
+ * @returns {Error} 401 - User is not authorized to delete a scout device
+ * @returns {Error} 500 - Unable to delete device with the given scout id
+ */
 devices.delete('/id/:scoutDeviceId', function(req,res) {
   //Make sure the user has permission to delete a device
   if (!user.hasPermission(req.user, 'can_delete')){

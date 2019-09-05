@@ -3,14 +3,15 @@ var device = require('../models/device.js');
 var db = require('../common/db.js');
 
 /**
- * This endpoint TODO
+ * This endpoint sends MDM commands to devices
  * @route POST /commands/create/{platform}
  * @group Commands - Operations about Jamf Pro Commands
- * @param {string} mdmCommand.body.optional - TODO
- * @param {string} deviceType.body.optional - TODO
- * @param {string} deviceList.body.optional - TODO
- * @param {string} platform.body.optional - 
- * @returns {object} 200 - Success TODO
+ * @param {string} mdmCommand.body.required - MDM command to send
+ * @param {string} deviceType.body.required - Type of device to send MDM command to 
+ * @param {string} deviceList.body.required - List of devices to send MDM command to
+ * @param {string} options.body.required - Specifications of the command
+ * @param {string} platform.body.required - Platform to send the MDM command
+ * @returns {object} 200 - Successfully sent MDM commands to all devices, success status
  * @returns {Error}  401 - User has no permissions, The user must be an admin for the EraseDeviceCommand
  * @returns {Error}  400 - Missing required fields or invalid request
  * @returns {Error}  500 - Request data, Response data, or url has an error

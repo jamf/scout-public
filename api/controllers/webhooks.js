@@ -18,13 +18,12 @@ var devices = require('../models/device.js');
 const supportedServerEvents = ['JSSShutdown','JSSStartup'];
 
 /**
- * This endpoint TODO
+ * This endpoint listens for webhook calls that are sent from the Jamf Pro Server
  * @route POST /webhooks/device/{jssId}
  * @group Webhooks - Operations about Scout Webhooks
- * @param {string} event.query.required - TODO
- * @param {string} jssId.query.required - TODO
- * @param {string} webhook.webhookEvent.query.required - ??need to add here??
- * @returns {object} 200 - TODO
+ * @param {string} event.body.required - Event that called this webhook
+ * @param {string} jssId.query.required - Id of Jamf Pro Server to listen from
+ * @returns {object} 200 - Successfully upserted device
  * @returns {Error}  500 - Unable to upsert devices
  * @returns {Error}  400 - Unsupported method
  */

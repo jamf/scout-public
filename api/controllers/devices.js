@@ -34,7 +34,7 @@ devices.get('/server/:orgName', function(req,res) {
  * This endpoint refreshes every server and every device on each server
  * @route PUT /devices/refresh/all
  * @group Devices - Operations about Scout devices
- * @param {string} type.body.required - TODO
+ * @param {string} type.body.required - Type of update method
  * @returns {object} 200 - Successfully upserts the devices, return a status message
  * @returns {Error} 500 - Unable to upsert new device records, Unable to get devices from Jamf Pro Server, Unable to get list of servers
  * @returns {Error} 400 - Type is not limited
@@ -218,11 +218,11 @@ devices.post('/live/:collection', function(req,res){
 });
 
 /**
- * This endpoint TODO 
- * @route GET /devices/live/{deviceCollection}/{deviceId} TODO correct?
+ * This endpoint gets a device live from the JPS by scout Id 
+ * @route GET /devices/live/{deviceCollection}/{deviceId}
  * @group Devices - Operations about Scout devices
- * @param {string} id.body.required - TODO
- * @returns {object} 200 - TODO
+ * @param {string} id.query.required - Id of device to get
+ * @returns {object} 200 - Successfully gets a device live from the JPS
  * @returns {Error} 500 - Unable to hit the JPS API for this device
  * @returns {Error} 400 - Unable to find device record
  */
@@ -254,7 +254,7 @@ devices.get('/live/:collection/:id', function(req,res){
  * @route GET /devices/computers
  * @group Devices - Operations about Scout devices
  * @returns {object} 200 - An array of all computers
- * @returns {Error} 500 - Unable to get computers TODO
+ * @returns {Error} 500 - Unable to get computers
  */
 devices.get('/computers', function(req,res) {
   device.getDeviceByPlatform('computer')
@@ -275,7 +275,7 @@ devices.get('/computers', function(req,res) {
  * @route GET /devices/mobiledevices
  * @group Devices - Operations about Scout devices
  * @returns {object} 200 - An array of all mobile devices
- * @returns {Error} 500 - Unable to get mobile devices TODO
+ * @returns {Error} 500 - Unable to get mobile devices 
  */
 devices.get('/mobiledevices', function(req,res) {
   device.getDeviceByPlatform('mobile')
@@ -296,7 +296,7 @@ devices.get('/mobiledevices', function(req,res) {
  * @route GET /devices/tvs
  * @group Devices - Operations about Scout devices
  * @returns {object} 200 - An array of all tvs
- * @returns {Error} 500 - Unable to get tvs TODO
+ * @returns {Error} 500 - Unable to get tvs
  */
 devices.get('/tvs', function(req,res) {
   device.getDeviceByPlatform('tv')
@@ -316,7 +316,7 @@ devices.get('/tvs', function(req,res) {
  * @group Devices - Operations about Scout devices
  * @param {string} deviceType.body.required - Type of device to count
  * @returns {object} 200 - The number of devices of given type
- * @returns {Error} 500 - Unable to get devices TODO
+ * @returns {Error} 500 - Unable to get devices
  */
 devices.get('/count/:deviceType', function(req,res) {
   device.getDeviceByPlatform(req.params.deviceType)

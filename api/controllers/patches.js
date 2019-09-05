@@ -84,7 +84,7 @@ patches.post('/servers/create', function(req,res){
  * This endpoint shows all software titles for patches
  * @route GET /patches/software/{titles}
  * @group Patches - Operations about Scout patches
- * @param {string} titles.query.required - Titles of TODO: titles.query? servers.js for example
+ * @param {string} titles.query.required - Titles of software patches
  * @returns {object} 200 - Array of software titles for patches
  * @returns {Error} 500 - Unable to read patches
  */
@@ -116,7 +116,7 @@ patches.get('/software/:titles', function(req,res) {
  * This endpoint shows patch for specific softwareId
  * @route GET /patches/patch/{titleId}
  * @group Patches - Operations about Scout patches
- * @param {string} titleId.query.required - Titles of TODO: titles.query? servers.js for example
+ * @param {string} titleId.query.required - Titles of software patches
  * @returns {object} 200 - Software title for specific softwareId
  * @returns {Error} 500 - Unable to read patches
  */

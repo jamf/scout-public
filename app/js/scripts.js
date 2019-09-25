@@ -325,6 +325,24 @@ function prettyPrintColumnName(input){
       .join(' ');
 }
 
+function exportReport(reportId) {
+  $.Toast.showToast({
+    "title": "Building report... Some larger reports may take awhile to load.",
+    "icon": "loading",
+    "duration": 60000
+  });
+  var getReport = getRequestObject('/reports/export/' + reportId, null, 'POST');
+  getReport.done(function(res){
+    $.Toast.hideToast();
+      swal('Exported!', 'Find your report here: ' + res.path, 'success');
+  })
+  .fail(function(xhr){
+    $.Toast.hideToast();
+    swal('Error!', 'There was an error writing your report.', 'error');
+    console.log(xhr);
+  });
+}
+
 function viewReportResults(reportId){
   $.Toast.showToast({
     "title": "Calculating report results... Some larger reports may take several seconds to load.",
@@ -363,6 +381,7 @@ function viewReportResults(reportId){
       //Add a row for the device to the table
       resultTable.row.add(row);
     }
+    $("#export-report-button").attr('onclick', 'exportReport('+reportId+');')
     //Draw the table and show the results modal
     resultTable.draw(false);
     changeView('reports-results-view');

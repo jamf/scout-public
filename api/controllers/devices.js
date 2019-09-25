@@ -7,7 +7,8 @@ var server = require('../models/server.js');
 var inventory = require('../models/inventory.js');
 var user = require('../models/user.js');
 var db = require('../common/db.js');
-var audit = require('../common/audit-logger.js').logActivity;
+var audit = require('../common/logger.js').logActivity;
+var logError = require('../common/logger.js').logError;
 
 /**
  * This endpoint returns a list of devices by organization
@@ -25,6 +26,7 @@ devices.get('/server/:orgName', function(req,res) {
     });
   })
   .catch(error => {
+    logError({message: "Unable to get devices.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to get devices"
     });
@@ -65,16 +67,19 @@ devices.put('/refresh/all', function(req,res){
       })
       .catch(error => {
         console.log(error);
+        logError({message: "Unable to upsert new device records.", user: req.user, error});
         return res.status(500).send({ error: "Unable to upsert new device records"});
       });
     })
     .catch(error => {
       console.log(error);
+      logError({message: "Unable to get devices from Jamf Pro Server", user: req.user, error});
       return res.status(500).send({ error: "Unable to get devices from Jamf Pro Server "});
     });
   })
   .catch(error => {
     console.log(error);
+    logError({message: "Unable to get list of servers.", user: req.user, error});
     return res.status(500).send({ error: "Unable to get list of servers"});
   });
 });
@@ -100,6 +105,7 @@ devices.post('/paged/:deviceType', function(req,res) {
     return res.status(200).send(obj);
   })
   .catch(error => {
+    logError({message: "Unable to get devices.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to get devices"
     });
@@ -137,6 +143,7 @@ devices.get('/', function(req,res) {
     });
   })
   .catch(error => {
+    logError({message: "Unable to get devices.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to get devices"
     });
@@ -157,6 +164,7 @@ devices.get('/csv', function(req,res) {
     return res.status(200).send({ "status" : "success", "path" : process.env.SCOUT_URL + stream.path.substring(1,stream.path.length)});
   })
   .catch(error => {
+    logError({message: "Unable to write csv file.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to write file"
     });
@@ -177,6 +185,7 @@ devices.get('/computers/expanded/:id', function(req,res){
     return res.status(200).send(result);
   })
   .catch(error => {
+    logError({message: "Unable to find device record.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to find device record"
     });
@@ -207,12 +216,14 @@ devices.post('/live/:collection', function(req,res){
       return res.status(200).send(jpsAPIResponse);
     })
     .catch(error => {
+      logError({message: "Unable to hit the JPS API for this device.", user: req.user, error});
       return res.status(500).send({
         error: "Unable to hit the JPS API for this device"
       });
     });
   })
   .catch(error => {
+    logError({message: "Unable to find device record.", user: req.user, error});
     return res.status(400).send({
       error: "Unable to find device record"
     });
@@ -239,12 +250,14 @@ devices.get('/live/:collection/:id', function(req,res){
       return res.status(200).send(jpsAPIResponse);
     })
     .catch(error => {
+      logError({message: "Unable to hit the JPS API for this device.", user: req.user, error});
       return res.status(500).send({
         error: "Unable to hit the JPS API for this device"
       });
     });
   })
   .catch(error => {
+    logError({message: "Unable to find device record.", user: req.user, error});
     return res.status(400).send({
       error: "Unable to find device record"
     });
@@ -266,6 +279,7 @@ devices.get('/computers', function(req,res) {
     });
   })
   .catch(error => {
+    logError({message: "Unable to get devices.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to get devices"
     });
@@ -287,6 +301,7 @@ devices.get('/mobiledevices', function(req,res) {
     });
   })
   .catch(error => {
+    logError({message: "Unable to get mobile devices.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to get devices"
     });
@@ -308,6 +323,7 @@ devices.get('/tvs', function(req,res) {
     });
   })
   .catch(error => {
+    logError({message: "Unable to get tvs.", user: req.user, error});
     return res.status(500).send({ error: "Unable to get devices" });
   });
 });
@@ -326,6 +342,7 @@ devices.get('/count/:deviceType', function(req,res) {
     return res.status(200).send({ "size" : deviceList.length});
   })
   .catch(error => {
+    logError({message: "Unable to get device count.", user: req.user, error});
     return res.status(500).send({ error: "Unable to get devices" });
   });
 });
@@ -350,6 +367,7 @@ devices.delete('/id/:scoutDeviceId', function(req,res) {
     return res.status(200).send({status : 'success'});
   })
   .catch(error => {
+    logError({message: "Unable to delete device by scout id", user: req.user, error});
     return res.status(500).send({error : 'Unable to delete device by scout id'});
   });
 });

@@ -3,6 +3,13 @@ var report = require('../models/reports.js');
 var user = require('../models/user.js');
 const audit = require('../common/audit-logger').logActivity;
 
+/**
+ * This endpoint gets all supported fields to add to the UI
+ * @route GET /reports/builder/fields
+ * @group Reports - Operations about Scout Reports
+ * @returns {object} 200 - A List of all supported fields and UI names
+ * @returns {Error}  500 - Unable to get supported fields
+ */
 reports.get('/builder/fields', function(req,res) {
   //get all of the supported fields and their UI name
   report.getSupportedFields()
@@ -18,6 +25,13 @@ reports.get('/builder/fields', function(req,res) {
   });
 });
 
+/**
+ * This endpoint returns all reports
+ * @route GET /reports/
+ * @group Reports - Operations about Scout Reports
+ * @returns {object} 200 - A List of all reports
+ * @returns {Error}  500 - Unable to get reports
+ */
 //Returns all of the reports
 reports.get('/', function(req,res){
   //Return all of the reports
@@ -33,6 +47,15 @@ reports.get('/', function(req,res){
   });
 });
 
+/**
+ * This endpoint gets a report with specific Id
+ * @route GET /reports/id/{reportId}
+ * @group Reports - Operations about Scout Reports
+ * @param {string} reportId.body.required - Id of report to view
+ * @returns {object} 200 - Report for specific reportId
+ * @returns {Error}  400 - Missing report Id
+ * @returns {Error}  500 - Unable to get report
+ */
 //Gets a report by id
 reports.get('/id/:reportId', function(req,res){
   //make sure the report id was provided in the request
@@ -54,6 +77,16 @@ reports.get('/id/:reportId', function(req,res){
   });
 });
 
+/**
+ * This endpoint deletes a report with a specific Id
+ * @route DELETE /reports/id/{reportId}
+ * @group Reports - Operations about Scout Reports
+ * @param {string} reportId.body.required - Id of report to view
+ * @returns {object} 200 - Report for specific reportId with success status message
+ * @returns {Error}  400 - Missing report Id
+ * @returns {Error}  401 - User doesn't have permission to delete objects
+ * @returns {Error}  500 - Unable to delete report or it's line items
+ */
 //Deletes a report by id
 reports.delete('/id/:reportId', function(req,res){
   //make sure the report id was provided in the request
@@ -80,6 +113,19 @@ reports.delete('/id/:reportId', function(req,res){
   });
 });
 
+/**
+ * This endpoint updates a report with a specific reportId
+ * @route PUT /reports/update/{reportId}
+ * @group Reports - Operations about Scout Reports
+ * @param {string} name.body.required - Name of Report to update
+ * @param {string} line_items.body.required - Line items of report to update
+ * @param {string} fields_to_select.body.required - Fields in report to edit
+ * @param {string} reportId.body.required - Id of report to edit
+ * @returns {object} 200 - Report updated successfully, success message
+ * @returns {Error}  400 - Missing required fields
+ * @returns {Error}  401 - User doesn't have permission to edit objects
+ * @returns {Error}  500 - Unable to update report line items, Unable to update report
+ */
 reports.put('/update/:reportId', function(req,res){
   //Make sure everything is in the request
   if (!req.body.name || !req.body.line_items || req.body.line_items.length < 1 || !req.params.reportId){
@@ -126,6 +172,18 @@ reports.put('/update/:reportId', function(req,res){
   });
 });
 
+/**
+ * This endpoint saves a report to the databse to be used later
+ * @route POST /reports/save
+ * @group Reports - Operations about Scout Reports
+ * @param {string} name.body.required - Name of Report to save
+ * @param {string} line_items.body.required - Line items of report to save
+ * @param {string} fields_to_select.body.required - Fields in report to save
+ * @returns {object} 200 - Successfully inserted report, success message with inserted reportId
+ * @returns {Error}  400 - Missing required fields
+ * @returns {Error}  401 - User doesn't have permission to edit objects
+ * @returns {Error}  500 - Unable to insert report line items, Unable to insert new report
+ */
 //Saves a report to the database to be used later
 reports.post('/save', function(req,res){
   //Make sure everything is in the request
@@ -177,6 +235,15 @@ reports.post('/save', function(req,res){
   });
 });
 
+/**
+ * This endpoint does an advanced search by id
+ * @route GET /reports/search/{reportId}
+ * @group Reports - Operations about Scout Reports
+ * @param {string} reportId.body.required - Id of report to search
+ * @returns {object} 200 - Successfully query of report, Array of all records for specific reportId
+ * @returns {Error}  400 - Missing required fields
+ * @returns {Error}  500 - Unable to perform search, Unable to get report
+ */
 //Does an advanced search by id
 reports.get('/search/:reportId', function(req,res){
   //Make sure a report Id was provided
@@ -218,6 +285,15 @@ reports.get('/search/:reportId', function(req,res){
   });
 });
 
+/**
+ * This endpoint searches for report based on given details
+ * @route POST /reports/search
+ * @group Reports - Operations about Scout Reports
+ * @param {string} search_line_items.body.required - Criteria to search for reports 
+ * @returns {object} 200 - Successfully query of report, Array of all records for specific reportId
+ * @returns {Error}  400 - No search terms provided
+ * @returns {Error}  500 - Unable to perform search
+ */
 reports.post('/search', function(req,res) {
   //make sure they provided some search terms
   if (!req.body.search_line_items || req.body.search_line_items.length < 1){

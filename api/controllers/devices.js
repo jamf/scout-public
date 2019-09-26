@@ -78,13 +78,13 @@ devices.put('/refresh/all', function(req,res){
 });
 
 /**
- * This endpoint TODO
+ * This endpoint returns the tables for the device search.
  * @route POST /devices/paged/{deviceType}
  * @group Devices - Operations about Scout devices
- * @param {int} start.body.required - TODO
- * @param {int} length.body.required - TODO
- * @param {string} search.value.body.required - TODO ??maybe wrong
- * @param {string} deviceType.params.required - TODO ??also probably wrong
+ * @param {int} start.body.required - Start page number
+ * @param {int} length.body.required - Length of each page
+ * @param {string} search.value.body.required - Search value for devices
+ * @param {string} deviceType.params.required - Type of device to search
  * @returns {object} 200 - Successfully 
  * @returns {Error} 500 - Unable to get devices
  */
@@ -142,7 +142,7 @@ devices.get('/', function(req,res) {
 });
 
 /**
- * This endpoint TODO
+ * Output CSV file of all devices
  * @route GET /devices/csv
  * @group Devices - Operations about Scout devices
  * @returns {object} 200 - An array of all devices
@@ -182,11 +182,11 @@ devices.get('/computers/expanded/:id', function(req,res){
 });
 
 /**
- * This endpoint TODO 
+ * Gets a device live from the JPS by UDID and serial
  * @route POST /devices/live/{deviceCollection}
  * @group Devices - Operations about Scout devices
- * @param {string} serial.body.required - TODO
- * @param {string} udid.body.required - TODO
+ * @param {string} serial.body.required - Serial number of device
+ * @param {string} udid.body.required - UDID of device
  * @returns {object} 400 - The Seriel or UDID is empty sends a message
  * @returns {Error} 500 - Unable to hit the JPS API for this device
  * @returns {Error} 400 - Unable to find device record

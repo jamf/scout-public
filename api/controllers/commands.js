@@ -4,6 +4,20 @@ var db = require('../common/db.js');
 var audit = require('../common/logger.js').logActivity;
 var logError = require('../common/logger.js').logError;
 
+/**
+ * This endpoint sends MDM commands to devices
+ * @route POST /commands/create/{platform}
+ * @group Commands - Operations about Jamf Pro Commands
+ * @param {string} mdmCommand.body.required - MDM command to send
+ * @param {string} deviceType.body.required - Type of device to send MDM command to 
+ * @param {string} deviceList.body.required - List of devices to send MDM command to
+ * @param {string} options.body.required - Specifications of the command
+ * @param {string} platform.body.required - Platform to send the MDM command
+ * @returns {object} 200 - Successfully sent MDM commands to all devices, success status
+ * @returns {Error}  401 - User has no permissions, The user must be an admin for the EraseDeviceCommand
+ * @returns {Error}  400 - Missing required fields or invalid request
+ * @returns {Error}  500 - Request data, Response data, or url has an error
+ */
 commands.post('/create/:platform', function(req,res) {
   //Make sure the user has permissions
   if (!req.user || !hasPermission(req.user, 'can_mdm')){

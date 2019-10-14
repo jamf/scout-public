@@ -106,7 +106,7 @@ function getAllSavedReports(){
     computerReports.clear();
     mobileReports.clear();
     for (var i = 0; i < reportsList.length; i++){
-      var actionButtons = '<button type="button" class="btn btn-success btn-circle" onclick="viewReportResults(\''+reportsList[i].id+'\');"><i class="fa fa-play-circle"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-info btn-circle" onclick="loadReportById(\''+reportsList[i].id+'\');"><i class="fa fa-eye"></i></button>&nbsp;&nbsp;<button type="button" onclick="editReportById(\''+reportsList[i].id+'\');" class="btn btn-warning btn-circle"><i class="fa fa-pencil"></i></button>&nbsp;&nbsp;<button onclick="deleteReport(\''+reportsList[i].id+'\');" type="button" class="btn btn-danger btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;';
+      var actionButtons = '<button type="button" class="btn btn-success btn-circle" onclick="viewReportResults(\''+reportsList[i].id+'\');"><i class="fa fa-play-circle"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-info btn-circle" onclick="loadReportById(\''+reportsList[i].id+'\');"><i class="fa fa-eye"></i></button>&nbsp;&nbsp;<button type="button" onclick="editReportById(\''+reportsList[i].id+'\');" class="btn btn-warning btn-circle"><i class="fa fa-pencil-alt"></i></button>&nbsp;&nbsp;<button onclick="deleteReport(\''+reportsList[i].id+'\');" type="button" class="btn btn-danger btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;';
       if (reportsList[i].type == 'computer'){
         computerReports.row.add([reportsList[i].name, formatDate(new Date(reportsList[i].created)), reportsList[i].email, reportsList[i].conditions_count, actionButtons]).draw(false);
       } else {
@@ -783,8 +783,35 @@ function getServerAccess(id,url){
   $("#backup_password_url").val(url);
 }
 
+function deleteDevicesByScoutId(serverId) {
+  swal({
+    title: "Confirm Delete Devices",
+    text: "Deleting these devices will only remove it from the Scout database, not from the the Jamf Pro Server. It may repopulate following the next inventory update if it's still in the Jamf Pro Server. This can NOT be undone.",
+    icon: "warning",
+    buttons: true,
+    dangerMode: true
+  })
+  .then((willDelete) => {
+    if (willDelete){
+      var deleteRequest = getRequestObject('/servers/delete/devices/'+serverId, null, 'DELETE');
+      //render the table after the servers are loaded from the DB
+      deleteRequest.done(function(response){
+        swal('Server devices deleted', 'The devices have been removed from scout. You may need to refresh the page for the scout counts to update properly.', 'success');
+      })
+      .fail(function(xhr) {
+        if (xhr.status == 403){
+          swal('No Permissions', 'Your user does not have permission to delete devices from scout.', 'error');
+        } else {
+          console.log(xhr);
+          swal('Delete Failed', 'Unable to delete devices from scout. Check the console for more details.', 'error');
+        }
+      });
+    }
+  });
+}
+
 function getServerButtons(id,url){
-  return '<button onclick="updateServer(\''+id+'\',\''+url+'\');" type="button" id="edit_'+id+'" class="edit_server btn btn-info btn-circle"><i class="fa fa-pencil"></i></button>&nbsp;&nbsp;<button type="button" id="delete_'+id+'" onclick="$(\'#remove-server-modal\').modal(\'show\');$(\'#delete-server-id\').val('+id+');" class="btn btn-danger delete_server btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;<button type="button" id="access'+id+'" onclick="getServerAccess(\''+id+'\',\''+url+'\')" class="btn btn-success delete_server btn-circle"><i class="fa fa-key"></i></button>';
+  return '<button onclick="updateServer(\''+id+'\',\''+url+'\');" type="button" id="edit_'+id+'" class="edit_server btn btn-info btn-circle"><i class="fa fa-pencil-alt"></i></button>&nbsp;&nbsp;<button type="button" id="delete_'+id+'" onclick="$(\'#remove-server-modal\').modal(\'show\');$(\'#delete-server-id\').val('+id+');" class="btn btn-danger delete_server btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;<button type="button" id="access'+id+'" onclick="getServerAccess(\''+id+'\',\''+url+'\')" class="btn btn-success delete_server btn-circle"><i class="fa fa-key"></i></button>&nbsp;&nbsp;<button onclick="deleteDevicesByScoutId(\''+id+'\');" type="button" class="btn btn-danger btn-circle"><i class="fa fa-broom"></i></button>';
 }
 
 function loadServerTable(){

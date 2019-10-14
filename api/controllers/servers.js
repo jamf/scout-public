@@ -120,7 +120,7 @@ servers.post('/access/', function(req,res){
   })
   .catch(error => {
     console.log(error);
-    logError({message: "Unable to find server.", user: req.user, error}); 
+    logError({message: "Unable to find server.", user: req.user, error});
     return res.status(400).send({
       error: "Unable to find server"
     });
@@ -176,7 +176,31 @@ servers.put('/update/:id', function(req,res){
 });
 
 /**
- * This gets all of the servers in Scout
+ * This deletes all devices in the scout database for a given server, they will refresh on next worker run
+ * @route DELETE /servers/delete/devices/{serverId}
+ * @group Servers - Operations about Jamf Pro Servers
+ * @param {string} id.query.required - The Id of the Jamf Pro Server to delete devices from
+ * @returns {object} 200 - A success object if the devices fro the server were deleted
+ * @returns {Error}  500 - Unable to query the database or delete all of the server's devices
+ */
+servers.delete('/delete/devices/:serverId', async function(req,res){
+  if (!req.params.serverId) {
+    return res.status(400).send({ error : "Missing Required Fields" });
+  }
+  if (!user.hasPermission(req.user,'can_delete')){
+    return res.status(401).send({ error : "User is not authorized to delete" });
+  }
+  device.deleteDevicesByJPSId(req.params.serverId)
+  .then(result => {
+    return res.status(200).send({ status : "success" });
+  })
+  .catch(error => {
+    return res.status(500).send({ eror : "Unable to delete devices by server id" });
+  });
+});
+
+/**
+ * This deletes a server in scout and all of it's devices
  * @route DELETE /servers/delete/{serverId}
  * @group Servers - Operations about Jamf Pro Servers
  * @param {string} id.query.required - The Id of the Jamf Pro Server to delete

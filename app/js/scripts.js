@@ -677,6 +677,7 @@ function getTvCount() {
 }
 
 function updateMobileDevices(){
+  attemptDestroyTable("mobiledevices-table");
   var mobileTable = $("#mobiledevices-table").DataTable(getDataTablesRequest('mobile'));
   //check if we should show the mdm command buttons
   mobileTable.on( 'select', function ( e, dt, type, indexes ) {
@@ -797,6 +798,9 @@ function deleteDevicesByScoutId(serverId) {
       //render the table after the servers are loaded from the DB
       deleteRequest.done(function(response){
         swal('Server devices deleted', 'The devices have been removed from scout. You may need to refresh the page for the scout counts to update properly.', 'success');
+        updateMobileDevices();
+        updateComputers();
+        updateTvs();
       })
       .fail(function(xhr) {
         if (xhr.status == 403){
@@ -811,7 +815,11 @@ function deleteDevicesByScoutId(serverId) {
 }
 
 function getServerButtons(id,url){
-  return '<button onclick="updateServer(\''+id+'\',\''+url+'\');" type="button" id="edit_'+id+'" class="edit_server btn btn-info btn-circle"><i class="fa fa-pencil-alt"></i></button>&nbsp;&nbsp;<button type="button" id="delete_'+id+'" onclick="$(\'#remove-server-modal\').modal(\'show\');$(\'#delete-server-id\').val('+id+');" class="btn btn-danger delete_server btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;<button type="button" id="access'+id+'" onclick="getServerAccess(\''+id+'\',\''+url+'\')" class="btn btn-success delete_server btn-circle"><i class="fa fa-key"></i></button>&nbsp;&nbsp;<button onclick="deleteDevicesByScoutId(\''+id+'\');" type="button" class="btn btn-danger btn-circle"><i class="fa fa-broom"></i></button>';
+  // Only show server accesss buttons for admins
+  if (sessionStorage.getItem("is_admin") == 'true') {
+      return '<button onclick="updateServer(\''+id+'\',\''+url+'\');" type="button" id="edit_'+id+'" class="edit_server btn btn-info btn-circle"><i class="fa fa-pencil-alt"></i></button>&nbsp;&nbsp;<button type="button" id="delete_'+id+'" onclick="$(\'#remove-server-modal\').modal(\'show\');$(\'#delete-server-id\').val('+id+');" class="btn btn-danger delete_server btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;<button type="button" id="access'+id+'" onclick="getServerAccess(\''+id+'\',\''+url+'\')" class="btn btn-success delete_server btn-circle"><i class="fa fa-key"></i></button>&nbsp;&nbsp;<button onclick="deleteDevicesByScoutId(\''+id+'\');" type="button" class="btn btn-danger btn-circle"><i class="fa fa-broom"></i></button>';
+  }
+  return '<button onclick="updateServer(\''+id+'\',\''+url+'\');" type="button" id="edit_'+id+'" class="edit_server btn btn-info btn-circle"><i class="fa fa-pencil-alt"></i></button>&nbsp;&nbsp;<button type="button" id="delete_'+id+'" onclick="$(\'#remove-server-modal\').modal(\'show\');$(\'#delete-server-id\').val('+id+');" class="btn btn-danger delete_server btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;<button onclick="deleteDevicesByScoutId(\''+id+'\');" type="button" class="btn btn-danger btn-circle"><i class="fa fa-broom"></i></button>';
 }
 
 function loadServerTable(){
@@ -941,6 +949,8 @@ function deleteDeviceByScoutId(deviceId) {
       //render the table after the servers are loaded from the DB
       deleteRequest.done(function(response){
         swal('Device Removed', 'The device has been removed from scout.', 'success');
+        updateMobileDevices();
+        updateTvs();
       })
       .fail(function(xhr) {
         if (xhr.status == 401){
@@ -1075,6 +1085,8 @@ function doLoginUserPass(){
     $('#login-user-modal').modal('hide');
     if (data.is_admin == 1){
       sessionStorage.setItem("is_admin", true);
+    } else {
+      sessionStorage.setItem("is_admin", false);
     }
     renderPage();
     changeView('dashboard-view');

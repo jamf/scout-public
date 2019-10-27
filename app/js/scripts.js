@@ -271,7 +271,7 @@ function saveNewReport(shouldRun){
     reportType = urlParams.get('reportType');
   }
   //Create the report object and post everything to the server
-  var reqBody = { name : $("#new-report-name").val(), type : reportType, line_items : lineItems, fields_to_select : $("#fields-to-select").val().join(", ")};
+  var reqBody = { name : $("#new-report-name").val(), type : reportType, line_items : lineItems, fields_to_select : $("#fields-to-select").val().join(", "), show_in_dashboard : $("#show-in-dashboard").prop('checked')};
   var post = getRequestObject('/reports/save', reqBody, 'POST');
   post.done(function(res){
     swal('Report Saved', 'The report has been saved.', 'success');
@@ -1452,6 +1452,8 @@ function changeView(newView){
   sessionStorage.setItem('last-view', JSON.stringify(savedObject));
   //Hide all other views
   $(".view-pane").hide();
+  //set show in dashboard to be unselected
+  $("#show-in-dashboard").prop('checked',false);
   //remove the active class
   $(".sidebar-button").removeClass('active');
   //If the new view is save report type, save the url params
@@ -1498,7 +1500,7 @@ function changeReportView(deviceType, operation){
   updateQueryStringParam('reportType', deviceType);
   updateQueryStringParam('type', operation);
   //if it's view, then remove the add criteria buttons and save
-  if (operation == 'view'){
+  if (operation == 'view'){ 
     $(".report-view-button").show();
     $(".report-create-button").hide();
     $(".report-edit-button").hide();

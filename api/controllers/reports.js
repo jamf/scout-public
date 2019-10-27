@@ -209,6 +209,7 @@ reports.post('/save', function(req,res){
   reportObj.created_by = req.user.id;
   reportObj.conditions_count = req.body.line_items.length;
   reportObj.type = req.body.type;
+  reportObj.show_in_dashboard = req.body.show_in_dashboard;
   //Default to some fields to select if not provided
   if (!req.body.fields_to_select){
     reportObj.fields_to_select = 'general.id, general.name';

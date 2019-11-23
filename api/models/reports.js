@@ -190,6 +190,7 @@ exports.updateReportLineItem = function(lineItem, order, reportId){
 
 exports.insertReportObject = function(reportObject){
   return new Promise(function(resolve,reject) {
+    console.log(JSON.stringify(reportObject));
     db.get().query('INSERT INTO reports SET ?', [reportObject], function(error, results, fields) {
       if (error) {
         reject(error);
@@ -221,6 +222,18 @@ exports.deleteReport = function(reportId){
 exports.getReports = function(){
   return new Promise(function(resolve,reject) {
     db.get().query('SELECT reports.*, users.email FROM reports JOIN users ON reports.created_by = users.id ORDER BY reports.created DESC', function(error, results, fields) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
+exports.getReportsToShowInDashboard = function(){
+  return new Promise(function(resolve,reject) {
+    db.get().query('SELECT reports.*, users.email FROM reports JOIN users ON reports.created_by = users.id WHERE show_in_dashboard = 1 ORDER BY reports.created DESC', function(error, results, fields) {
       if (error) {
         reject(error);
       } else {

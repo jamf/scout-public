@@ -50,6 +50,27 @@ reports.get('/', function(req,res){
 });
 
 /**
+ * This endpoint returns all reports with show in dashboard checkbox selected
+ * @route GET /reports/dashboard
+ * @group Reports - Operations about Scout Reports
+ * @returns {object} 200 - A List of all reports
+ * @returns {Error}  500 - Unable to get reports
+ */
+reports.get('/dashboard', function(req,res){
+  report.getReportsToShowInDashboard()
+  .then(function(reports){
+    return res.status(200).send(reports);
+  })
+  .catch(error => {
+    console.log(error);
+    logError({message: "Unable to get reports.", user: req.user, error});
+    return res.status(500).send({
+      error: "Unable to get reports"
+    });
+  });
+});
+
+/**
  * This endpoint gets a report with specific Id
  * @route GET /reports/id/{reportId}
  * @group Reports - Operations about Scout Reports

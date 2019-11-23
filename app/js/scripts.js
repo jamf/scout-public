@@ -119,13 +119,13 @@ function getAllSavedReports(){
   });
 }
 
-function editReportById(reportId){
+function editReportById(reportId){ //FOSTER TODO: when click edit, update checkbox
   reloadReportPane(false);
   $("#existing-report-id").val(reportId);
   //Make the request to the server to get a saved report
   var report = getRequestObject('/reports/id/' + reportId, null, 'GET');
   report.done(function(reportObject){
-    console.log(reportObject);
+    console.log("report object " + JSON.stringify(reportObject));
     //Load the existing report view
     $("#new-report-parent").show();
     addMultipleReportLineItems(reportObject.line_items);
@@ -133,6 +133,7 @@ function editReportById(reportId){
     var fieldsToSelectArr = reportObject.fields_to_select.split(',');
     $('#fields-to-select').selectpicker('val', fieldsToSelectArr);
     $("#fields-to-select").selectpicker("refresh");
+    $("#show-in-dashboard").prop('checked', reportObject.show_in_dashboard);
     //Show the new report UI
     changeReportView('computer', 'edit');
     $("#report-name-field").html(reportObject.name);
@@ -158,6 +159,20 @@ function loadReportById(reportId){
     changeReportView('computer', 'view');
     $("#report-name-field").html(reportObject.name);
     updateQueryStringParam('reportId',reportId);
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+  })
+}
+
+function loadReportsWithDashboard(){
+  // reloadReportPane(false);
+  //Make the request to the server to get a saved report
+  var report = getRequestObject('/reports/dashboard/', null, 'GET');
+  report.done(function(reportObject){
+    console.log(reportObject);
+    // foreach(report)
+    // $("#reportsToShow").val();
   })
   .fail(function(xhr){
     console.log(xhr);
@@ -208,7 +223,8 @@ function updateExistingReport(){
     reportType = urlParams.get('reportType');
   }
   //Create the report object and post everything to the server
-  var reqBody = { name : $("#new-report-name").val(), type: reportType, line_items : lineItems,fields_to_select : $("#fields-to-select").val().join(", ")};
+  //FOSTER TODO: make sure updating checkbox vaue as well CURRENT::: somehow removing fields to select dropdown???
+  var reqBody = { name : $("#new-report-name").val(), type: reportType, line_items : lineItems,fields_to_select : $("#fields-to-select").val().join(", "), show_in_dashboard : $("#show-in-dashboard").prop('checked')};
   console.log(reqBody);
   var post = getRequestObject('/reports/update/' + reportId, reqBody, 'PUT');
   post.done(function(res){
@@ -270,6 +286,8 @@ function saveNewReport(shouldRun){
   if (urlParams.has('reportType')){
     reportType = urlParams.get('reportType');
   }
+  // , show_in_dashboard : $("#show-in-dashboard").prop('checked')
+  // console.log($("#show-in-dashboard").prop('checked'));
   //Create the report object and post everything to the server
   var reqBody = { name : $("#new-report-name").val(), type : reportType, line_items : lineItems, fields_to_select : $("#fields-to-select").val().join(", "), show_in_dashboard : $("#show-in-dashboard").prop('checked')};
   var post = getRequestObject('/reports/save', reqBody, 'POST');
@@ -1368,6 +1386,7 @@ function renderPage(){
   loadPatchesTable();
   loadPatchServersTable();
   getAllSavedReports();
+  loadReportsWithDashboard();
   //Setup button listeners
   $("#add-server-button").click(function(){
     addServerToDatabase($("#add-server-url").val(), $("#add-server-username").val(), $("#add-server-password").val(), $("#add-server-limited-cron").val(),$("#add-server-expanded-cron").val());
@@ -1452,8 +1471,6 @@ function changeView(newView){
   sessionStorage.setItem('last-view', JSON.stringify(savedObject));
   //Hide all other views
   $(".view-pane").hide();
-  //set show in dashboard to be unselected
-  $("#show-in-dashboard").prop('checked',false);
   //remove the active class
   $(".sidebar-button").removeClass('active');
   //If the new view is save report type, save the url params

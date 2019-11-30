@@ -119,7 +119,7 @@ function getAllSavedReports(){
   });
 }
 
-function editReportById(reportId){ //FOSTER TODO: when click edit, update checkbox
+function editReportById(reportId){
   reloadReportPane(false);
   $("#existing-report-id").val(reportId);
   //Make the request to the server to get a saved report
@@ -133,9 +133,10 @@ function editReportById(reportId){ //FOSTER TODO: when click edit, update checkb
     var fieldsToSelectArr = reportObject.fields_to_select.split(',');
     $('#fields-to-select').selectpicker('val', fieldsToSelectArr);
     $("#fields-to-select").selectpicker("refresh");
-    $("#show-in-dashboard").prop('checked', reportObject.show_in_dashboard);
+    console.log(reportObject.show_in_dashboard);
     //Show the new report UI
     changeReportView('computer', 'edit');
+    $("#show-in-dashboard").prop('checked', reportObject.show_in_dashboard);
     $("#report-name-field").html(reportObject.name);
     $("#new-report-name").val(reportObject.name);
     updateQueryStringParam('reportId',reportId);
@@ -223,7 +224,6 @@ function updateExistingReport(){
     reportType = urlParams.get('reportType');
   }
   //Create the report object and post everything to the server
-  //FOSTER TODO: make sure updating checkbox vaue as well CURRENT::: somehow removing fields to select dropdown???
   var reqBody = { name : $("#new-report-name").val(), type: reportType, line_items : lineItems,fields_to_select : $("#fields-to-select").val().join(", "), show_in_dashboard : $("#show-in-dashboard").prop('checked')};
   console.log(reqBody);
   var post = getRequestObject('/reports/update/' + reportId, reqBody, 'PUT');
@@ -286,8 +286,6 @@ function saveNewReport(shouldRun){
   if (urlParams.has('reportType')){
     reportType = urlParams.get('reportType');
   }
-  // , show_in_dashboard : $("#show-in-dashboard").prop('checked')
-  // console.log($("#show-in-dashboard").prop('checked'));
   //Create the report object and post everything to the server
   var reqBody = { name : $("#new-report-name").val(), type : reportType, line_items : lineItems, fields_to_select : $("#fields-to-select").val().join(", "), show_in_dashboard : $("#show-in-dashboard").prop('checked')};
   var post = getRequestObject('/reports/save', reqBody, 'POST');
@@ -1526,6 +1524,7 @@ function changeReportView(deviceType, operation){
     $(".report-view-button").hide();
     $(".report-create-button").hide();
   } else {
+    $("#show-in-dashboard").prop('checked', false);
     $(".report-view-button").hide();
     $(".report-create-button").show();
     $(".report-edit-button").hide();

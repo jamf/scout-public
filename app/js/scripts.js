@@ -166,12 +166,34 @@ function loadReportById(reportId){
   })
 }
 
-function loadReportsWithDashboard(){
+function loadReportsWithDashboard(){ // TODO: FOSTER FIX, getDeviceLive function on line 595 is a good example 
+  //also note how viewReportResults calls the endpoint /reports/search/ to get all info on that report 
   reloadReportPane(false);
   //Make the request to the server to get a saved report
   var report = getRequestObject('/reports/dashboard/', null, 'GET');
   report.done(function(reportObject){
     console.log(reportObject);
+
+    //gets the report from mongoDB, not sure what it returns
+    var getReport = getRequestObject('/reports/search/' + reportId, null, 'GET');
+      getReport.done(function(res){
+      console.log(res);
+      //count nTuples returned to be added to the dashboard table (Required for PR)
+
+      //view health check information from various servers?
+
+      //view the count of users in scout?
+
+      //view scout server information?
+
+      //view frequency of cron jobs executions?
+
+      //view scout total device count over time?
+    })
+    .fail(function(xhr){
+      console.log(xhr);
+    })
+
     // EXTRACT VALUE FOR HTML HEADER. following is copy pasted from a stack overflow page, 
     // ('Book ID', 'Book Name', 'Category' and 'Price')
     var col = [];

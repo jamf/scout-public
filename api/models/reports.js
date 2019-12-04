@@ -149,39 +149,6 @@ exports.updateReportById = function(reportObject, reportId){
   });
 }
 
-exports.updateReportLineItems = function(lineItems, reportId) {
-  return new Promise((resolve, reject) => {
-    // check to see if there's goig to be lignering line items
-    db.get().query('SELECT item_order,report_id FROM reports_line_item WHERE report_id = ?', [reportId], (error, results, fields) => {
-      if (error) {
-        reject(error)
-      }
-      // compare the number of line items to the number in the db
-      if (lineItems.length < results.length) {
-        db.get().query('DELETE FROM reports_line_item WHERE report_id = ?', reportId, (deleteErr, result) => {
-          if (deleteErr) {
-            reject(deleteErr)
-          }
-          Promise.all(lineItems.map(lineItem => exports.updateReportLineItem(lineItem, lineItem.item_order, reportId))).then(res => {
-            resolve(res)
-          }).catch(err => {
-            console.log(err)
-            reject(err)
-          }) 
-        })
-      } else {
-        Promise.all(lineItems.map(lineItem => exports.updateReportLineItem(lineItem, lineItem.item_order, reportId))).then(res => {
-          resolve(res)
-        }).catch(err => {
-          console.log(err)
-          reject(err)
-        })     
-      }
-    })
-  })
-}
-
-
 exports.updateReportLineItem = function(lineItem, order, reportId){
   //Set some meta fields
   lineItem.report_id = reportId;
@@ -299,7 +266,7 @@ exports.getReportById = function(reportId){
       } else {
         //Now get the line items
         var reportObj = results[0];
-        db.get().query('SELECT * FROM reports_line_item WHERE report_id = ? ORDER BY item_order ASC',[reportId], function(error, results, fields) {
+        db.get().query('SELECT * FROM reports_line_item WHERE report_id = ?',[reportId], function(error, results, fields) {
           if (error) {
             reject(error);
           } else {

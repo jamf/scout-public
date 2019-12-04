@@ -166,33 +166,57 @@ function loadReportById(reportId){
   })
 }
 
-function loadReportsWithDashboard(){ // TODO: FOSTER FIX, getDeviceLive function on line 595 is a good example 
-  //also note how viewReportResults calls the endpoint /reports/search/ to get all info on that report 
-  reloadReportPane(false);
-  //Make the request to the server to get a saved report
+function calculateReportResultCount(){
   var report = getRequestObject('/reports/dashboard/', null, 'GET');
   report.done(function(reportObject){
     console.log(reportObject);
+    var nDevices = [];
+    var reportCalls = [];
+    for(var i = 0; i < reportObject.length; i++){
+      console.log("single Report id: " + reportObject[i].id)
+      reportCalls.push(getRequestObject('/reports/search/' + reportObject[i].id, null, 'GET'));
+      $.when(...reportCalls).done(function(res){ 
+        console.log("length1: " + res.results.length);
+        nDevices[i] = res.results.length;
+      })
+      .fail(function(xhr){
+        console.log(xhr);
+      })
+    }
+    for(var i = 0; i < reportObject.length; i++){
+      console.log("nDevices for reportID " + reportObject[i].id + ": " + nDevices[i]);
+    }
+  })
+  .fail(function(xhr){
+    console.log(xhr);
+  })
+}
 
+function loadReportsWithDashboard(){ // TODO: FOSTER FIX, getDeviceLive function on line 595 is a good example 
+  //also note how viewReportResults calls the endpoint /reports/search/ to get all info on that report 
+  reloadReportPane(false);
+  calculateReportResultCount();
+  //Make the request to the server to get a saved report
+    
     //gets the report from mongoDB, not sure what it returns
-    var getReport = getRequestObject('/reports/search/' + reportId, null, 'GET');
-      getReport.done(function(res){
-      console.log(res);
-      //count nTuples returned to be added to the dashboard table (Required for PR)
+    // var getReport = getRequestObject('/reports/search/' + reportId, null, 'GET');
+    //   getReport.done(function(res){
+    //   console.log(res);
+    //   //count nTuples returned to be added to the dashboard table (Required for PR)
 
-      //view health check information from various servers?
+    //   //view health check information from various servers?
 
-      //view the count of users in scout?
+    //   //view the count of users in scout?
 
-      //view scout server information?
+    //   //view scout server information?
 
-      //view frequency of cron jobs executions?
+    //   //view frequency of cron jobs executions?
 
-      //view scout total device count over time?
-    })
-    .fail(function(xhr){
-      console.log(xhr);
-    })
+    //   //view scout total device count over time?
+    // })
+    // .fail(function(xhr){
+    //   console.log(xhr);
+    // })
 
     // EXTRACT VALUE FOR HTML HEADER. following is copy pasted from a stack overflow page, 
     // ('Book ID', 'Book Name', 'Category' and 'Price')
@@ -230,10 +254,7 @@ function loadReportsWithDashboard(){ // TODO: FOSTER FIX, getDeviceLive function
     var divContainer = document.getElementById("reports-dashboard-table");
     divContainer.innerHTML = "";
     divContainer.appendChild(table);
-  })
-  .fail(function(xhr){
-    console.log(xhr);
-  })
+  
 }
 
 function runExistingReportByUrl(){

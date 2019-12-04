@@ -98,6 +98,8 @@ if (cluster.isMaster){
     secret: process.env.JWT_KEY
   });
 
+
+
   var app = module.exports = express();
   //Setup the swagger docs
   const expressSwagger = require('express-swagger-generator')(app);
@@ -143,9 +145,27 @@ if (cluster.isMaster){
   //Allow cross origin requests
   app.use(cors());
   app.use(compression()); //Compress all routes
+
+  // auth function for the hookswe
+  hookAuth = (req, res, next) => {
+    const b64auth = (req.headers.authorization || '').split(' ')[1] || ''
+    const strauth = new Buffer(b64auth, 'base64').toString()
+    const splitIndex = strauth.indexOf(':')
+    const user = strauth.substring(0, splitIndex)
+    const password = strauth.substring(splitIndex + 1)
+    if (user && password && user === "webhookuser" && password === process.env.WEBHOOK_PASS) {
+      // grant access
+      return next()
+    }
+    // access denied
+    res.set('WWW-Authenticate', 'Basic realm="401"')
+    res.status(401).send("Authentication required")
+  }
+
   //require auth to use endpoints
   app.use('/servers', jwtCheck);
   app.use('/devices', jwtCheck);
+  app.use('/webhooks', hookAuth)
   app.use('/reports', jwtCheck);
   app.use('/users/all', jwtCheck);
   app.use('/users/verify', jwtCheck);

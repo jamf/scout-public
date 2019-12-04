@@ -137,6 +137,7 @@ function editReportById(reportId){
     changeReportView('computer', 'edit');
     $("#report-name-field").html(reportObject.name);
     $("#new-report-name").val(reportObject.name);
+    $("#existing-report-id").val(reportId)
     updateQueryStringParam('reportId',reportId);
   })
   .fail(function(xhr){
@@ -299,7 +300,6 @@ function reloadReportPane(loadFirstItem){
   //Clear out the existing report id in case one was added
   $("#existing-report-id").val('');
   //reset selected fields
-  $('#fields-to-select').selectpicker('destroy');
   $("#new-report-name").val('New Report Name');
   $("#new-report-parent").show();
   //reload the saved reports from the server
@@ -1525,7 +1525,11 @@ function changeView(newView){
 }
 
 function changeReportView(deviceType, operation){
-  reloadReportPane(true);
+  if (operation == 'edit' || operation == 'view') {
+    reloadReportPane(false);
+  } else {
+    reloadReportPane(true);
+  }
   //Set the title at the top of the card
   if (deviceType == 'computer'){
     $("#report-name-field").html('New Computer Report');

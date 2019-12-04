@@ -125,6 +125,12 @@ if (cluster.isMaster){
                   in: 'header',
                   name: 'Authorization',
                   description: "",
+              },
+              Basic: {
+                type: 'basic',
+                in: 'header',
+                name: 'Authorization',
+                description: "Basic auth that must be setup in the Jamf Pro server. This covers all webhooks endpoints. The user name is webhookuser and the password is set on install."
               }
           }
       },

@@ -1525,7 +1525,12 @@ function changeView(newView){
 }
 
 function changeReportView(deviceType, operation){
-  reloadReportPane(true);
+  console.log("Operation: " + operation)
+  if (operation == 'edit' || operation == 'view') {
+    reloadReportPane(false);
+  } else {
+    reloadReportPane(true);
+  }
   //Set the title at the top of the card
   if (deviceType == 'computer'){
     $("#report-name-field").html('New Computer Report');

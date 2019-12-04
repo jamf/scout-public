@@ -157,12 +157,11 @@ reports.put('/update/:reportId', function(req,res){
   //Update the parent report object
   report.updateReportById(reportObj, req.params.reportId)
   .then(function(result){
-    Promise.all(lineItems.map(lineItem => report.updateReportLineItem(lineItem,lineItem.item_order,req.params.reportId))).then(function(results){
+    report.updateReportLineItems(lineItems, req.params.reportId).then(function(results){
       audit({user: req.user, user_agent: req.headers['user-agent'], ip: req.connection.remoteAddress, message: `Successfully created report ${req.params.reportId}`, reportObj});
       return res.status(200).send({ "status" : "success", "id" : req.params.reportId});
     })
     .catch(error => {
-      console.log(error);
       logError({message: "Unable to update report line items.", user: req.user, error});
       return res.status(500).send({
         error: "Unable to update report line items"

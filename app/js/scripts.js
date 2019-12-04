@@ -1525,7 +1525,6 @@ function changeView(newView){
 }
 
 function changeReportView(deviceType, operation){
-  console.log("Operation: " + operation)
   if (operation == 'edit' || operation == 'view') {
     reloadReportPane(false);
   } else {

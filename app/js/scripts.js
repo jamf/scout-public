@@ -130,7 +130,9 @@ function editReportById(reportId){
     $("#new-report-parent").show();
     addMultipleReportLineItems(reportObject.line_items);
     //Fill in and show the fields to select
-    var fieldsToSelectArr = reportObject.fields_to_select.split(',');
+    var fieldsToSelectArr = reportObject.fields_to_select.split(',').map(item => {
+      return item.trim()
+    })
     $('#fields-to-select').selectpicker('val', fieldsToSelectArr);
     $("#fields-to-select").selectpicker("refresh");
     //Show the new report UI
@@ -152,11 +154,12 @@ function loadReportById(reportId){
   report.done(function(reportObject){
     //Load the existing report view
     $("#new-report-parent").hide();
-    console.log(reportObject.line_items);
     addMultipleReportLineItems(reportObject.line_items);
     //Fill in and show the fields to select
     //Show the new report UI
     changeReportView('computer', 'view');
+    $('#fields-to-select').selectpicker('val', fields);
+    $("#fields-to-select").selectpicker("refresh");
     $("#report-name-field").html(reportObject.name);
     updateQueryStringParam('reportId',reportId);
   })

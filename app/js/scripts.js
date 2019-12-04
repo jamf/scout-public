@@ -137,6 +137,7 @@ function editReportById(reportId){
     changeReportView('computer', 'edit');
     $("#report-name-field").html(reportObject.name);
     $("#new-report-name").val(reportObject.name);
+    $("#existing-report-id").val(reportId)
     updateQueryStringParam('reportId',reportId);
   })
   .fail(function(xhr){

@@ -69,7 +69,6 @@ reports.get('/id/:reportId', function(req,res){
   //Get the report and it's line items from the database
   report.getReportById(req.params.reportId)
   .then(function(report){
-    console.log(report)
     return res.status(200).send(report);
   })
   .catch(error => {

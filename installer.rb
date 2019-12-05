@@ -95,9 +95,11 @@ print "Please provide an Encryption Key (MUST RE-ENTER ALL JPS SERVERS IF CHANGE
 enc_key = STDIN.noecho(&:gets).chomp
 print "Please provide a JWT Key (Can be changed): \n"
 jwt_key = STDIN.noecho(&:gets).chomp
-print "Do you want to add authentication to webhooks? (Y/n)"
+
+print "Do you want to add authentication to webhooks? (Y/n) "
 authHook = gets.chomp
-if (authHook != "n" || authHook != "N")
+hook_pass = ""
+if !["n", "N"].include?(authHook)
   print "Please provide a password for Jamf Pro server webhooks (Can be changed): \n"
   hook_pass = STDIN.noecho(&:gets).chomp
 end

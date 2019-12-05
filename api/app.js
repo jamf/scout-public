@@ -152,20 +152,21 @@ if (cluster.isMaster){
   app.use(cors());
   app.use(compression()); //Compress all routes
 
-  // auth function for the hookswe
+  // basic auth function for the hooks
   hookAuth = (req, res, next) => {
     const b64auth = (req.headers.authorization || '').split(' ')[1] || ''
-    const strauth = new Buffer(b64auth, 'base64').toString()
+    const strauth = new Buffer.from(b64auth, 'base64').toString()
     const splitIndex = strauth.indexOf(':')
     const user = strauth.substring(0, splitIndex)
     const password = strauth.substring(splitIndex + 1)
-    if (user && password && user === "webhookuser" && password === process.env.WEBHOOK_PASS) {
+    // check the password if the env isn't set, auth isn't enabled so pass through
+    if ((user && password && user === "webhookuser" && password === process.env.WEBHOOK_PASS) || process.env.WEBHOOK_PASS === "" || process.env.WEBHOOK_PASS === null) {
       // grant access
       return next()
     }
     // access denied
     res.set('WWW-Authenticate', 'Basic realm="401"')
-    res.status(401).send("Authentication required")
+    return res.status(401).send("Authentication required")
   }
 
   //require auth to use endpoints

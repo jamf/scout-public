@@ -125,7 +125,6 @@ function editReportById(reportId){
   //Make the request to the server to get a saved report
   var report = getRequestObject('/reports/id/' + reportId, null, 'GET');
   report.done(function(reportObject){
-    console.log(reportObject);
     //Load the existing report view
     $("#new-report-parent").show();
     addMultipleReportLineItems(reportObject.line_items);

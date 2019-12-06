@@ -106,7 +106,7 @@ function getAllSavedReports(){
     computerReports.clear();
     mobileReports.clear();
     for (var i = 0; i < reportsList.length; i++){
-      var actionButtons = '<button type="button" class="btn btn-success btn-circle" onclick="viewReportResults(\''+reportsList[i].id+'\');"><i class="fa fa-play-circle"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-info btn-circle" onclick="loadReportById(\''+reportsList[i].id+'\');"><i class="fa fa-eye"></i></button>&nbsp;&nbsp;<button type="button" onclick="editReportById(\''+reportsList[i].id+'\');" class="btn btn-warning btn-circle"><i class="fa fa-pencil-alt"></i></button>&nbsp;&nbsp;<button onclick="deleteReport(\''+reportsList[i].id+'\');" type="button" class="btn btn-danger btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;';
+      var actionButtons = '<button type="button" class="btn btn-success btn-circle" onclick="viewReportResults(\''+reportsList[i].id+'\');"><i class="fa fa-play-circle"></i></button>&nbsp;&nbsp;<button type="button" onclick="editReportById(\''+reportsList[i].id+'\');" class="btn btn-warning btn-circle"><i class="fa fa-pencil-alt"></i></button>&nbsp;&nbsp;<button onclick="deleteReport(\''+reportsList[i].id+'\');" type="button" class="btn btn-danger btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;';
       if (reportsList[i].type == 'computer'){
         computerReports.row.add([reportsList[i].name, formatDate(new Date(reportsList[i].created)), reportsList[i].email, reportsList[i].conditions_count, actionButtons]).draw(false);
       } else {
@@ -125,43 +125,25 @@ function editReportById(reportId){
   //Make the request to the server to get a saved report
   var report = getRequestObject('/reports/id/' + reportId, null, 'GET');
   report.done(function(reportObject){
-    console.log(reportObject);
     //Load the existing report view
     $("#new-report-parent").show();
     addMultipleReportLineItems(reportObject.line_items);
     //Fill in and show the fields to select
-    var fieldsToSelectArr = reportObject.fields_to_select.split(',');
+    var fieldsToSelectArr = reportObject.fields_to_select.split(',').map(item => {
+      return item.trim()
+    })
     $('#fields-to-select').selectpicker('val', fieldsToSelectArr);
     $("#fields-to-select").selectpicker("refresh");
     //Show the new report UI
     changeReportView('computer', 'edit');
     $("#report-name-field").html(reportObject.name);
     $("#new-report-name").val(reportObject.name);
+    $("#existing-report-id").val(reportId)
     updateQueryStringParam('reportId',reportId);
   })
   .fail(function(xhr){
     console.log(xhr);
   });
-}
-
-function loadReportById(reportId){
-  reloadReportPane(false);
-  //Make the request to the server to get a saved report
-  var report = getRequestObject('/reports/id/' + reportId, null, 'GET');
-  report.done(function(reportObject){
-    //Load the existing report view
-    $("#new-report-parent").hide();
-    console.log(reportObject.line_items);
-    addMultipleReportLineItems(reportObject.line_items);
-    //Fill in and show the fields to select
-    //Show the new report UI
-    changeReportView('computer', 'view');
-    $("#report-name-field").html(reportObject.name);
-    updateQueryStringParam('reportId',reportId);
-  })
-  .fail(function(xhr){
-    console.log(xhr);
-  })
 }
 
 function runExistingReportByUrl(){
@@ -299,7 +281,6 @@ function reloadReportPane(loadFirstItem){
   //Clear out the existing report id in case one was added
   $("#existing-report-id").val('');
   //reset selected fields
-  $('#fields-to-select').selectpicker('destroy');
   $("#new-report-name").val('New Report Name');
   $("#new-report-parent").show();
   //reload the saved reports from the server
@@ -1525,7 +1506,11 @@ function changeView(newView){
 }
 
 function changeReportView(deviceType, operation){
-  reloadReportPane(true);
+  if (operation == 'edit') {
+    reloadReportPane(false);
+  } else {
+    reloadReportPane(true);
+  }
   //Set the title at the top of the card
   if (deviceType == 'computer'){
     $("#report-name-field").html('New Computer Report');
@@ -1537,16 +1522,10 @@ function changeReportView(deviceType, operation){
   updateQueryStringParam('reportType', deviceType);
   updateQueryStringParam('type', operation);
   //if it's view, then remove the add criteria buttons and save
-  if (operation == 'view'){
-    $(".report-view-button").show();
-    $(".report-create-button").hide();
-    $(".report-edit-button").hide();
-  } else if (operation == 'edit') {
+if (operation == 'edit') {
     $(".report-edit-button").show();
-    $(".report-view-button").hide();
     $(".report-create-button").hide();
   } else {
-    $(".report-view-button").hide();
     $(".report-create-button").show();
     $(".report-edit-button").hide();
   }

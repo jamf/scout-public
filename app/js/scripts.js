@@ -358,9 +358,11 @@ function viewReportResults(reportId){
         var parentCategory = c.split(".")[0];
         var dataCategory = c.split(".")[1];
         if (parentCategory === 'extension_attributes') {
+          var val = ""
           res.results[i][deviceType][parentCategory].forEach(item => {
-            row.push(item[dataCategory])
+            val = val + item[dataCategory]
           })
+          row.push(val)
         } else {
           row.push(res.results[i][deviceType][parentCategory][dataCategory]);
         }

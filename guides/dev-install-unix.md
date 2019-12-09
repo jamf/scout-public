@@ -2,13 +2,6 @@
 
 The following guide will help you setup a instance of scout running on your local machine. Scout is developed mostly on a mac, but this guide should work just as well for any unix based desktop including Ubuntu.
 
----
-
-### Contribute to Scout Development Goals Here:
-
-Bounty Tracker: https://www.bountysource.com/trackers/91218894-jacobschultz-scout-public
-
----
 
 ### Development Installation Steps: Getting the required software (without Docker)
 

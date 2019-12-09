@@ -357,7 +357,13 @@ function viewReportResults(reportId){
         c = c.replace(/\s/g,'');
         var parentCategory = c.split(".")[0];
         var dataCategory = c.split(".")[1];
-        row.push(res.results[i][deviceType][parentCategory][dataCategory]);
+        if (parentCategory === 'extension_attributes') {
+          res.results[i][deviceType][parentCategory].forEach(item => {
+            row.push(item[dataCategory])
+          })
+        } else {
+          row.push(res.results[i][deviceType][parentCategory][dataCategory]);
+        }
       });
       //Add a row for the device to the table
       resultTable.row.add(row);

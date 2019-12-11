@@ -112,7 +112,6 @@ exports.deleteScoutAdminUser = function(url, username, password){
   if (!process.env.SCOUT_ADMIN_USER_NAME) {
     scoutAdminUserName = 'ScoutAdmin';
   }
-  console.og
   return new Promise(function(resolve,reject) {
     try {
       axiosInstance.delete(url + '/JSSResource/accounts/username/'+scoutAdminUserName, {

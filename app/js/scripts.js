@@ -106,7 +106,7 @@ function getAllSavedReports(){
     computerReports.clear();
     mobileReports.clear();
     for (var i = 0; i < reportsList.length; i++){
-      var actionButtons = '<button type="button" class="btn btn-success btn-circle" onclick="viewReportResults(\''+reportsList[i].id+'\');"><i class="fa fa-play-circle"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-info btn-circle" onclick="loadReportById(\''+reportsList[i].id+'\');"><i class="fa fa-eye"></i></button>&nbsp;&nbsp;<button type="button" onclick="editReportById(\''+reportsList[i].id+'\');" class="btn btn-warning btn-circle"><i class="fa fa-pencil"></i></button>&nbsp;&nbsp;<button onclick="deleteReport(\''+reportsList[i].id+'\');" type="button" class="btn btn-danger btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;';
+      var actionButtons = '<button type="button" class="btn btn-success btn-circle" onclick="viewReportResults(\''+reportsList[i].id+'\');"><i class="fa fa-play-circle"></i></button>&nbsp;&nbsp;<button type="button" onclick="editReportById(\''+reportsList[i].id+'\');" class="btn btn-warning btn-circle"><i class="fa fa-pencil-alt"></i></button>&nbsp;&nbsp;<button onclick="deleteReport(\''+reportsList[i].id+'\');" type="button" class="btn btn-danger btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;';
       if (reportsList[i].type == 'computer'){
         computerReports.row.add([reportsList[i].name, formatDate(new Date(reportsList[i].created)), reportsList[i].email, reportsList[i].conditions_count, actionButtons]).draw(false);
       } else {
@@ -125,12 +125,13 @@ function editReportById(reportId){
   //Make the request to the server to get a saved report
   var report = getRequestObject('/reports/id/' + reportId, null, 'GET');
   report.done(function(reportObject){
-    console.log("report object " + JSON.stringify(reportObject));
     //Load the existing report view
     $("#new-report-parent").show();
     addMultipleReportLineItems(reportObject.line_items);
     //Fill in and show the fields to select
-    var fieldsToSelectArr = reportObject.fields_to_select.split(',');
+    var fieldsToSelectArr = reportObject.fields_to_select.split(',').map(item => {
+      return item.trim()
+    })
     $('#fields-to-select').selectpicker('val', fieldsToSelectArr);
     $("#fields-to-select").selectpicker("refresh");
     console.log(reportObject.show_in_dashboard);
@@ -139,6 +140,7 @@ function editReportById(reportId){
     $("#show-in-dashboard").prop('checked', reportObject.show_in_dashboard);
     $("#report-name-field").html(reportObject.name);
     $("#new-report-name").val(reportObject.name);
+    $("#existing-report-id").val(reportId)
     updateQueryStringParam('reportId',reportId);
   })
   .fail(function(xhr){
@@ -167,35 +169,48 @@ function loadReportById(reportId){
 }
 
 function calculateReportResultCount(){
-  var report = getRequestObject('/reports/dashboard/', null, 'GET');
-  report.done(function(reportObject){
-    console.log(reportObject);
-    var nDevices = [];
-    var reportCalls = [];
-    for(var i = 0; i < reportObject.length; i++){
-      console.log("single Report id: " + reportObject[i].id)
-      reportCalls.push(getRequestObject('/reports/search/' + reportObject[i].id, null, 'GET'));
-      $.when(...reportCalls).done(function(res){ 
-        console.log("length1: " + res.results.length);
-        nDevices[i] = res.results.length;
-      })
-      .fail(function(xhr){
-        console.log(xhr);
-      })
-    }
-    for(var i = 0; i < reportObject.length; i++){
-      console.log("nDevices for reportID " + reportObject[i].id + ": " + nDevices[i]);
-    }
+  return new Promise((done, reject)=> {
+    var report = getRequestObject('/reports/dashboard/', null, 'GET'); //gets all reports in mySQL
+    report.done(function(reportObject){
+      console.log(reportObject);
+      var nDevices = [];
+      var reportCalls = [];
+      for(var i = 0; i < reportObject.length; i++){ //for each report
+        console.log("single Report id: " + reportObject[i].id)
+        reportCalls.push(getRequestObject('/reports/search/' + reportObject[i].id, null, 'GET')); //do a search for each report with id i
+        //works but not in order
+        // reportCalls = getRequestObject('/reports/search/' + reportObject[i].id, null, 'GET');
+
+        console.log("reportCalls: " + JSON.stringify(res.results.length));
+        $.when(...reportCalls).then(function(res){ //once the search query is done
+          // console.log("res: " + JSON.stringify(res.results));
+          console.log("length for " + i + ": " + res.results.length);
+          nDevices[i] = res.results.length;
+        })
+        .fail(function(xhr){
+          console.log(xhr);
+        })       
+
+      }
+      // done(nDevices)
+
+      for(var i = 0; i < reportObject.length; i++){
+        console.log("nDevices for reportID " + reportObject[i].id + ": " + nDevices[i]);
+      }
+    })
+    .fail(function(xhr){
+      console.log(xhr);
+    })
   })
-  .fail(function(xhr){
-    console.log(xhr);
-  })
+  
 }
 
 function loadReportsWithDashboard(){ // TODO: FOSTER FIX, getDeviceLive function on line 595 is a good example 
   //also note how viewReportResults calls the endpoint /reports/search/ to get all info on that report 
   reloadReportPane(false);
-  calculateReportResultCount();
+  calculateReportResultCount().then(calls  => {
+    console.log("calls; " + JSON.stringify(calls));
+  });
   //Make the request to the server to get a saved report
     
     //gets the report from mongoDB, not sure what it returns
@@ -392,7 +407,6 @@ function reloadReportPane(loadFirstItem){
   //Clear out the existing report id in case one was added
   $("#existing-report-id").val('');
   //reset selected fields
-  $('#fields-to-select').selectpicker('destroy');
   $("#new-report-name").val('New Report Name');
   $("#new-report-parent").show();
   //reload the saved reports from the server
@@ -770,6 +784,7 @@ function getTvCount() {
 }
 
 function updateMobileDevices(){
+  attemptDestroyTable("mobiledevices-table");
   var mobileTable = $("#mobiledevices-table").DataTable(getDataTablesRequest('mobile'));
   //check if we should show the mdm command buttons
   mobileTable.on( 'select', function ( e, dt, type, indexes ) {
@@ -876,8 +891,42 @@ function getServerAccess(id,url){
   $("#backup_password_url").val(url);
 }
 
+function deleteDevicesByScoutId(serverId) {
+  swal({
+    title: "Confirm Delete Devices",
+    text: "Deleting these devices will only remove it from the Scout database, not from the the Jamf Pro Server. It may repopulate following the next inventory update if it's still in the Jamf Pro Server. This can NOT be undone.",
+    icon: "warning",
+    buttons: true,
+    dangerMode: true
+  })
+  .then((willDelete) => {
+    if (willDelete){
+      var deleteRequest = getRequestObject('/servers/delete/devices/'+serverId, null, 'DELETE');
+      //render the table after the servers are loaded from the DB
+      deleteRequest.done(function(response){
+        swal('Server devices deleted', 'The devices have been removed from scout. You may need to refresh the page for the scout counts to update properly.', 'success');
+        updateMobileDevices();
+        updateComputers();
+        updateTvs();
+      })
+      .fail(function(xhr) {
+        if (xhr.status == 403){
+          swal('No Permissions', 'Your user does not have permission to delete devices from scout.', 'error');
+        } else {
+          console.log(xhr);
+          swal('Delete Failed', 'Unable to delete devices from scout. Check the console for more details.', 'error');
+        }
+      });
+    }
+  });
+}
+
 function getServerButtons(id,url){
-  return '<button onclick="updateServer(\''+id+'\',\''+url+'\');" type="button" id="edit_'+id+'" class="edit_server btn btn-info btn-circle"><i class="fa fa-pencil"></i></button>&nbsp;&nbsp;<button type="button" id="delete_'+id+'" onclick="$(\'#remove-server-modal\').modal(\'show\');$(\'#delete-server-id\').val('+id+');" class="btn btn-danger delete_server btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;<button type="button" id="access'+id+'" onclick="getServerAccess(\''+id+'\',\''+url+'\')" class="btn btn-success delete_server btn-circle"><i class="fa fa-key"></i></button>';
+  // Only show server accesss buttons for admins
+  if (sessionStorage.getItem("is_admin") == 'true') {
+      return '<button onclick="updateServer(\''+id+'\',\''+url+'\');" type="button" id="edit_'+id+'" class="edit_server btn btn-info btn-circle"><i class="fa fa-pencil-alt"></i></button>&nbsp;&nbsp;<button type="button" id="delete_'+id+'" onclick="$(\'#remove-server-modal\').modal(\'show\');$(\'#delete-server-id\').val('+id+');" class="btn btn-danger delete_server btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;<button type="button" id="access'+id+'" onclick="getServerAccess(\''+id+'\',\''+url+'\')" class="btn btn-success delete_server btn-circle"><i class="fa fa-key"></i></button>&nbsp;&nbsp;<button onclick="deleteDevicesByScoutId(\''+id+'\');" type="button" class="btn btn-danger btn-circle"><i class="fa fa-broom"></i></button>';
+  }
+  return '<button onclick="updateServer(\''+id+'\',\''+url+'\');" type="button" id="edit_'+id+'" class="edit_server btn btn-info btn-circle"><i class="fa fa-pencil-alt"></i></button>&nbsp;&nbsp;<button type="button" id="delete_'+id+'" onclick="$(\'#remove-server-modal\').modal(\'show\');$(\'#delete-server-id\').val('+id+');" class="btn btn-danger delete_server btn-circle"><i class="fa fa-times"></i></button>&nbsp;&nbsp;<button onclick="deleteDevicesByScoutId(\''+id+'\');" type="button" class="btn btn-danger btn-circle"><i class="fa fa-broom"></i></button>';
 }
 
 function loadServerTable(){
@@ -1007,6 +1056,8 @@ function deleteDeviceByScoutId(deviceId) {
       //render the table after the servers are loaded from the DB
       deleteRequest.done(function(response){
         swal('Device Removed', 'The device has been removed from scout.', 'success');
+        updateMobileDevices();
+        updateTvs();
       })
       .fail(function(xhr) {
         if (xhr.status == 401){
@@ -1141,6 +1192,8 @@ function doLoginUserPass(){
     $('#login-user-modal').modal('hide');
     if (data.is_admin == 1){
       sessionStorage.setItem("is_admin", true);
+    } else {
+      sessionStorage.setItem("is_admin", false);
     }
     renderPage();
     changeView('dashboard-view');
@@ -1580,7 +1633,11 @@ function changeView(newView){
 }
 
 function changeReportView(deviceType, operation){
-  reloadReportPane(true);
+  if (operation == 'edit') {
+    reloadReportPane(false);
+  } else {
+    reloadReportPane(true);
+  }
   //Set the title at the top of the card
   if (deviceType == 'computer'){
     $("#report-name-field").html('New Computer Report');
@@ -1592,17 +1649,11 @@ function changeReportView(deviceType, operation){
   updateQueryStringParam('reportType', deviceType);
   updateQueryStringParam('type', operation);
   //if it's view, then remove the add criteria buttons and save
-  if (operation == 'view'){ 
-    $(".report-view-button").show();
-    $(".report-create-button").hide();
-    $(".report-edit-button").hide();
-  } else if (operation == 'edit') {
+if (operation == 'edit') {
     $(".report-edit-button").show();
-    $(".report-view-button").hide();
     $(".report-create-button").hide();
   } else {
     $("#show-in-dashboard").prop('checked', false);
-    $(".report-view-button").hide();
     $(".report-create-button").show();
     $(".report-edit-button").hide();
   }
@@ -1640,5 +1691,6 @@ $(document).ready(function(){
   } else {
     renderPage();
   }
+
 
 });

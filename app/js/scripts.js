@@ -168,49 +168,90 @@ function loadReportById(reportId){
   })
 }
 
-function calculateReportResultCount(){
-  return new Promise((done, reject)=> {
-    var report = getRequestObject('/reports/dashboard/', null, 'GET'); //gets all reports in mySQL
-    report.done(function(reportObject){
-      console.log(reportObject);
-      var nDevices = [];
-      var reportCalls = [];
-      for(var i = 0; i < reportObject.length; i++){ //for each report
-        console.log("single Report id: " + reportObject[i].id)
-        reportCalls.push(getRequestObject('/reports/search/' + reportObject[i].id, null, 'GET')); //do a search for each report with id i
-        //works but not in order
-        // reportCalls = getRequestObject('/reports/search/' + reportObject[i].id, null, 'GET');
+// function calculateReportResultCount(){
+//   return new Promise((done, reject)=> {
+//     var report = getRequestObject('/reports/dashboard/', null, 'GET'); //gets all reports in mySQL
+//     report.done(function(reportObject){
+//       console.log(reportObject);
+//       var nDevices = [];
+//       var reportCalls = [];
+//       for(var i = 0; i < reportObject.length; i++){ //for each report
 
-        console.log("reportCalls: " + JSON.stringify(res.results.length));
-        $.when(...reportCalls).then(function(res){ //once the search query is done
-          // console.log("res: " + JSON.stringify(res.results));
-          console.log("length for " + i + ": " + res.results.length);
-          nDevices[i] = res.results.length;
-        })
-        .fail(function(xhr){
-          console.log(xhr);
-        })       
+//         console.log("single Report id: " + reportObject[i].id)
+//         // reportCalls.push(getRequestObject('/reports/search/' + reportObject[i].id, null, 'GET')); //do a search for each report with id i
+//         //works but not in order
+//         reportCalls = getRequestObject('/reports/search/' + reportObject[i].id, null, 'GET');
 
-      }
-      // done(nDevices)
+//         // console.log("reportCalls: " + JSON.stringify(reportCalls));
+//         $.when(reportCalls).then(function(res){ //once the search query is done
+//           // console.log("res: " + JSON.stringify(res));
+//           console.log("length for " + i + ": " + res.results.length);
+//           nDevices[i] = res.results.length;
+//         })
+//         .fail(function(xhr){
+//           console.log(xhr);
+//         })       
 
-      for(var i = 0; i < reportObject.length; i++){
-        console.log("nDevices for reportID " + reportObject[i].id + ": " + nDevices[i]);
-      }
-    })
-    .fail(function(xhr){
-      console.log(xhr);
-    })
-  })
+//       }
+//       console.log("here");
+//       done(nDevices)
+
+//       for(var i = 0; i < reportObject.length; i++){
+//         console.log("nDevices for reportID " + reportObject[i].id + ": " + nDevices[i]);
+//       }
+//     })
+//     .fail(function(xhr){
+//       console.log(xhr);
+//     })
+//   })
+//   // .then(nDevices => {
+//   //   for(var i = 0; i < nDevices.length; i++){
+//   //     console.log("nDevices at " + i + ": " + nDevices[i]);
+//   //   }
+//   // })
+//   // .catch(err =>{
+//   //   console.log(err);
+//   // })
   
+// }
+
+async function calculateReportResultCount(){
+  var report = getRequestObject('/reports/dashboard/', null, 'GET'); //gets all reports in mySQL
+  report.done(function(reportObject){
+    console.log(reportObject);
+    var nDevices = [];
+    var reportCalls = [];
+    for(var i = 0; i < reportObject.length; i++){ //for each report
+
+      console.log("single Report id: " + reportObject[i].id)
+      // reportCalls.push(getRequestObject('/reports/search/' + reportObject[i].id, null, 'GET')); //do a search for each report with id i
+      //works but not in order
+      reportCalls = await getRequestObject('/reports/search/' + reportObject[i].id, null, 'GET');
+
+      // console.log("reportCalls: " + JSON.stringify(reportCalls));
+      reportCalls.done((function(res){ //once the search query is done
+        // console.log("res: " + JSON.stringify(res));
+        console.log("length for " + i + ": " + res.results.length);
+        nDevices[i] = res.results.length;
+      }))  
+    }
+    for(var i = 0; i < reportObject.length; i++){
+      console.log("nDevices for reportID " + reportObject[i].id + ": " + nDevices[i]);
+    }
+  })
+  return nDevices;
 }
 
 function loadReportsWithDashboard(){ // TODO: FOSTER FIX, getDeviceLive function on line 595 is a good example 
   //also note how viewReportResults calls the endpoint /reports/search/ to get all info on that report 
   reloadReportPane(false);
-  calculateReportResultCount().then(calls  => {
-    console.log("calls; " + JSON.stringify(calls));
-  });
+  calculateReportResultCount().then((data) =>{
+    console.log("data 1: " + data);
+  })
+  // calculateReportResultCount().then(calls  => {
+  //   console.log("calls; " + JSON.stringify(calls));
+  //   return calls;
+  // });
   //Make the request to the server to get a saved report
     
     //gets the report from mongoDB, not sure what it returns
@@ -235,40 +276,42 @@ function loadReportsWithDashboard(){ // TODO: FOSTER FIX, getDeviceLive function
 
     // EXTRACT VALUE FOR HTML HEADER. following is copy pasted from a stack overflow page, 
     // ('Book ID', 'Book Name', 'Category' and 'Price')
-    var col = [];
-    for (var i = 0; i < reportObject.length; i++) {
-        for (var key in reportObject[i]) {
-            if (col.indexOf(key) === -1) {
-                col.push(key);
-            }
-        }
-    }
+    /* start */
+    // var col = [];
+    // for (var i = 0; i < reportObject.length; i++) {
+    //     for (var key in reportObject[i]) {
+    //         if (col.indexOf(key) === -1) {
+    //             col.push(key);
+    //         }
+    //     }
+    // }
 
-    // CREATE DYNAMIC TABLE.
-    var table = document.createElement("table");
+    // // CREATE DYNAMIC TABLE.
+    // var table = document.createElement("table");
 
-    // CREATE HTML TABLE HEADER ROW USING THE EXTRACTED HEADERS ABOVE.
-    var tr = table.insertRow(-1);                   // TABLE ROW.
+    // // CREATE HTML TABLE HEADER ROW USING THE EXTRACTED HEADERS ABOVE.
+    // var tr = table.insertRow(-1);                   // TABLE ROW.
 
-    for (var i = 0; i < col.length; i++) {
-        var th = document.createElement("th");      // TABLE HEADER.
-        th.innerHTML = col[i];
-        tr.appendChild(th);
-    }
+    // for (var i = 0; i < col.length; i++) {
+    //     var th = document.createElement("th");      // TABLE HEADER.
+    //     th.innerHTML = col[i];
+    //     tr.appendChild(th);
+    // }
 
-    // ADD JSON DATA TO THE TABLE AS ROWS.
-    for (var i = 0; i < reportObject.length; i++) {
-        tr = table.insertRow(-1);
-        for (var j = 0; j < col.length; j++) {
-            var tabCell = tr.insertCell(-1);
-            tabCell.innerHTML = reportObject[i][col[j]];
-        }
-    }
+    // // ADD JSON DATA TO THE TABLE AS ROWS.
+    // for (var i = 0; i < reportObject.length; i++) {
+    //     tr = table.insertRow(-1);
+    //     for (var j = 0; j < col.length; j++) {
+    //         var tabCell = tr.insertCell(-1);
+    //         tabCell.innerHTML = reportObject[i][col[j]];
+    //     }
+    // }
 
-    // FINALLY ADD THE NEWLY CREATED TABLE WITH JSON DATA TO A CONTAINER.
-    var divContainer = document.getElementById("reports-dashboard-table");
-    divContainer.innerHTML = "";
-    divContainer.appendChild(table);
+    // // FINALLY ADD THE NEWLY CREATED TABLE WITH JSON DATA TO A CONTAINER.
+    // var divContainer = document.getElementById("reports-dashboard-table");
+    // divContainer.innerHTML = "";
+    // divContainer.appendChild(table);
+    /*end*/
   
 }
 

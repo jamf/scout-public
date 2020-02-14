@@ -168,70 +168,68 @@ function loadReportById(reportId) {
     })
 }
 
-// function calculateReportResultCount(){
-//   return new Promise((done, reject)=> {
-//     var report = getRequestObject('/reports/dashboard/', null, 'GET'); //gets all reports in mySQL
-//     report.done(function(reportObject){
-//       console.log(reportObject);
-//       var nDevices = [];
-//       var reportCalls = [];
-//       for(var i = 0; i < reportObject.length; i++){ //for each report
-
-//         console.log("single Report id: " + reportObject[i].id)
-//         // reportCalls.push(getRequestObject('/reports/search/' + reportObject[i].id, null, 'GET')); //do a search for each report with id i
-//         //works but not in order
-//         reportCalls = getRequestObject('/reports/search/' + reportObject[i].id, null, 'GET');
-
-//         // console.log("reportCalls: " + JSON.stringify(reportCalls));
-//         $.when(reportCalls).then(function(res){ //once the search query is done
-//           // console.log("res: " + JSON.stringify(res));
-//           console.log("length for " + i + ": " + res.results.length);
-//           nDevices[i] = res.results.length;
-//         })
-//         .fail(function(xhr){
-//           console.log(xhr);
-//         })       
-
-//       }
-//       console.log("here");
-//       done(nDevices)
-
-//       for(var i = 0; i < reportObject.length; i++){
-//         console.log("nDevices for reportID " + reportObject[i].id + ": " + nDevices[i]);
-//       }
-//     })
-//     .fail(function(xhr){
-//       console.log(xhr);
-//     })
-//   })
-//   // .then(nDevices => {
-//   //   for(var i = 0; i < nDevices.length; i++){
-//   //     console.log("nDevices at " + i + ": " + nDevices[i]);
-//   //   }
-//   // })
-//   // .catch(err =>{
-//   //   console.log(err);
-//   // })
-
-// }
-
 async function calculateReportResultCount() {
   var reportObject = await asyncGetRequestObject('/reports/dashboard/', null, 'GET'); //gets all reports in mySQL
   var outputObj = reportObject;
   var reportCalls = [];
   for (var i = 0; i < reportObject.length; i++) { //for each report
-    // reportCalls.push(getRequestObject('/reports/search/' + reportObject[i].id, null, 'GET')); //do a search for each report with id i
-    //works but not in order
-    reportCalls = await asyncGetRequestObject('/reports/search/' + reportObject[i].id, null, 'GET');
-    outputObj[i].size = reportCalls.results.length;
+    reportCalls = await asyncGetRequestObject('/reports/' + reportObject[i].id + '/count', null, 'GET');
+    outputObj[i].size = reportCalls.count;
   }
   return outputObj;
 }
 
-async function loadReportsWithDashboard() { // TODO: FOSTER FIX, getDeviceLive function on line 595 is a good example 
-  //also note how viewReportResults calls the endpoint /reports/search/ to get all info on that report 
+async function loadReportsWithDashboard() { 
   data = await calculateReportResultCount()
   return data;
+}
+
+function createChart(){
+  var ctx = document.getElementById('deviceCountChart').getContext('2d');
+    loadReportsWithDashboard().then(data => {
+        var chartData = []
+        var chartLabels = []
+        var chartColors = []
+        for (var i = 0; i < data.length; i++) {
+          chartData.push(data[i].size)
+          chartLabels.push(data[i].name)
+          chartColors.push(randomColor())
+        }
+        var deviceCountChart = new Chart(ctx, {
+          type: 'horizontalBar',
+          data: {
+              labels: chartLabels,
+              datasets: [{
+                label: 'Device Count',
+                data: chartData,
+                backgroundColor: chartColors,
+              }]
+          },
+          options: {
+              scales: {
+                xAxes: [{
+                    ticks: {
+                      beginAtZero: true
+                    }
+                }],
+              },
+              legend: {
+                display: false
+              },
+              animation: {
+                duration: 500,
+                easing: 'easeInQuad'
+              }
+          }
+        });
+    });
+
+    loadAllUsers().then(data => {
+      $('#userCountCard').show();
+      $('#userCard').text(data.length)
+    }).catch(() => {
+      $('#userCountCard').hide();
+    })
 }
 
 async function loadAllUsers() {
@@ -1481,7 +1479,6 @@ function renderPage() {
   loadPatchesTable();
   loadPatchServersTable();
   getAllSavedReports();
-  loadReportsWithDashboard();
   //Setup button listeners
   $("#add-server-button").click(function () {
     addServerToDatabase($("#add-server-url").val(), $("#add-server-username").val(), $("#add-server-password").val(), $("#add-server-limited-cron").val(), $("#add-server-expanded-cron").val());
@@ -1591,6 +1588,9 @@ function changeView(newView) {
   if (newView == 'mobile-commands-view' && window.platform_to_send_commands_to != 'mobiledevices-table') {
     swal('Error', 'Incorrect device type selected for command types, please select some new devices.', 'error');
     changeView('ios-view');
+  }
+  if(newView == 'dashboard-view'){
+    createChart();
   }
   $("#" + newView).show();
   //Add the active class

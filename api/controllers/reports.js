@@ -380,4 +380,43 @@ reports.post('/search', function(req,res) {
   });
 });
 
+/**
+ * This endpoint gets the aggregate count of devices in the given reportId
+ * @route GET /reports/{reportId}/count/
+ */
+reports.get('/:reportId/count', function(req,res){
+  //Make sure a report Id was provided
+  if (!req.params.reportId){
+    return res.status(400).send({
+      error: "Missing required fields"
+    });
+  }
+  //Get the report and it's line items by id
+  report.getReportById(req.params.reportId)
+  .then(function(reportObj){
+    //Convert it's line items to a query string
+    var lineItemsConverted = [];
+    reportObj.line_items.forEach(function(l){
+      lineItemsConverted.push(report.convertDbLineItem(l));
+    });
+    var searchObject = report.parseIntoQuery(lineItemsConverted,reportObj.type);
+    var respObj = { fields_to_select : reportObj.fields_to_select};
+    //Now perform the query
+    report.getRecordsForSearchObject(reportObj.type, searchObject)
+    .then(function(results){
+      respObj.results = results;
+      respObj.mongo_query = searchObject;
+      audit({user: req.user, user_agent: req.headers['user-agent'], ip: req.connection.remoteAddress, details: {mongo_query: searchObject, results: respObj.results}, message: `Report ${req.params.reportId} counted for dashboard`});
+      return res.status(200).json({count: respObj.results.length});
+    })
+    .catch(error => {
+      console.log(error);
+      logError({message: "Unable to perform search.", user: req.user, error});
+      return res.status(500).send({
+        error: "Unable to perform search"
+      });
+    });
+  })
+
+})
 module.exports = reports;

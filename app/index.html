@@ -1023,70 +1023,14 @@
          </div>
       </div>
       <div class="row">
-         <div class="card col-lg-6">
+         <div class="card col-lg-6 userCard">
+            <h4 id="cardTitle">Saved Reports</h4>
             <canvas id="deviceCountChart"></canvas>
          </div>
-         <div class="card col-lg-2 userCard">
+         <div id="userCountCard" class="card col-lg-2 userCard">
             <h4 id="cardTitle">User Count</h4>
             <p id="userCard"></p>
          </div>
-         <script>
-            var ctx = document.getElementById('deviceCountChart').getContext('2d');
-            loadReportsWithDashboard().then(data => {
-               console.log("html: ");
-               console.log(JSON.stringify(data, null, 2))
-               console.log("Size 0: " + data[0].size)
-
-               var chartData = []
-               var chartLabels = []
-               var chartColors = []
-               for (var i = 0; i < data.length; i++) {
-                  chartData.push(data[i].size)
-                  chartLabels.push(data[i].name)
-
-                  chartColors.push(randomColor())
-               }
-               var deviceCountChart = new Chart(ctx, {
-                  type: 'horizontalBar',
-                  data: {
-                     labels: chartLabels,
-                     datasets: [{
-                        label: 'Device Count',
-                        data: chartData,
-                        backgroundColor: chartColors,
-                     }]
-                  },
-                  options: {
-                     scales: {
-                        xAxes: [{
-                           ticks: {
-                              beginAtZero: true
-                           }
-                        }],
-                        yAxes: [{
-                           ticks: {
-
-                           }
-                        }]
-                     },
-                     legend: {
-                        display: false
-                     },
-                     animation: {
-                        duration: 500,
-                        easing: 'easeInQuad'
-                     }
-                  }
-               });
-            });
-
-            loadAllUsers().then(data => {
-               console.log(data)
-               $('#userCard').text(data.length)
-            })
-
-
-         </script>
       </div>
       <!-- /.row -->
    </div>

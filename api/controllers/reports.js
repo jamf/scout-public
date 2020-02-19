@@ -19,7 +19,6 @@ reports.get('/builder/fields', function(req,res) {
     return res.status(200).send(fieldList);
   })
   .catch(error => {
-    console.log(error);
     return res.status(500).send({
       error: "Unable to get supported fields"
     });
@@ -41,7 +40,6 @@ reports.get('/', function(req,res){
     return res.status(200).send(reports);
   })
   .catch(error => {
-    console.log(error);
     logError({message: "Unable to get reports.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to get reports"
@@ -62,7 +60,6 @@ reports.get('/dashboard', function(req,res){
     return res.status(200).send(reports);
   })
   .catch(error => {
-    console.log(error);
     logError({message: "Unable to get reports.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to get reports"
@@ -93,7 +90,6 @@ reports.get('/id/:reportId', function(req,res){
     return res.status(200).send(report);
   })
   .catch(error => {
-    console.log(error);
     logError({message: "Unable to get report.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to get report"
@@ -171,7 +167,6 @@ reports.put('/update/:reportId', function(req,res){
   if (req.body.fields_to_select){
     reportObj.fields_to_select = req.body.fields_to_select;
   }
-  console.log(reportObj);
   //Copy these out so we can update the parent report object first
   var lineItems = req.body.line_items;
   delete reportObj.line_items;
@@ -183,7 +178,6 @@ reports.put('/update/:reportId', function(req,res){
       return res.status(200).send({ "status" : "success", "id" : req.params.reportId});
     })
     .catch(error => {
-      console.log(error);
       logError({message: "Unable to update report line items.", user: req.user, error});
       return res.status(500).send({
         error: "Unable to update report line items"
@@ -191,7 +185,6 @@ reports.put('/update/:reportId', function(req,res){
     });
   })
   .catch(error => {
-    console.log(error);
     logError({message: "Unable to update report.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to update report"
@@ -249,7 +242,6 @@ reports.post('/save', function(req,res){
       return res.status(200).send({ "status" : "success", "id" : newReportId});
     })
     .catch(error => {
-      console.log(error);
       logError({message: "Unable to insert report line items.", user: req.user, error});
       return res.status(500).send({
         error: "Unable to insert report line items"
@@ -257,7 +249,6 @@ reports.post('/save', function(req,res){
     });
   })
   .catch(error => {
-    console.log(error);
     logError({message: "Unable to insert new report.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to insert new report"
@@ -331,7 +322,6 @@ reports.get('/search/:reportId', function(req,res){
       return res.status(200).send(respObj);
     })
     .catch(error => {
-      console.log(error);
       logError({message: "Unable to perform search.", user: req.user, error});
       return res.status(500).send({
         error: "Unable to perform search"
@@ -339,7 +329,6 @@ reports.get('/search/:reportId', function(req,res){
     });
   })
   .catch(error => {
-    console.log(error);
     logError({message: "Unable to get report.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to get report"
@@ -365,14 +354,13 @@ reports.post('/search', function(req,res) {
   }
   //Parse the search items into a NoSQL query
   var searchObject = report.parseIntoQuery(req.body.search_line_items);
-  console.log(searchObject);
+
   //Now perform the query
   report.getRecordsForSearchObject("computer", searchObject)
   .then(function(results){
     return res.status(200).send(results);
   })
   .catch(error => {
-    console.log(error);
     logError({message: "Unable to perform search.", user: req.user, error});
     return res.status(500).send({
       error: "Unable to perform search"
@@ -410,7 +398,6 @@ reports.get('/:reportId/count', function(req,res){
       return res.status(200).json({count: respObj.results.length});
     })
     .catch(error => {
-      console.log(error);
       logError({message: "Unable to perform search.", user: req.user, error});
       return res.status(500).send({
         error: "Unable to perform search"

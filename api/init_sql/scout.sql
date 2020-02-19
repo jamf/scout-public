@@ -72,7 +72,7 @@ CREATE TABLE `reports` (
   `conditions_count` int(11) DEFAULT NULL,
   `type` varchar(128) NOT NULL DEFAULT '',
   `fields_to_select` longtext,
-  `show_in_dashboard` boolean NOT NULL DEFAULT 0,
+  `show_in_dashboard` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

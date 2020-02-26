@@ -1,161 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="utf-8">
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <meta name="description" content="">
-      <meta name="author" content="">
-      <title>Scout</title>
-      <!-- Bootstrap Core CSS -->
-      <link href="sbadmin/bootstrap.min.css" rel="stylesheet">
-      <link href="sbadmin/dataTables.responsive.css" rel="stylesheet">
-      <link href="sbadmin/dataTables.bootstrap.css" rel="stylesheet">
-      <link href="sbadmin/metismenu.css" rel="stylesheet">
-      <!-- Custom CSS -->
-      <link href="sbadmin/sb-admin-2.min.css" rel="stylesheet">
-      <link href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css" rel="stylesheet">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.8.1/css/bootstrap-select.css">
 
-      <!-- Custom Fonts -->
-      <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous">
-      <link type="text/css" href="css/jquery-cron.css" rel="stylesheet" />
-      <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-      <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-      <!--[if lt IE 9]>
+<head>
+   <meta charset="utf-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="description" content="">
+   <meta name="author" content="">
+   <title>Scout</title>
+   <!-- Bootstrap Core CSS -->
+   <link href="sbadmin/bootstrap.min.css" rel="stylesheet">
+   <link href="sbadmin/dataTables.responsive.css" rel="stylesheet">
+   <link href="sbadmin/dataTables.bootstrap.css" rel="stylesheet">
+   <link href="sbadmin/metismenu.css" rel="stylesheet">
+   <!-- Custom CSS -->
+   <link href="sbadmin/sb-admin-2.min.css" rel="stylesheet">
+   <link href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css" rel="stylesheet">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.8.1/css/bootstrap-select.css">
+   <link rel="stylesheet" href="css/dashboard.css">
+
+
+   <!-- Custom Fonts -->
+   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css"
+      integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous">
+   <link type="text/css" href="css/jquery-cron.css" rel="stylesheet" />
+   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+   <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
       <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
       <![endif]-->
-   </head>
-   <body>
-      <div id="wrapper">
-         <!-- Navigation -->
-         <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
-            <div class="navbar-header">
-               <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+   <!-- jQuery -->
+   <script src="sbadmin/jquery.min.js"></script>
+   <!-- Bootstrap Core JavaScript -->
+   <script src="sbadmin/bootstrap.min.js"></script>
+   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+   <!-- Custom Theme JavaScript -->
+   <script src="sbadmin/sb-admin-2.min.js"></script>
+   <script src="sbadmin/jquery.dataTables.js"></script>
+   <script src="sbadmin/dataTables.bootstrap.js"></script>
+   <script src="sbadmin/dataTables.responsive.js"></script>
+   <script src="https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
+   <script src="https://cdn.datatables.net/select/1.2.7/js/dataTables.select.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.8.1/js/bootstrap-select.js"></script>
+   <script src="sbadmin/metismenu.js"></script>
+   <script type="text/javascript" src="js/jquery-cron-min.js"></script>
+   <script src="js/server-url.js"></script>
+   <script src="js/common.js"></script>
+   <script src="js/scripts.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/randomcolor/0.5.4/randomColor.min.js"></script>
+
+   <!-- <script src="js/scripts.js"></script> -->
+   <script src="sbadmin/jquery.toast.js"></script>
+</head>
+
+<body>
+   <div id="wrapper">
+      <!-- Navigation -->
+      <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+         <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                <span class="sr-only">Toggle navigation</span>
                <span class="icon-bar"></span>
                <span class="icon-bar"></span>
                <span class="icon-bar"></span>
-               </button>
-               <a class="navbar-brand" href="index.html"><span id="header_display_name">Scout</span></a>
-            </div>
-            <!-- /.navbar-header -->
-            <ul class="nav navbar-top-links navbar-right">
-               <!-- /.dropdown -->
-               <li class="dropdown">
-                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            </button>
+            <a class="navbar-brand" href="index.html"><span id="header_display_name">Scout</span></a>
+         </div>
+         <!-- /.navbar-header -->
+         <ul class="nav navbar-top-links navbar-right">
+            <!-- /.dropdown -->
+            <li class="dropdown">
+               <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                   <i class="fa fa-gear fa-fw"></i> <i class="fa fa-caret-down"></i>
-                  </a>
-                  <ul class="dropdown-menu dropdown-gear">
-                     <li onclick="$('#add-server-modal').modal('show');"><a href="#"><i class="fa fa-plus fa-fw"></i> Add New Server</a>
-                          <li onclick="$('#add-patch-server-modal').modal('show');"><a href="#"><i class="fa fa-plus fa-fw"></i> Add Patch Server</a>
-                     <li class="divider"></li>
-                     <li><a onclick="doLogOut()"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
-                     </li>
-                  </ul>
-                  <!-- /.dropdown-user -->
-               </li>
-               <!-- /.dropdown -->
-            </ul>
-            <!-- /.navbar-top-links -->
-            <div class="navbar-default sidebar" role="navigation">
-                <div class="sidebar-nav navbar-collapse">
-                    <ul class="nav in" id="side-menu">
+               </a>
+               <ul class="dropdown-menu dropdown-gear">
+                  <li onclick="$('#add-server-modal').modal('show');"><a href="#"><i class="fa fa-plus fa-fw"></i> Add
+                        New Server</a>
+                  <li onclick="$('#add-patch-server-modal').modal('show');"><a href="#"><i class="fa fa-plus fa-fw"></i>
+                        Add Patch Server</a>
+                  <li class="divider"></li>
+                  <li><a onclick="doLogOut()"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                  </li>
+               </ul>
+               <!-- /.dropdown-user -->
+            </li>
+            <!-- /.dropdown -->
+         </ul>
+         <!-- /.navbar-top-links -->
+         <div class="navbar-default sidebar" role="navigation">
+            <div class="sidebar-nav navbar-collapse">
+               <ul class="nav in" id="side-menu">
 
+                  <li>
+                     <a onclick="changeView('dashboard-view');" class="sidebar-button active"><i
+                           class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+                  </li>
+                  <li>
+                     <a href="#" referrerpolicy="origin"><i class="fa fa-server fa-fw"></i> Servers<span
+                           class="fa arrow"></span></a>
+                     <ul class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
                         <li>
-                            <a onclick="changeView('dashboard-view');" class="sidebar-button active"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+                           <a class="sidebar-button" onclick="changeView('servers-view');"><i
+                                 class="fa fa-eye fa-fw"></i> View</a>
                         </li>
                         <li>
-                            <a href="#" referrerpolicy="origin"><i class="fa fa-server fa-fw"></i> Servers<span class="fa arrow"></span></a>
-                            <ul class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                <li>
-                                    <a class="sidebar-button" onclick="changeView('servers-view');"><i class="fa fa-eye fa-fw"></i> View</a>
-                                </li>
-                                <li>
-                                    <a class="sidebar-button" onclick="$('#add-server-modal').modal('show');"><i class="fa fa-plus fa-fw"></i> Add New</a>
-                                </li>
-                            </ul>
-                            <!-- /.nav-second-level -->
+                           <a class="sidebar-button" onclick="$('#add-server-modal').modal('show');"><i
+                                 class="fa fa-plus fa-fw"></i> Add New</a>
+                        </li>
+                     </ul>
+                     <!-- /.nav-second-level -->
+                  </li>
+                  <li>
+                     <a href="#" referrerpolicy="origin"><i class="fa fa-laptop fa-fw"></i> macOS Devices<span
+                           class="fa arrow"></span></a>
+                     <ul class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+                        <li>
+                           <a class="sidebar-button" onclick="changeView('macos-view');"><i class="fa fa-eye fa-fw"></i>
+                              View</a>
                         </li>
                         <li>
-                            <a href="#" referrerpolicy="origin"><i class="fa fa-laptop fa-fw"></i> macOS Devices<span class="fa arrow"></span></a>
-                            <ul class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                <li>
-                                    <a class="sidebar-button" onclick="changeView('macos-view');"><i class="fa fa-eye fa-fw"></i> View</a>
-                                </li>
-                                <li>
-                                    <a class="sidebar-button" onclick="changeView('computer-reports-view');"><i class="fa fa-edit fa-fw"></i> Reports</a>
-                                </li>
+                           <a class="sidebar-button" onclick="changeView('computer-reports-view');"><i
+                                 class="fa fa-edit fa-fw"></i> Reports</a>
+                        </li>
 
-                            </ul>
-                            <!-- /.nav-second-level -->
+                     </ul>
+                     <!-- /.nav-second-level -->
+                  </li>
+                  <li>
+                     <a href="#" referrerpolicy="origin"><i class="fa fa-mobile fa-fw"></i> iOS Devices<span
+                           class="fa arrow"></span></a>
+                     <ul class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+                        <li>
+                           <a class="sidebar-button" onclick="changeView('ios-view');"><i class="fa fa-eye fa-fw"></i>
+                              View</a>
                         </li>
                         <li>
-                            <a href="#" referrerpolicy="origin"><i class="fa fa-mobile fa-fw"></i> iOS Devices<span class="fa arrow"></span></a>
-                            <ul class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                <li>
-                                    <a class="sidebar-button" onclick="changeView('ios-view');"><i class="fa fa-eye fa-fw"></i> View</a>
-                                </li>
-                                <li>
-                                    <a class="sidebar-button" onclick="changeView('mobile-reports-view');"><i class="fa fa-edit fa-fw"></i> Reports</a>
-                                </li>
+                           <a class="sidebar-button" onclick="changeView('mobile-reports-view');"><i
+                                 class="fa fa-edit fa-fw"></i> Reports</a>
+                        </li>
 
-                            </ul>
-                            <!-- /.nav-second-level -->
-                        </li>
+                     </ul>
+                     <!-- /.nav-second-level -->
+                  </li>
+                  <li>
+                     <a href="#" referrerpolicy="origin"><i class="fa fa-tv fa-fw"></i> tvOS Devices<span
+                           class="fa arrow"></span></a>
+                     <ul class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
                         <li>
-                            <a href="#" referrerpolicy="origin"><i class="fa fa-tv fa-fw"></i> tvOS Devices<span class="fa arrow"></span></a>
-                            <ul class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                <li>
-                                    <a class="sidebar-button" onclick="changeView('tvos-view');"><i class="fa fa-eye fa-fw"></i> View</a>
-                                </li>
-                                <!-- <li>
+                           <a class="sidebar-button" onclick="changeView('tvos-view');"><i class="fa fa-eye fa-fw"></i>
+                              View</a>
+                        </li>
+                        <!-- <li>
                                     <a class="sidebar-button"><i class="fa fa-edit fa-fw"></i> Reports</a>
                                 </li> -->
 
-                            </ul>
-                            <!-- /.nav-second-level -->
+                     </ul>
+                     <!-- /.nav-second-level -->
+                  </li>
+                  <li>
+                     <a href="#" referrerpolicy="origin"><i class="fa fa-medkit fa-fw"></i> Patches<span
+                           class="fa arrow"></span></a>
+                     <ul class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+                        <li>
+                           <a class="sidebar-button" onclick="changeView('patches-view');"><i
+                                 class="fa fa-delicious fa-fw"></i> Patch Definitions</a>
                         </li>
                         <li>
-                            <a href="#" referrerpolicy="origin"><i class="fa fa-medkit fa-fw"></i> Patches<span class="fa arrow"></span></a>
-                            <ul class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
-                                <li>
-                                    <a class="sidebar-button" onclick="changeView('patches-view');"><i class="fa fa-delicious fa-fw"></i> Patch Definitions</a>
-                                </li>
-                                <li>
-                                    <a class="sidebar-button" onclick="changeView('patch-servers-view');"><i class="fa fa-server fa-fw"></i> Patch Servers</a>
-                                </li>
-                                <li>
-                                    <a class="sidebar-button" onclick="$('#add-patch-server-modal').modal('show');"><i class="fa fa-plus fa-fw"></i> Add New</a>
-                                </li>
-                            </ul>
-                            <!-- /.nav-second-level -->
+                           <a class="sidebar-button" onclick="changeView('patch-servers-view');"><i
+                                 class="fa fa-server fa-fw"></i> Patch Servers</a>
                         </li>
-                        <li class="settings-view">
-                            <a onclick="changeView('settings-view');"><i class="fa fa-gear fa-fw"></i> Settings</a>
+                        <li>
+                           <a class="sidebar-button" onclick="$('#add-patch-server-modal').modal('show');"><i
+                                 class="fa fa-plus fa-fw"></i> Add New</a>
                         </li>
+                     </ul>
+                     <!-- /.nav-second-level -->
+                  </li>
+                  <li class="settings-view">
+                     <a onclick="changeView('settings-view');"><i class="fa fa-gear fa-fw"></i> Settings</a>
+                  </li>
 
-                    </ul>
-                </div>
-                <!-- /.sidebar-collapse -->
+               </ul>
             </div>
-         </nav>
-         <div id="page-wrapper">
-           <div id="servers-view" class="view-pane" style="display:none;">
-             <div class="row">
-                <br/>
-             </div>
-             <div class="row">
-                <div class="col-lg-12">
-                   <div class="panel panel-default">
-                      <div class="panel-heading">
-                         Servers
-                      </div>
-                      <!-- /.panel-heading -->
-                      <div class="panel-body">
-                        <br/>
-                        <table id="server-table" class="table table-striped table-bordered table-hover" style="width:100%">
+            <!-- /.sidebar-collapse -->
+         </div>
+      </nav>
+      <div id="page-wrapper">
+         <div id="servers-view" class="view-pane" style="display:none;">
+            <div class="row">
+               <br />
+            </div>
+            <div class="row">
+               <div class="col-lg-12">
+                  <div class="panel panel-default">
+                     <div class="panel-heading">
+                        Servers
+                     </div>
+                     <!-- /.panel-heading -->
+                     <div class="panel-body">
+                        <br />
+                        <table id="server-table" class="table table-striped table-bordered table-hover"
+                           style="width:100%">
                            <thead>
                               <tr>
                                  <th>JPS URL</th>
@@ -170,27 +217,30 @@
                            <tbody id="server-table-body">
                            </tbody>
                         </table>
-                      </div>
-                   </div>
-                </div>
-              </div>
-           </div>
-           <div id="macos-view" class="view-pane" style="display:none;">
-             <div class="row">
-                <br/>
-             </div>
-             <div class="row">
-                <div class="col-lg-12">
-                   <div class="panel panel-default">
-                      <div class="panel-heading">
-                         macOS Devices
-                      </div>
-                      <!-- /.panel-heading -->
-                      <div class="panel-body">
-                        <button type="button" style="display:none;" id="send-computer-command-button" onclick="viewMDMCommands('computers-table');" class="btn btn-success">Send MDM Commands</button>
-                        <br/>
-                        <br/>
-                        <table id="computers-table" class="table table-striped table-bordered table-hover" style="width:100%">
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div id="macos-view" class="view-pane" style="display:none;">
+            <div class="row">
+               <br />
+            </div>
+            <div class="row">
+               <div class="col-lg-12">
+                  <div class="panel panel-default">
+                     <div class="panel-heading">
+                        macOS Devices
+                     </div>
+                     <!-- /.panel-heading -->
+                     <div class="panel-body">
+                        <button type="button" style="display:none;" id="send-computer-command-button"
+                           onclick="viewMDMCommands('computers-table');" class="btn btn-success">Send MDM
+                           Commands</button>
+                        <br />
+                        <br />
+                        <table id="computers-table" class="table table-striped table-bordered table-hover"
+                           style="width:100%">
                            <thead>
                               <tr>
                                  <th>Name</th>
@@ -207,26 +257,29 @@
                            <tbody id="computers-table-body">
                            </tbody>
                         </table>
-                      </div>
-                   </div>
-                </div>
-              </div>
-           </div>
-           <div id="ios-view" class="view-pane" style="display:none;">
-             <div class="row">
-                <br/>
-             </div>
-             <div class="row">
-                <div class="col-lg-12">
-                   <div class="panel panel-default">
-                      <div class="panel-heading">
-                         iOS Devices
-                      </div>
-                      <!-- /.panel-heading -->
-                      <div class="panel-body">
-                        <button type="button" style="display:none;" id="send-mobile-command-button" onclick="viewMDMCommands('mobiledevices-table');" class="btn btn-success">Send MDM Commands</button>
-                        <br/><br/>
-                        <table id="mobiledevices-table" class="table table-striped table-bordered table-hover" style="width:100%">
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div id="ios-view" class="view-pane" style="display:none;">
+            <div class="row">
+               <br />
+            </div>
+            <div class="row">
+               <div class="col-lg-12">
+                  <div class="panel panel-default">
+                     <div class="panel-heading">
+                        iOS Devices
+                     </div>
+                     <!-- /.panel-heading -->
+                     <div class="panel-body">
+                        <button type="button" style="display:none;" id="send-mobile-command-button"
+                           onclick="viewMDMCommands('mobiledevices-table');" class="btn btn-success">Send MDM
+                           Commands</button>
+                        <br /><br />
+                        <table id="mobiledevices-table" class="table table-striped table-bordered table-hover"
+                           style="width:100%">
                            <thead>
                               <tr>
                                  <th>Name</th>
@@ -243,24 +296,24 @@
                            <tbody id="mobiledevices-table-body">
                            </tbody>
                         </table>
-                      </div>
-                   </div>
-                </div>
-              </div>
-           </div>
-           <div id="tvos-view" class="view-pane" style="display:none;">
-             <div class="row">
-                <br/>
-             </div>
-             <div class="row">
-                <div class="col-lg-12">
-                   <div class="panel panel-default">
-                      <div class="panel-heading">
-                         tvOS Devices
-                      </div>
-                      <!-- /.panel-heading -->
-                      <div class="panel-body">
-                        <br/>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div id="tvos-view" class="view-pane" style="display:none;">
+            <div class="row">
+               <br />
+            </div>
+            <div class="row">
+               <div class="col-lg-12">
+                  <div class="panel panel-default">
+                     <div class="panel-heading">
+                        tvOS Devices
+                     </div>
+                     <!-- /.panel-heading -->
+                     <div class="panel-body">
+                        <br />
                         <table id="tvs-table" class="table table-striped table-bordered table-hover" style="width:100%">
                            <thead>
                               <tr>
@@ -278,25 +331,26 @@
                            <tbody id="tvs-table-body">
                            </tbody>
                         </table>
-                      </div>
-                   </div>
-                </div>
-              </div>
-           </div>
-           <div id="patches-view" class="view-pane" style="display:none;">
-             <div class="row">
-                <br/>
-             </div>
-             <div class="row">
-                <div class="col-lg-12">
-                   <div class="panel panel-default">
-                      <div class="panel-heading">
-                         Patch Definitions
-                      </div>
-                      <!-- /.panel-heading -->
-                      <div class="panel-body">
-                        <br/>
-                        <table id="patches-table" class="table table-striped table-bordered table-hover" style="width:100%">
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div id="patches-view" class="view-pane" style="display:none;">
+            <div class="row">
+               <br />
+            </div>
+            <div class="row">
+               <div class="col-lg-12">
+                  <div class="panel panel-default">
+                     <div class="panel-heading">
+                        Patch Definitions
+                     </div>
+                     <!-- /.panel-heading -->
+                     <div class="panel-body">
+                        <br />
+                        <table id="patches-table" class="table table-striped table-bordered table-hover"
+                           style="width:100%">
                            <thead>
                               <tr>
                                  <th>Name</th>
@@ -309,248 +363,273 @@
                            <tbody id="patches-table-body">
                            </tbody>
                         </table>
-                      </div>
-                   </div>
-                </div>
-              </div>
-           </div>
-           <div id="mobile-commands-view" class="view-pane" style="display:none;">
-             <div class="row">
-                <br/>
-             </div>
-             <div class="row">
-                <div class="col-lg-12">
-                   <div class="panel panel-default">
-                      <div class="panel-heading">
-                         Mobile Device Commands
-                      </div>
-                      <!-- /.panel-heading -->
-                      <div class="panel-body" id="commands-panel-body">
-                        <h1><span id="selected-devices-count">0</span> Selected Device(s)</h1>
-                        <br/>
-                        <div class="row">
-                          <div class="col-lg-4">
-                            <div class="panel panel-info">
-                                <div class="panel-heading">
-                                   Update Inventory
-                                </div>
-                                <div class="panel-body">
-                                    <p>This command will update the inventory of the device in it's Jamf Pro Server. It will be reflected in scout upon next server update.</p>
-                                </div>
-                                <div class="panel-footer">
-                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'UpdateInventory');" class="btn btn-success">Send Command</button>
-                                </div>
-                            </div>
-                          </div>
-                          <div class="col-lg-4">
-                            <div class="panel panel-warning">
-                                <div class="panel-heading">
-                                   Lock Device
-                                </div>
-                                <div class="panel-body">
-                                    <p>This command will lock the device or devices it's sent to and require the user to enter their passcode.</p>
-                                </div>
-                                <div class="panel-footer">
-                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'DeviceLock');" class="btn btn-success">Send Command</button>
-                                </div>
-                            </div>
-                          </div>
-                          <div class="col-lg-4">
-                            <div class="panel panel-danger">
-                                <div class="panel-heading">
-                                   Clear Passcode
-                                </div>
-                                <div class="panel-body">
-                                    <p>This command will clear any passcode set on the device. Useful if the user forgot their passcode and is locked out of their device.</p>
-                                </div>
-                                <div class="panel-footer">
-                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'ClearPasscode');" class="btn btn-success">Send Command</button>
-                                </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="col-lg-4">
-                            <div class="panel panel-danger">
-                                <div class="panel-heading">
-                                   Enable Lost Mode
-                                </div>
-                                <div class="panel-body">
-                                    <p>This command will enable lost mode on device(s). This will lock the device. This is useful if a device has been lost or misplaced.</p>
-                                </div>
-                                <div class="panel-footer">
-                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'EnableLostMode');" class="btn btn-success">Send Command</button>
-                                </div>
-                            </div>
-                          </div>
-                          <div class="col-lg-4">
-                            <div class="panel panel-success">
-                                <div class="panel-heading">
-                                   Disable Lost Mode
-                                </div>
-                                <div class="panel-body">
-                                    <p>This command will disable lost mode on device(s). This will unlock the device or devices.</p>
-                                </div>
-                                <div class="panel-footer">
-                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'DisableLostMode');" class="btn btn-success">Send Command</button>
-                                </div>
-                            </div>
-                          </div>
-                          <div class="col-lg-4">
-                            <div class="panel panel-danger">
-                                <div class="panel-heading">
-                                  Erase Device
-                                </div>
-                                <div class="panel-body">
-                                    <p>This command will completly wipe the selected devices. Use with extreme caution, this can not be undone.</p>
-                                </div>
-                                <div class="panel-footer">
-                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'EraseDevice');" class="btn btn-success">Send Command</button>
-                                </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="col-lg-4">
-                            <div class="panel panel-info">
-                                <div class="panel-heading">
-                                   Set Device Name
-                                </div>
-                                <div class="panel-body">
-                                    <p>This command can be used to set the device name to a string of your choosing. </p>
-                                </div>
-                                <div class="panel-footer">
-                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'DeviceName');" class="btn btn-success">Send Command</button>
-                                </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                   </div>
-                </div>
-              </div>
-           </div>
-
-           <div id="computer-commands-view" class="view-pane" style="display:none;">
-             <div class="row">
-                <br/>
-             </div>
-             <div class="row">
-                <div class="col-lg-12">
-                   <div class="panel panel-default">
-                      <div class="panel-heading">
-                         Computer Commands
-                      </div>
-                      <!-- /.panel-heading -->
-                      <div class="panel-body" id="commands-panel-body">
-                        <h1><span id="selected-computer-count">0</span> Selected Device(s)</h1>
-                        <br/>
-                        <div class="row">
-                          <div class="col-lg-4">
-                            <div class="panel panel-warning">
-                                <div class="panel-heading">
-                                   Lock Device
-                                </div>
-                                <div class="panel-body">
-                                    <p>Lock the device with a specified password.</p>
-                                </div>
-                                <div class="panel-footer">
-                                    <button type="button" onclick="sendMDMCommand('computer', 'DeviceLock');" class="btn btn-success">Send Command</button>
-                                </div>
-                            </div>
-                          </div>
-                          <div class="col-lg-4">
-                            <div class="panel panel-danger">
-                                <div class="panel-heading">
-                                   Erase Device
-                                </div>
-                                <div class="panel-body">
-                                    <p>Erase the device and set a specified passcode.</p>
-                                </div>
-                                <div class="panel-footer">
-                                    <button type="button" onclick="sendMDMCommand('computer', 'EraseDevice');" class="btn btn-success">Send Command</button>
-                                </div>
-                            </div>
-                          </div>
-                          <div class="col-lg-4">
-                            <div class="panel panel-danger">
-                                <div class="panel-heading">
-                                   Delete User
-                                </div>
-                                <div class="panel-body">
-                                    <p>Remove an user from a device with a specified username. DEP device is required.</p>
-                                </div>
-                                <div class="panel-footer">
-                                    <button type="button" onclick="sendMDMCommand('computer', 'DeleteUser');" class="btn btn-success">Send Command</button>
-                                </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="row">
-                          <div class="col-lg-4">
-                            <div class="panel panel-info">
-                                <div class="panel-heading">
-                                   Unlock User Account
-                                </div>
-                                <div class="panel-body">
-                                    <p>Unlock a user on a device with a specified username. DEP device is required.</p>
-                                </div>
-                                <div class="panel-footer">
-                                    <button type="button" onclick="sendMDMCommand('computer', 'UnlockUserAccount');" class="btn btn-success">Send Command</button>
-                                </div>
-                            </div>
-                          </div>
-                          <div class="col-lg-4">
-                            <div class="panel panel-info">
-                                <div class="panel-heading">
-                                   Enable Bluetooth
-                                </div>
-                                <div class="panel-body">
-                                    <p>Enable bluetooth on the device. macOS 10.13.4 or later is required.</p>
-                                </div>
-                                <div class="panel-footer">
-                                    <button type="button" onclick="sendMDMCommand('computer', 'SettingsEnableBluetooth');" class="btn btn-success">Send Command</button>
-                                </div>
-                            </div>
-                          </div>
-                          <div class="col-lg-4">
-                            <div class="panel panel-warning">
-                                <div class="panel-heading">
-                                   Disable Bluetooth
-                                </div>
-                                <div class="panel-body">
-                                    <p>Disable bluetooth on the device. macOS 10.13.4 or later is required.</p>
-                                </div>
-                                <div class="panel-footer">
-                                    <button type="button" onclick="sendMDMCommand('computer', 'SettingsDisableBluetooth');" class="btn btn-success">Send Command</button>
-                                </div>
-                            </div>
-                          </div>
-                        </div>
-
-                      </div>
-                   </div>
-                </div>
-              </div>
-           </div>
-
-           <div id="computer-reports-view" class="view-pane" style="display:none;">
-             <div class="row">
-               <div class="col-lg-12" align="right">
-                 <br/><button type="submit" onclick="changeReportView('computer','new');" class="btn btn-success">Create a new Report</button><br/><br/>
+                     </div>
+                  </div>
                </div>
-             </div>
-             <div class="row">
-                <div class="col-lg-12">
-                   <div class="panel panel-default">
-                      <div class="panel-heading">
-                         Computer Reports
-                      </div>
-                      <!-- /.panel-heading -->
-                      <div class="panel-body">
-                        <br/>
-                        <table id="saved-computer-reports-table" class="table table-striped table-bordered table-hover" style="width:100%">
+            </div>
+         </div>
+         <div id="mobile-commands-view" class="view-pane" style="display:none;">
+            <div class="row">
+               <br />
+            </div>
+            <div class="row">
+               <div class="col-lg-12">
+                  <div class="panel panel-default">
+                     <div class="panel-heading">
+                        Mobile Device Commands
+                     </div>
+                     <!-- /.panel-heading -->
+                     <div class="panel-body" id="commands-panel-body">
+                        <h1><span id="selected-devices-count">0</span> Selected Device(s)</h1>
+                        <br />
+                        <div class="row">
+                           <div class="col-lg-4">
+                              <div class="panel panel-info">
+                                 <div class="panel-heading">
+                                    Update Inventory
+                                 </div>
+                                 <div class="panel-body">
+                                    <p>This command will update the inventory of the device in it's Jamf Pro Server. It
+                                       will be reflected in scout upon next server update.</p>
+                                 </div>
+                                 <div class="panel-footer">
+                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'UpdateInventory');"
+                                       class="btn btn-success">Send Command</button>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4">
+                              <div class="panel panel-warning">
+                                 <div class="panel-heading">
+                                    Lock Device
+                                 </div>
+                                 <div class="panel-body">
+                                    <p>This command will lock the device or devices it's sent to and require the user to
+                                       enter their passcode.</p>
+                                 </div>
+                                 <div class="panel-footer">
+                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'DeviceLock');"
+                                       class="btn btn-success">Send Command</button>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4">
+                              <div class="panel panel-danger">
+                                 <div class="panel-heading">
+                                    Clear Passcode
+                                 </div>
+                                 <div class="panel-body">
+                                    <p>This command will clear any passcode set on the device. Useful if the user forgot
+                                       their passcode and is locked out of their device.</p>
+                                 </div>
+                                 <div class="panel-footer">
+                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'ClearPasscode');"
+                                       class="btn btn-success">Send Command</button>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="col-lg-4">
+                              <div class="panel panel-danger">
+                                 <div class="panel-heading">
+                                    Enable Lost Mode
+                                 </div>
+                                 <div class="panel-body">
+                                    <p>This command will enable lost mode on device(s). This will lock the device. This
+                                       is useful if a device has been lost or misplaced.</p>
+                                 </div>
+                                 <div class="panel-footer">
+                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'EnableLostMode');"
+                                       class="btn btn-success">Send Command</button>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4">
+                              <div class="panel panel-success">
+                                 <div class="panel-heading">
+                                    Disable Lost Mode
+                                 </div>
+                                 <div class="panel-body">
+                                    <p>This command will disable lost mode on device(s). This will unlock the device or
+                                       devices.</p>
+                                 </div>
+                                 <div class="panel-footer">
+                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'DisableLostMode');"
+                                       class="btn btn-success">Send Command</button>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4">
+                              <div class="panel panel-danger">
+                                 <div class="panel-heading">
+                                    Erase Device
+                                 </div>
+                                 <div class="panel-body">
+                                    <p>This command will completly wipe the selected devices. Use with extreme caution,
+                                       this can not be undone.</p>
+                                 </div>
+                                 <div class="panel-footer">
+                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'EraseDevice');"
+                                       class="btn btn-success">Send Command</button>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="col-lg-4">
+                              <div class="panel panel-info">
+                                 <div class="panel-heading">
+                                    Set Device Name
+                                 </div>
+                                 <div class="panel-body">
+                                    <p>This command can be used to set the device name to a string of your choosing.
+                                    </p>
+                                 </div>
+                                 <div class="panel-footer">
+                                    <button type="button" onclick="sendMDMCommand('mobile_device', 'DeviceName');"
+                                       class="btn btn-success">Send Command</button>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+         <div id="computer-commands-view" class="view-pane" style="display:none;">
+            <div class="row">
+               <br />
+            </div>
+            <div class="row">
+               <div class="col-lg-12">
+                  <div class="panel panel-default">
+                     <div class="panel-heading">
+                        Computer Commands
+                     </div>
+                     <!-- /.panel-heading -->
+                     <div class="panel-body" id="commands-panel-body">
+                        <h1><span id="selected-computer-count">0</span> Selected Device(s)</h1>
+                        <br />
+                        <div class="row">
+                           <div class="col-lg-4">
+                              <div class="panel panel-warning">
+                                 <div class="panel-heading">
+                                    Lock Device
+                                 </div>
+                                 <div class="panel-body">
+                                    <p>Lock the device with a specified password.</p>
+                                 </div>
+                                 <div class="panel-footer">
+                                    <button type="button" onclick="sendMDMCommand('computer', 'DeviceLock');"
+                                       class="btn btn-success">Send Command</button>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4">
+                              <div class="panel panel-danger">
+                                 <div class="panel-heading">
+                                    Erase Device
+                                 </div>
+                                 <div class="panel-body">
+                                    <p>Erase the device and set a specified passcode.</p>
+                                 </div>
+                                 <div class="panel-footer">
+                                    <button type="button" onclick="sendMDMCommand('computer', 'EraseDevice');"
+                                       class="btn btn-success">Send Command</button>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4">
+                              <div class="panel panel-danger">
+                                 <div class="panel-heading">
+                                    Delete User
+                                 </div>
+                                 <div class="panel-body">
+                                    <p>Remove an user from a device with a specified username. DEP device is required.
+                                    </p>
+                                 </div>
+                                 <div class="panel-footer">
+                                    <button type="button" onclick="sendMDMCommand('computer', 'DeleteUser');"
+                                       class="btn btn-success">Send Command</button>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+
+                        <div class="row">
+                           <div class="col-lg-4">
+                              <div class="panel panel-info">
+                                 <div class="panel-heading">
+                                    Unlock User Account
+                                 </div>
+                                 <div class="panel-body">
+                                    <p>Unlock a user on a device with a specified username. DEP device is required.</p>
+                                 </div>
+                                 <div class="panel-footer">
+                                    <button type="button" onclick="sendMDMCommand('computer', 'UnlockUserAccount');"
+                                       class="btn btn-success">Send Command</button>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4">
+                              <div class="panel panel-info">
+                                 <div class="panel-heading">
+                                    Enable Bluetooth
+                                 </div>
+                                 <div class="panel-body">
+                                    <p>Enable bluetooth on the device. macOS 10.13.4 or later is required.</p>
+                                 </div>
+                                 <div class="panel-footer">
+                                    <button type="button"
+                                       onclick="sendMDMCommand('computer', 'SettingsEnableBluetooth');"
+                                       class="btn btn-success">Send Command</button>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-4">
+                              <div class="panel panel-warning">
+                                 <div class="panel-heading">
+                                    Disable Bluetooth
+                                 </div>
+                                 <div class="panel-body">
+                                    <p>Disable bluetooth on the device. macOS 10.13.4 or later is required.</p>
+                                 </div>
+                                 <div class="panel-footer">
+                                    <button type="button"
+                                       onclick="sendMDMCommand('computer', 'SettingsDisableBluetooth');"
+                                       class="btn btn-success">Send Command</button>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+         <div id="computer-reports-view" class="view-pane" style="display:none;">
+            <div class="row">
+               <div class="col-lg-12" align="right">
+                  <br /><button type="submit" onclick="changeReportView('computer','new');"
+                     class="btn btn-success">Create a new Report</button><br /><br />
+               </div>
+            </div>
+            <div class="row">
+               <div class="col-lg-12">
+                  <div class="panel panel-default">
+                     <div class="panel-heading">
+                        Computer Reports
+                     </div>
+                     <!-- /.panel-heading -->
+                     <div class="panel-body">
+                        <br />
+                        <table id="saved-computer-reports-table" class="table table-striped table-bordered table-hover"
+                           style="width:100%">
                            <thead>
                               <tr>
                                  <th>Name</th>
@@ -563,27 +642,29 @@
                            <tbody id="saved-computer-reports-table-body">
                            </tbody>
                         </table>
-                      </div>
-                   </div>
-                </div>
-              </div>
-           </div>
-           <div id="mobile-reports-view" class="view-pane" style="display:none;">
-             <div class="row">
-               <div class="col-lg-12" align="right">
-                 <br/><button type="submit" onclick="changeReportView('mobile_device','new');" class="btn btn-success">Create a new Report</button><br/><br/>
+                     </div>
+                  </div>
                </div>
-             </div>
-             <div class="row">
-                <div class="col-lg-12">
-                   <div class="panel panel-default">
-                      <div class="panel-heading">
-                         Mobile Device Reports
-                      </div>
-                      <!-- /.panel-heading -->
-                      <div class="panel-body">
-                        <br/>
-                        <table id="saved-mobile-reports-table" class="table table-striped table-bordered table-hover" style="width:100%">
+            </div>
+         </div>
+         <div id="mobile-reports-view" class="view-pane" style="display:none;">
+            <div class="row">
+               <div class="col-lg-12" align="right">
+                  <br /><button type="submit" onclick="changeReportView('mobile_device','new');"
+                     class="btn btn-success">Create a new Report</button><br /><br />
+               </div>
+            </div>
+            <div class="row">
+               <div class="col-lg-12">
+                  <div class="panel panel-default">
+                     <div class="panel-heading">
+                        Mobile Device Reports
+                     </div>
+                     <!-- /.panel-heading -->
+                     <div class="panel-body">
+                        <br />
+                        <table id="saved-mobile-reports-table" class="table table-striped table-bordered table-hover"
+                           style="width:100%">
                            <thead>
                               <tr>
                                  <th>Name</th>
@@ -596,99 +677,103 @@
                            <tbody id="saved-mobile-reports-table-body">
                            </tbody>
                         </table>
-                      </div>
-                   </div>
-                </div>
-              </div>
-           </div>
-           <div id="reports-results-view" class="view-pane" style="display:none;">
-             <div class="row">
-                <br/>
-             </div>
-             <a style="cursor: pointer;" onclick="changeViewBack();"><< Go Back</a>
-             <div class="row">
-                <br/>
-             </div>
-             <button type="submit" id="export-report-button" onclick="exportReport();" class="btn btn-success">Export Report</button>
-             <div class="row">
-                <br/>
-             </div>
-             <div class="row">
-                <div class="col-lg-12">
-                   <div class="panel panel-default">
-                      <div class="panel-heading">
-                         Search Results
-                      </div>
-                      <!-- /.panel-heading -->
-                      <div class="panel-body">
-                        <br/>
-                        <table id="report-results-table" class="table table-striped table-bordered table-hover" style="width:100%">
-                           <thead>
-
-                           </thead>
-                           <tbody id="report-results-table-body">
-                           </tbody>
-                        </table>
-                      </div>
-                   </div>
-                </div>
-              </div>
-           </div>
-           <div id="patch-servers-view" class="view-pane" style="display:none;">
-             <div class="row">
-                <br/>
-             </div>
-             <div class="row">
-                <div class="col-lg-12">
-                   <div class="panel panel-default">
-                      <div class="panel-heading">
-                         Patch Servers
-                      </div>
-                      <!-- /.panel-heading -->
-                      <div class="panel-body">
-                        <br/>
-                        <table id="patch-servers-table" class="table table-striped table-bordered table-hover" style="width:100%">
-                           <thead>
-                              <tr>
-                                 <th>URL</th>
-                                 <th>Cron Update</th>
-                              </tr>
-                           </thead>
-                           <tbody id="patch-servers-table-body">
-                           </tbody>
-                        </table>
-                      </div>
-                   </div>
-                </div>
-              </div>
-           </div>
-           <div id="create-new-report-view" class="view-pane" style="display:none;">
-             <div class="row">
-                <br/>
-             </div>
-             <a style="cursor: pointer;" onclick="changeViewBack();"><< Go Back</a>
-             <div class="row">
-                <br/>
-             </div>
-             <div class="row">
-               <input id="existing-report-id" style="display:none;"></input>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div id="reports-results-view" class="view-pane" style="display:none;">
+            <div class="row">
+               <br />
+            </div>
+            <a style="cursor: pointer;" onclick="changeViewBack();">
+               << Go Back</a> <div class="row">
+                  <br />
+         </div>
+         <button type="submit" id="export-report-button" onclick="exportReport();" class="btn btn-success">Export
+            Report</button>
+         <div class="row">
+            <br />
+         </div>
+         <div class="row">
+            <div class="col-lg-12">
                <div class="panel panel-default">
-                 <div class="panel-heading">
-                   <span id="report-name-field">New Report Builder</span>
-                 </div>
-                 <div class="panel-body">
-                   <div id="advance-report-criteria">
+                  <div class="panel-heading">
+                     Search Results
+                  </div>
+                  <!-- /.panel-heading -->
+                  <div class="panel-body">
+                     <br />
+                     <table id="report-results-table" class="table table-striped table-bordered table-hover"
+                        style="width:100%">
+                        <thead>
 
-                   </div>
-                   <br/>
-                   <br/>
-                   <div class="row">
-                     <div class="col-lg-8" id="new-report-parent">
-                       <div class="form-group">
-                         <div class="row">
+                        </thead>
+                        <tbody id="report-results-table-body">
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div id="patch-servers-view" class="view-pane" style="display:none;">
+         <div class="row">
+            <br />
+         </div>
+         <div class="row">
+            <div class="col-lg-12">
+               <div class="panel panel-default">
+                  <div class="panel-heading">
+                     Patch Servers
+                  </div>
+                  <!-- /.panel-heading -->
+                  <div class="panel-body">
+                     <br />
+                     <table id="patch-servers-table" class="table table-striped table-bordered table-hover"
+                        style="width:100%">
+                        <thead>
+                           <tr>
+                              <th>URL</th>
+                              <th>Cron Update</th>
+                           </tr>
+                        </thead>
+                        <tbody id="patch-servers-table-body">
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div id="create-new-report-view" class="view-pane" style="display:none;">
+         <div class="row">
+            <br />
+         </div>
+         <a style="cursor: pointer;" onclick="changeViewBack();">
+            << Go Back</a> <div class="row">
+               <br />
+      </div>
+      <div class="row">
+         <input id="existing-report-id" style="display:none;"></input>
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <span id="report-name-field">New Report Builder</span>
+            </div>
+            <div class="panel-body">
+               <div id="advance-report-criteria">
+
+               </div>
+               <br />
+               <br />
+               <div class="row">
+                  <div class="col-lg-8" id="new-report-parent">
+                     <div class="form-group">
+                        <div class="row">
                            <div class="col-lg-4">
-                             <label for="new-report-name">New Report Name</label>
-                             <input type="text" class="form-control" id="new-report-name" placeholder="Computers with iMovie Installed">
+                              <label for="new-report-name">New Report Name</label>
+                              <input type="text" class="form-control" id="new-report-name"
+                                 placeholder="Computers with iMovie Installed">
                            </div>
                            <!--<div class="col-lg-4">
                              <label for="new-report-type">New Report Type</label>
@@ -698,282 +783,316 @@
                              </select>
                            </div>-->
                            <div class="col-lg-4">
-                             <label for="new-report-type">Fields to Select</label>
-                             <div id="fields-to-select-parent">
-                               <select id="fields-to-select" class="selectpicker form-control" multiple data-live-search="true">
+                              <label for="new-report-type">Fields to Select</label>
+                              <div id="fields-to-select-parent">
+                                 <select id="fields-to-select" class="selectpicker form-control" multiple
+                                    data-live-search="true">
 
-                               </select>
-                             </div>
+                                 </select>
+                              </div>
 
                            </div>
-                         </div>
-                       </div>
-                     </div>
-                     <div class="col-lg-12" style="float:right;">
-                       <span id="selected-fields-view" style="display:none;"><h4>Selected fields: <span id="selected-fields"></span></h4></span>
-                     </div>
-                     <div class="col-lg-12" style="float:right;">
-                       <button type="submit" onclick="addReportLineItem();" class="btn btn-primary report-create-button">Add Criteria</button>
-                       <button type="submit" onclick="$('#existing-report-id').val('');upsertReport(false);" class="btn btn-warning report-create-button">Save</button>
-                       <button type="submit" onclick="$('#existing-report-id').val('');upsertReport(true);" class="btn btn-success report-create-button">Save & Run</button>
-                       <button type="submit" onclick="runExistingReportByUrl();" style="display:none;" class="btn btn-success report-view-button">Run Report</button>
-                       <button type="submit" onclick="addReportLineItem();" style="display:none;" class="btn btn-primary report-edit-button">Add Criteria</button>
-                       <button type="submit" onclick="upsertReport(false);" style="display:none;" class="btn btn-warning report-edit-button">Update Report</button>
-                     </div>
-                   </div>
-                 </div>
-               </div>
-             </div>
-           </div>
-           <div id="full-device-view" class="view-pane" style="display:none;">
-             <div class="row">
-                <br/>
-             </div>
-             <a style="cursor: pointer;" onclick="changeViewBack();"><< Go Back</a>
-             <div class="row">
-                <br/>
-             </div>
-             <div class="row">
-                <div class="col-lg-12">
-                   <div class="panel panel-default">
-                      <div class="panel-heading">
-                         <span id="device-view-name"><h4>Device Name</h4></span>
-                      </div>
-                      <!-- /.panel-heading -->
-                      <div class="panel-body">
-                        <br/>
-                        <div id="device-pane-view">
-
-                        </div>
-                      </div>
-                   </div>
-                </div>
-              </div>
-           </div>
-           <div id="settings-view" class="view-pane settings-view" style="display:none;">
-             <div class="row">
-                <br/>
-             </div>
-             <div class="row">
-                <div class="col-lg-6">
-                   <div class="panel panel-default">
-                      <div class="panel-heading">
-                         General Settings
-                      </div>
-                      <!-- /.panel-heading -->
-                      <div class="panel-body">
-                        <form role="form" id="general-settings">
-
-                        </form>
-                        <button onclick="updateSettings();" id="save-settings-button" class="btn btn-success col-md-3 left">Save Changes</button>
-                      </div>
-                   </div>
-                </div>
-                <div class="col-lg-6">
-                   <div class="panel panel-default">
-                      <div class="panel-heading">
-                          User Settings
-                      </div>
-                      <!-- /.panel-heading -->
-                      <div class="panel-body">
-                        <br/>
-                        <table id="users-table" class="table table-striped table-bordered table-hover" style="width:100%">
-                           <thead>
-                              <tr>
-                                 <th>Email</th>
-                                 <th>Create</th>
-                                 <th>Edit</th>
-                                 <th>Delete</th>
-                                 <th>Edit Users</th>
-                                 <th>MDM Commands</th>
-                              </tr>
-                           </thead>
-                           <tbody id="users-table-body">
-                           </tbody>
-                        </table>
-                        <i>Click a permission for an individual user to toggle it on or off. </i>
-                      </div>
-                   </div>
-                   <div class="panel panel-default">
-                      <div class="panel-heading">
-                          Scout Cron Jobs
-                      </div>
-                      <!-- /.panel-heading -->
-                      <div class="panel-body">
-                        <button type="button" onclick="updateCronJobsOnScoutServer();" class="btn btn-warning">Manually Sync Cron Jobs</button>
-                        <br/><br/>
-                        <table id="cron-jobs-table" class="table table-striped table-bordered table-hover" style="width:100%">
-                           <thead>
-                              <tr>
-                                 <th>Cron String</th>
-                                 <th>Server URL</th>
-                                 <th>Job Type</th>
-                                 <th>Action</th>
-                              </tr>
-                           </thead>
-                           <tbody id="cron-jobs-table-body">
-                           </tbody>
-                        </table>
-                        <i>Scout should automatically syncronize the cron jobs upon server start, and when a new server is added, however when a server is deleted, this utility can be used to manually refresh the cron jobs. It can also be used to clean up the scout related cron jobs automatically if they are out of sync.</i>
-                      </div>
-                   </div>
-                </div>
-              </div>
-           </div>
-           <div id="dashboard-view" class="view-pane" style="display:none;">
-             <div class="row">
-                <br/>
-             </div>
-             <!-- /.row -->
-             <div class="row">
-                <div class="col-lg-3 col-md-6">
-                   <div class="panel panel-primary">
-                      <div class="panel-heading">
-                         <div class="row">
-                            <div class="col-xs-3">
-                               <i class="fa fa-server fa-5x"></i>
-                            </div>
-                            <div class="col-xs-9 text-right">
-                               <div class="huge"><span id="server-count"></span></div>
-                               <div>Jamf Pro Servers</div>
-                            </div>
-                         </div>
-                      </div>
-                      <a href="#">
-                         <div class="panel-footer" onclick="refreshAllDevices(true);">
-                            <span class="pull-left">Refresh Now</span>
-                            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                            <div class="clearfix"></div>
-                         </div>
-                      </a>
-                   </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                   <div class="panel panel-green">
-                      <div class="panel-heading">
-                         <div class="row">
-                            <div class="col-xs-3">
-                               <i class="fa fa-mobile fa-5x"></i>
-                            </div>
-                            <div class="col-xs-9 text-right">
-                               <div class="huge"><span id="ios-device-count"></span></div>
-                               <div>iOS Devices</div>
-                            </div>
-                         </div>
-                      </div>
-                      <a href="#">
-                         <div class="panel-footer" onclick="refreshAllDevices(true);">
-                            <span class="pull-left">Refresh Now</span>
-                            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                            <div class="clearfix"></div>
-                         </div>
-                      </a>
-                   </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                   <div class="panel panel-yellow">
-                      <div class="panel-heading">
-                         <div class="row">
-                            <div class="col-xs-3">
-                               <i class="fa fa-laptop fa-5x"></i>
-                            </div>
-                            <div class="col-xs-9 text-right">
-                               <div class="huge"><span id="macos-device-count"></span></div>
-                               <div>macOS Devices</div>
-                            </div>
-                         </div>
-                      </div>
-                      <a href="#">
-                         <div class="panel-footer">
-                            <span class="pull-left" onclick="refreshAllDevices(true);">Refresh Now</span>
-                            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                            <div class="clearfix"></div>
-                         </div>
-                      </a>
-                   </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                   <div class="panel panel-red">
-                      <div class="panel-heading">
-                         <div class="row">
-                            <div class="col-xs-3">
-                               <i class="fa fa-tv fa-5x"></i>
-                            </div>
-                            <div class="col-xs-9 text-right">
-                               <div class="huge"><span id="tvos-device-count"></span></div>
-                               <div>TVs</div>
-                            </div>
-                         </div>
-                      </div>
-                      <a href="#">
-                         <div class="panel-footer">
-                            <span class="pull-left" onclick="refreshAllDevices(true);">Refresh Now</span>
-                            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                            <div class="clearfix"></div>
-                         </div>
-                      </a>
-                   </div>
-                </div>
-             </div>
-             <!-- /.row -->
-           </div>
-            <!-- /.row -->
-         </div>
-         <!-- /#page-wrapper -->
-      </div>
-      <!-- /#wrapper -->
-      <div class="modal fade in" id="login-modal" tabindex="-1" role="dialog" aria-labelledby="Login" aria-hidden="true">
-         <div class="modal-dialog">
-            <div class="modal-content">
-               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                  <h4 class="modal-title" id="myModalLabel">Login</h4>
-               </div>
-               <div class="modal-body">
-                  Login is required in order to use this web app . Please enter your LDAP username and password. <br/><br/>
-                  <div class="row">
-                     <div class="col-md-12">
-                        <div class="form-group login-group">
-                           <input id="login-username" type="text" placeholder="jamf" class="form-control">
+                           <div class="col-lg-4">
+                              <label for="show-in-dashboard">
+                                 Show in Dashboard?
+                              </label>
+                              <input type="checkbox" id="show-in-dashboard">
+                           </div>
                         </div>
                      </div>
                   </div>
+                  <div class="col-lg-12" style="float:right;">
+                     <span id="selected-fields-view" style="display:none;">
+                        <h4>Selected fields: <span id="selected-fields"></span></h4>
+                     </span>
+                  </div>
+                  <div class="col-lg-12" style="float:right;">
+                     <button type="submit" onclick="addReportLineItem();"
+                        class="btn btn-primary report-create-button">Add Criteria</button>
+                     <button type="submit" onclick="$('#existing-report-id').val('');upsertReport(false);"
+                        class="btn btn-warning report-create-button">Save</button>
+                     <button type="submit" onclick="$('#existing-report-id').val('');upsertReport(true);"
+                        class="btn btn-success report-create-button">Save & Run</button>
+                     <button type="submit" onclick="runExistingReportByUrl();" style="display:none;"
+                        class="btn btn-success report-view-button">Run Report</button>
+                     <button type="submit" onclick="addReportLineItem();" style="display:none;"
+                        class="btn btn-primary report-edit-button">Add Criteria</button>
+                     <button type="submit" onclick="upsertReport(false);" style="display:none;"
+                        class="btn btn-warning report-edit-button">Update Report</button>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div id="full-device-view" class="view-pane" style="display:none;">
+      <div class="row">
+         <br />
+      </div>
+      <a style="cursor: pointer;" onclick="changeViewBack();">
+         << Go Back</a> <div class="row">
+            <br />
+   </div>
+   <div class="row">
+      <div class="col-lg-12">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <span id="device-view-name">
+                  <h4>Device Name</h4>
+               </span>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+               <br />
+               <div id="device-pane-view">
+
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   </div>
+   <div id="settings-view" class="view-pane settings-view" style="display:none;">
+      <div class="row">
+         <br />
+      </div>
+      <div class="row">
+         <div class="col-lg-6">
+            <div class="panel panel-default">
+               <div class="panel-heading">
+                  General Settings
+               </div>
+               <!-- /.panel-heading -->
+               <div class="panel-body">
+                  <form role="form" id="general-settings">
+
+                  </form>
+                  <button onclick="updateSettings();" id="save-settings-button"
+                     class="btn btn-success col-md-3 left">Save Changes</button>
+               </div>
+            </div>
+         </div>
+         <div class="col-lg-6">
+            <div class="panel panel-default">
+               <div class="panel-heading">
+                  User Settings
+               </div>
+               <!-- /.panel-heading -->
+               <div class="panel-body">
+                  <br />
+                  <table id="users-table" class="table table-striped table-bordered table-hover" style="width:100%">
+                     <thead>
+                        <tr>
+                           <th>Email</th>
+                           <th>Create</th>
+                           <th>Edit</th>
+                           <th>Delete</th>
+                           <th>Edit Users</th>
+                           <th>MDM Commands</th>
+                        </tr>
+                     </thead>
+                     <tbody id="users-table-body">
+                     </tbody>
+                  </table>
+                  <i>Click a permission for an individual user to toggle it on or off. </i>
+               </div>
+            </div>
+            <div class="panel panel-default">
+               <div class="panel-heading">
+                  Scout Cron Jobs
+               </div>
+               <!-- /.panel-heading -->
+               <div class="panel-body">
+                  <button type="button" onclick="updateCronJobsOnScoutServer();" class="btn btn-warning">Manually Sync
+                     Cron Jobs</button>
+                  <br /><br />
+                  <table id="cron-jobs-table" class="table table-striped table-bordered table-hover" style="width:100%">
+                     <thead>
+                        <tr>
+                           <th>Cron String</th>
+                           <th>Server URL</th>
+                           <th>Job Type</th>
+                           <th>Action</th>
+                        </tr>
+                     </thead>
+                     <tbody id="cron-jobs-table-body">
+                     </tbody>
+                  </table>
+                  <i>Scout should automatically syncronize the cron jobs upon server start, and when a new server is
+                     added, however when a server is deleted, this utility can be used to manually refresh the cron
+                     jobs. It can also be used to clean up the scout related cron jobs automatically if they are out of
+                     sync.</i>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div id="dashboard-view" class="view-pane" style="display:none;">
+      <div class="row">
+         <br />
+      </div>
+      <!-- /.row -->
+      <div class="row">
+         <div class="col-lg-3 col-md-6">
+            <div class="panel panel-primary">
+               <div class="panel-heading">
                   <div class="row">
-                     <div class="col-md-12">
-                        <div class="form-group login-group">
-                           <input id="login-password" type="password" placeholder="jamf1234" class="form-control">
-                        </div>
+                     <div class="col-xs-3">
+                        <i class="fa fa-server fa-5x"></i>
+                     </div>
+                     <div class="col-xs-9 text-right">
+                        <div class="huge"><span id="server-count"></span></div>
+                        <div>Jamf Pro Servers</div>
                      </div>
                   </div>
                </div>
-               <div class="modal-footer">
-                  <button id="login-button" class="btn btn-primary col-md-4 right">Login</button>
+               <a href="#">
+                  <div class="panel-footer" onclick="refreshAllDevices(true);">
+                     <span class="pull-left">Refresh Now</span>
+                     <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                     <div class="clearfix"></div>
+                  </div>
+               </a>
+            </div>
+         </div>
+         <div class="col-lg-3 col-md-6">
+            <div class="panel panel-green">
+               <div class="panel-heading">
+                  <div class="row">
+                     <div class="col-xs-3">
+                        <i class="fa fa-mobile fa-5x"></i>
+                     </div>
+                     <div class="col-xs-9 text-right">
+                        <div class="huge"><span id="ios-device-count"></span></div>
+                        <div>iOS Devices</div>
+                     </div>
+                  </div>
+               </div>
+               <a href="#">
+                  <div class="panel-footer" onclick="refreshAllDevices(true);">
+                     <span class="pull-left">Refresh Now</span>
+                     <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                     <div class="clearfix"></div>
+                  </div>
+               </a>
+            </div>
+         </div>
+         <div class="col-lg-3 col-md-6">
+            <div class="panel panel-yellow">
+               <div class="panel-heading">
+                  <div class="row">
+                     <div class="col-xs-3">
+                        <i class="fa fa-laptop fa-5x"></i>
+                     </div>
+                     <div class="col-xs-9 text-right">
+                        <div class="huge"><span id="macos-device-count"></span></div>
+                        <div>macOS Devices</div>
+                     </div>
+                  </div>
+               </div>
+               <a href="#">
+                  <div class="panel-footer">
+                     <span class="pull-left" onclick="refreshAllDevices(true);">Refresh Now</span>
+                     <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                     <div class="clearfix"></div>
+                  </div>
+               </a>
+            </div>
+         </div>
+         <div class="col-lg-3 col-md-6">
+            <div class="panel panel-red">
+               <div class="panel-heading">
+                  <div class="row">
+                     <div class="col-xs-3">
+                        <i class="fa fa-tv fa-5x"></i>
+                     </div>
+                     <div class="col-xs-9 text-right">
+                        <div class="huge"><span id="tvos-device-count"></span></div>
+                        <div>TVs</div>
+                     </div>
+                  </div>
+               </div>
+               <a href="#">
+                  <div class="panel-footer">
+                     <span class="pull-left" onclick="refreshAllDevices(true);">Refresh Now</span>
+                     <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                     <div class="clearfix"></div>
+                  </div>
+               </a>
+            </div>
+         </div>
+      </div>
+      <div class="row">
+         <div class="card col-lg-6 userCard">
+            <h4 id="cardTitle">Saved Reports</h4>
+            <canvas id="deviceCountChart"></canvas>
+         </div>
+         <div id="userCountCard" class="card col-lg-2 userCard">
+            <h4 id="cardTitle">User Count</h4>
+            <p id="userCard"></p>
+         </div>
+      </div>
+      <!-- /.row -->
+   </div>
+   <!-- /.row -->
+   </div>
+   <!-- /#page-wrapper -->
+   </div>
+   <!-- /#wrapper -->
+   <div class="modal fade in" id="login-modal" tabindex="-1" role="dialog" aria-labelledby="Login" aria-hidden="true">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+               <h4 class="modal-title" id="myModalLabel">Login</h4>
+            </div>
+            <div class="modal-body">
+               Login is required in order to use this web app . Please enter your LDAP username and password.
+               <br /><br />
+               <div class="row">
+                  <div class="col-md-12">
+                     <div class="form-group login-group">
+                        <input id="login-username" type="text" placeholder="jamf" class="form-control">
+                     </div>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="col-md-12">
+                     <div class="form-group login-group">
+                        <input id="login-password" type="password" placeholder="jamf1234" class="form-control">
+                     </div>
+                  </div>
                </div>
             </div>
-            <!-- /.modal-content -->
-         </div>
-         <!-- /.modal-dialog -->
-      </div>
-
-      <div class="modal fade in" id="loading-modal" tabindex="-1" role="dialog" aria-labelledby="Login" aria-hidden="true">
-         <div class="modal-dialog">
-            <div class="modal-content">
-               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                  <h4 class="modal-title" id="myModalLabel">Checking connection...</h4>
-               </div>
-               <div class="modal-body">
-                  We are checking the connection to your Jamf Pro Server, this could take a few seconds. This modal will automatically close.
-                  <br/><br/>
-                  <center><img src="https://thumbs.gfycat.com/ChubbySelfreliantGarpike-size_restricted.gif"></center>
-               </div>
+            <div class="modal-footer">
+               <button id="login-button" class="btn btn-primary col-md-4 right">Login</button>
             </div>
-            <!-- /.modal-content -->
          </div>
-         <!-- /.modal-dialog -->
+         <!-- /.modal-content -->
       </div>
+      <!-- /.modal-dialog -->
+   </div>
 
-      <!-- <div class="modal fade in" id="report-display-modal" tabindex="-1" role="dialog" aria-labelledby="Search Results" aria-hidden="true">
+   <div class="modal fade in" id="loading-modal" tabindex="-1" role="dialog" aria-labelledby="Login" aria-hidden="true">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+               <h4 class="modal-title" id="myModalLabel">Checking connection...</h4>
+            </div>
+            <div class="modal-body">
+               We are checking the connection to your Jamf Pro Server, this could take a few seconds. This modal will
+               automatically close.
+               <br /><br />
+               <center><img src="https://thumbs.gfycat.com/ChubbySelfreliantGarpike-size_restricted.gif"></center>
+            </div>
+         </div>
+         <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+   </div>
+
+   <!-- <div class="modal fade in" id="report-display-modal" tabindex="-1" role="dialog" aria-labelledby="Search Results" aria-hidden="true">
          <div class="modal-dialog">
             <div class="modal-content">
                <div class="modal-header">
@@ -993,386 +1112,416 @@
          </div>
       </div> -->
 
-      <div class="modal fade in" id="device-display-modal" tabindex="-1" role="dialog" aria-labelledby="Jamf Pro Device" aria-hidden="true">
-         <div class="modal-dialog">
-            <div class="modal-content">
-               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                  <h4 class="modal-title" id="myModalLabel">Jamf Pro Device</h4>
-               </div>
-               <div class="modal-body" id="device-modal-view">
-                  <!-- this content is loaded dynamically from another page -->
-               </div>
+   <div class="modal fade in" id="device-display-modal" tabindex="-1" role="dialog" aria-labelledby="Jamf Pro Device"
+      aria-hidden="true">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+               <h4 class="modal-title" id="myModalLabel">Jamf Pro Device</h4>
             </div>
-            <!-- /.modal-content -->
+            <div class="modal-body" id="device-modal-view">
+               <!-- this content is loaded dynamically from another page -->
+            </div>
          </div>
-         <!-- /.modal-dialog -->
+         <!-- /.modal-content -->
       </div>
+      <!-- /.modal-dialog -->
+   </div>
 
-      <div class="modal fade in" id="login-user-modal" tabindex="-1" role="dialog" aria-labelledby="Login" aria-hidden="true">
-         <div class="modal-dialog">
-            <div class="modal-content">
-               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                  <h4 class="modal-title" id="myModalLabel">Login</h4>
-               </div>
-               <div class="modal-body">
-                  Login is required in order to use this web app . Please enter your username/email and password. <br/><br/>
-                  <div class="row">
-                     <div class="col-md-12">
-                        <div class="form-group login-group">
-                           <input id="login-user-username" type="text" placeholder="jamf" class="form-control">
-                        </div>
-                     </div>
-                  </div>
-                  <div class="row">
-                     <div class="col-md-12">
-                        <div class="form-group login-group">
-                           <input id="login-user-password" type="password" placeholder="jamf1234" class="form-control">
-                        </div>
+   <div class="modal fade in" id="login-user-modal" tabindex="-1" role="dialog" aria-labelledby="Login"
+      aria-hidden="true">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+               <h4 class="modal-title" id="myModalLabel">Login</h4>
+            </div>
+            <div class="modal-body">
+               Login is required in order to use this web app . Please enter your username/email and password.
+               <br /><br />
+               <div class="row">
+                  <div class="col-md-12">
+                     <div class="form-group login-group">
+                        <input id="login-user-username" type="text" placeholder="jamf" class="form-control">
                      </div>
                   </div>
                </div>
-               <div class="modal-footer">
-                  <button id="register-modal-button" onclick="$('#register-modal').modal('show')" class="btn btn-warning col-md-3 left">Register</button>
-                  <button onclick="$('#login-modal').modal('show');$('#login-user-modal').modal('hide')" class="btn btn-primary col-md-3 right">LDAP Login</button>
-                  <button id="login-user-button" class="btn btn-success col-md-3 left">Login</button>
-
-               </div>
-            </div>
-            <!-- /.modal-content -->
-         </div>
-         <!-- /.modal-dialog -->
-      </div>
-
-      <div class="modal fade in" id="register-modal" tabindex="-1" role="dialog" aria-labelledby="Login" aria-hidden="true">
-         <div class="modal-dialog">
-            <div class="modal-content">
-               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                  <h4 class="modal-title" id="myModalLabel">Register</h4>
-               </div>
-               <div class="modal-body">
-                  Please register for scout below. You must have been given a 'Register Pin' to verify access. If you are an adminstrator, see the Scout readme to learn more about this pin. <br/><br/>
-                  <div class="row">
-                     <div class="col-md-12">
-                        <div class="form-group login-group">
-                           <input id="register-email" type="text" placeholder="Email/Username" class="form-control">
-                        </div>
-                     </div>
-                  </div>
-                  <div class="row">
-                     <div class="col-md-12">
-                        <div class="form-group login-group">
-                           <input id="register-pin" type="text" placeholder="Register Pin" class="form-control">
-                        </div>
-                     </div>
-                  </div>
-                  <div class="row">
-                     <div class="col-md-12">
-                        <div class="form-group login-group">
-                           <input id="register-password" type="password" placeholder="Password" class="form-control">
-                        </div>
+               <div class="row">
+                  <div class="col-md-12">
+                     <div class="form-group login-group">
+                        <input id="login-user-password" type="password" placeholder="jamf1234" class="form-control">
                      </div>
                   </div>
                </div>
-               <div class="modal-footer">
-                  <button id="register-button" class="btn btn-primary col-md-4 right">Register</button>
-               </div>
             </div>
-            <!-- /.modal-content -->
-         </div>
-         <!-- /.modal-dialog -->
-      </div>
-      <div class="modal fade in" id="add-patch-server-modal" tabindex="-1" role="dialog" aria-labelledby="Add Patch Server" aria-hidden="true">
-         <div class="modal-dialog">
-            <div class="modal-content">
-               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                  <h4 class="modal-title" id="myModalLabel">Add Jamf Pro Patch Server</h4>
-               </div>
-               <div class="modal-body">
-                 Please enter the base URL for the patch server, and how often it should be updated.
-                  <div class="row">
-                     <div class="col-md-12">
-                       <div class="form-group">
-                          <label>Server URL</label>
-                          <input class="form-control" id="add-patch-server-url" type="text" placeholder="https://jamfcloud.com">
-                       </div>
-                       <div id="patch-cron-selector" class="form-group">
+            <div class="modal-footer">
+               <button id="register-modal-button" onclick="$('#register-modal').modal('show')"
+                  class="btn btn-warning col-md-3 left">Register</button>
+               <button onclick="$('#login-modal').modal('show');$('#login-user-modal').modal('hide')"
+                  class="btn btn-primary col-md-3 right">LDAP Login</button>
+               <button id="login-user-button" class="btn btn-success col-md-3 left">Login</button>
 
-                       </div>
-                       <div class="form-group">
-                          <label>Update Frequency (Cron)</label>
-                          <input class="form-control" id="add-patch-server-cron" type="text" placeholder="* * * * *">
-                       </div>
+            </div>
+         </div>
+         <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+   </div>
+
+   <div class="modal fade in" id="register-modal" tabindex="-1" role="dialog" aria-labelledby="Login"
+      aria-hidden="true">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+               <h4 class="modal-title" id="myModalLabel">Register</h4>
+            </div>
+            <div class="modal-body">
+               Please register for scout below. You must have been given a 'Register Pin' to verify access. If you are
+               an adminstrator, see the Scout readme to learn more about this pin. <br /><br />
+               <div class="row">
+                  <div class="col-md-12">
+                     <div class="form-group login-group">
+                        <input id="register-email" type="text" placeholder="Email/Username" class="form-control">
                      </div>
                   </div>
                </div>
-               <div class="modal-footer">
-                 <button id="add-patch-server-button" class="btn btn-default">Add Patch Server</button>
-               </div>
-            </div>
-            <!-- /.modal-content -->
-         </div>
-         <!-- /.modal-dialog -->
-      </div>
-
-      <div class="modal fade in" id="remove-server-modal" tabindex="-1" role="dialog" aria-labelledby="Remove Server" aria-hidden="true">
-         <div class="modal-dialog">
-            <div class="modal-content">
-               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                  <h4 class="modal-title" id="myModalLabel">Remove Jamf Pro Server</h4>
-               </div>
-               <div class="modal-body">
-                 <p>Before removing this server from the Scout application, please provide your password below and confirm this action.</p>
-                 <p><b>Removing a server can not be undone, and all of it's related devices will also be removed from scout.</b></p>
-                  <div class="row">
-                     <div class="col-md-12">
-                       <div class="form-group">
-                          <label>Password</label>
-                          <input class="form-control" id="delete-server-confirm-password" type="password" placeholder="jamf1234">
-                       </div>
-                     </div>
-                     <input id="delete-server-id" style="display:none;" type="number"/>
-                  </div>
-               </div>
-               <div class="modal-footer">
-                 <button onclick="verifyDeleteServer();" class="btn btn-danger">Delete Server</button>
-               </div>
-            </div>
-            <!-- /.modal-content -->
-         </div>
-         <!-- /.modal-dialog -->
-      </div>
-
-      <div class="modal fade in" id="erase-devices-modal" tabindex="-1" role="dialog" aria-labelledby="Remove Server" aria-hidden="true">
-         <div class="modal-dialog">
-            <div class="modal-content">
-               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                  <h4 class="modal-title" id="myModalLabel">Erase Devices</h4>
-               </div>
-               <div class="modal-body">
-                 <p>Before erasing the selected devices, please provide your password below and confirm this action.</p>
-                 <p><b>Erasing a device can not be undone. You must be an adminstrator to perform this action.</b></p>
-                  <div class="row">
-                     <div class="col-md-12">
-                       <div class="form-group">
-                          <label>Password</label>
-                          <input class="form-control" id="erase-devices-confirm-password" type="password" placeholder="jamf1234">
-                       </div>
+               <div class="row">
+                  <div class="col-md-12">
+                     <div class="form-group login-group">
+                        <input id="register-pin" type="text" placeholder="Register Pin" class="form-control">
                      </div>
                   </div>
                </div>
-               <div class="modal-footer">
-                 <button onclick="verifyEraseDevices();" class="btn btn-danger">I really want to wipe these devices.</button>
-               </div>
-            </div>
-            <!-- /.modal-content -->
-         </div>
-         <!-- /.modal-dialog -->
-      </div>
-
-      <div class="modal fade in" id="update-server-modal" tabindex="-1" role="dialog" aria-labelledby="Update Server" aria-hidden="true">
-         <div class="modal-dialog">
-            <div class="modal-content">
-               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                  <h4 class="modal-title" id="myModalLabel">Update Jamf Pro Server</h4>
-               </div>
-               <div class="modal-body">
-                  <p>This menu will allow you to update the frequency this server is updated, as well the username and password used to reach the server. If you need to change the url, you'll have to delete the server and readd it. </p>
-                  <div class="row">
-                     <div class="col-md-12">
-                       <div class="form-group">
-                          <label>Server URL</label>
-                          <input class="form-control" id="update-server-url" type="text" disabled placeholder="https://jamfcloud.com">
-                       </div>
-                       <div class="form-group">
-                          <label>Admin Username</label>
-                          <input class="form-control" id="update-server-username" type="text" placeholder="admin">
-                       </div>
-                       <div class="form-group">
-                          <label>Password</label>
-                          <input class="form-control" id="update-server-password" type="password" placeholder="jamf">
-                       </div>
-                       <div id="update-cron-selector-limited" class="form-group">
-
-                       </div>
-                       <div class="form-group">
-                          <label>Update Frequency (Basic Inventory)</label>
-                          <input class="form-control" id="update-server-limited-cron" type="text" placeholder="* * * * *">
-                       </div>
-                       <div id="update-cron-selector-expanded" class="form-group">
-
-                       </div>
-                       <div class="form-group">
-                          <label>Update Frequency (Expanded Inventory)</label>
-                          <input class="form-control" id="update-server-expanded-cron" type="text" placeholder="* * * * *">
-                       </div>
-                     </div>
-                     <input id="update-server-id" style="display:none;" type="number" id="update-server-id"/>
-                  </div>
-               </div>
-               <div class="modal-footer">
-                 <button id="update-server-button" onclick="doUpdateServer();" class="btn btn-primary">Update Server</button>
-               </div>
-            </div>
-            <!-- /.modal-content -->
-         </div>
-         <!-- /.modal-dialog -->
-      </div>
-
-      <div class="modal fade in" id="add-server-modal" tabindex="-1" role="dialog" aria-labelledby="Add Server" aria-hidden="true">
-         <div class="modal-dialog">
-            <div class="modal-content">
-               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                  <h4 class="modal-title" id="myModalLabel">Add Jamf Pro Server</h4>
-               </div>
-               <div class="modal-body">
-                  <p>A sample request will be made to the JSS to verify that credentials are valid and to get the Org Name and Activation Code. A 'ScoutAdmin' user will also be added to this JPS for emergency server access. This user's password is changed every time Scout pulls inventory, and is randomly set.</p>
-                  <p>It is recommended basic inventory is taken roughly once every day, while expanded inventory should be taken on a weekly basis. Limited inventory will perform one API call per Jamf Pro Server, while expanded access will peform a call for every single device, in every single server. It's high recommended these updates are spread throughout the week for more efficent batch processing.</p>
-                  <div class="row">
-                     <div class="col-md-12">
-                       <div class="form-group">
-                          <label>Server URL</label>
-                          <input class="form-control" id="add-server-url" type="text" placeholder="https://jamfcloud.com">
-                       </div>
-                       <div class="form-group">
-                          <label>Admin Username</label>
-                          <input class="form-control" id="add-server-username" type="text" placeholder="admin">
-                       </div>
-                       <div class="form-group">
-                          <label>Password</label>
-                          <input class="form-control" id="add-server-password" type="password" placeholder="jamf">
-                       </div>
-                       <div id="cron-selector-limited" class="form-group">
-
-                       </div>
-                       <div class="form-group">
-                          <label>Update Frequency (Basic Inventory)</label>
-                          <input class="form-control" id="add-server-limited-cron" type="text" placeholder="* * * * *">
-                       </div>
-                       <div id="cron-selector-expanded" class="form-group">
-
-                       </div>
-                       <div class="form-group">
-                          <label>Update Frequency (Expanded Inventory)</label>
-                          <input class="form-control" id="add-server-expanded-cron" type="text" placeholder="* * * * *">
-                       </div>
+               <div class="row">
+                  <div class="col-md-12">
+                     <div class="form-group login-group">
+                        <input id="register-password" type="password" placeholder="Password" class="form-control">
                      </div>
                   </div>
                </div>
-               <div class="modal-footer">
-                 <button id="add-server-button" class="btn btn-success">Add Server</button>
+            </div>
+            <div class="modal-footer">
+               <button id="register-button" class="btn btn-primary col-md-4 right">Register</button>
+            </div>
+         </div>
+         <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+   </div>
+   <div class="modal fade in" id="add-patch-server-modal" tabindex="-1" role="dialog" aria-labelledby="Add Patch Server"
+      aria-hidden="true">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+               <h4 class="modal-title" id="myModalLabel">Add Jamf Pro Patch Server</h4>
+            </div>
+            <div class="modal-body">
+               Please enter the base URL for the patch server, and how often it should be updated.
+               <div class="row">
+                  <div class="col-md-12">
+                     <div class="form-group">
+                        <label>Server URL</label>
+                        <input class="form-control" id="add-patch-server-url" type="text"
+                           placeholder="https://jamfcloud.com">
+                     </div>
+                     <div id="patch-cron-selector" class="form-group">
+
+                     </div>
+                     <div class="form-group">
+                        <label>Update Frequency (Cron)</label>
+                        <input class="form-control" id="add-patch-server-cron" type="text" placeholder="* * * * *">
+                     </div>
+                  </div>
                </div>
             </div>
-            <!-- /.modal-content -->
+            <div class="modal-footer">
+               <button id="add-patch-server-button" class="btn btn-default">Add Patch Server</button>
+            </div>
          </div>
-         <!-- /.modal-dialog -->
+         <!-- /.modal-content -->
       </div>
-      <div class="modal fade in" id="get-server-access-key" tabindex="-1" role="dialog" aria-labelledby="Get emergency server access" aria-hidden="true">
-         <div class="modal-dialog">
-            <div class="modal-content">
-               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                  <h4 class="modal-title" id="myModalLabel">Get Emergency Server Access</h4>
-               </div>
-               <div class="modal-body">
-                 If your user has access to get emergency server passwords, you can use the following button to have it returned.
-                 <ul><li>This password will be <b>destroyed from the database after being returned in this application one time.</b></li>
-                   <li>The next time this server is scheduled to update, it will update the ScoutAdmin password to a new random password. At that point, this will not longer be valid.</li>
-                   <li>If you loose this returned password, you will <b>not</b> be able to get emergency access to this server again until next time it updates. </li>
-                   <li>This password is only good for around 24 hours</li>
-                 </ul>
-                   <br/>
-                   <span id="get_backup_password" onclick="doBackupPasswordRequest();"><a href="#">If you have read and understand the above conditions, click here to get the password.</a></span>
-                   <input type="text" id="backup_password_url" style="display:none;"/>
-               </div>
+      <!-- /.modal-dialog -->
+   </div>
 
-               <div class="modal-footer">
-                 <button class="btn btn-default" data-dismiss="modal" >Close</button>
+   <div class="modal fade in" id="remove-server-modal" tabindex="-1" role="dialog" aria-labelledby="Remove Server"
+      aria-hidden="true">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+               <h4 class="modal-title" id="myModalLabel">Remove Jamf Pro Server</h4>
+            </div>
+            <div class="modal-body">
+               <p>Before removing this server from the Scout application, please provide your password below and confirm
+                  this action.</p>
+               <p><b>Removing a server can not be undone, and all of it's related devices will also be removed from
+                     scout.</b></p>
+               <div class="row">
+                  <div class="col-md-12">
+                     <div class="form-group">
+                        <label>Password</label>
+                        <input class="form-control" id="delete-server-confirm-password" type="password"
+                           placeholder="jamf1234">
+                     </div>
+                  </div>
+                  <input id="delete-server-id" style="display:none;" type="number" />
                </div>
             </div>
-            <!-- /.modal-content -->
+            <div class="modal-footer">
+               <button onclick="verifyDeleteServer();" class="btn btn-danger">Delete Server</button>
+            </div>
          </div>
-         <!-- /.modal-dialog -->
+         <!-- /.modal-content -->
       </div>
+      <!-- /.modal-dialog -->
+   </div>
 
-      <div class="modal fade in" id="mdm-command-prompt" tabindex="-1" role="dialog" aria-labelledby="MDM Commands" aria-hidden="true">
-         <div class="modal-dialog">
-            <div class="modal-content">
-               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                  <h4 class="modal-title"><span class="mdm-command-prompt-title"></span></h4>
-               </div>
-               <div class="modal-body">
-                <p> Please provide the following information to send this MDM Command: <b><span class="mdm-command-prompt-title"></span></b>.
-                 After you have specified this, the commands will be sent to the server. This can not be undone. </p>
-                 <p> The device type that these commands are being sent to is: <i><span id="mdm-command-prompt-device-type"></span></i>.</p>
-                   <br/>
-                   <input type="text" class="form-control" id="mdm-prompt-input-value"/>
-               </div>
-
-               <div class="modal-footer">
-                 <button class="btn btn-default" data-dismiss="modal" >Close</button>
-                 <button class="btn btn-success" data-dismiss="modal" id="send-command-button" >Send Command</button>
-
+   <div class="modal fade in" id="erase-devices-modal" tabindex="-1" role="dialog" aria-labelledby="Remove Server"
+      aria-hidden="true">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+               <h4 class="modal-title" id="myModalLabel">Erase Devices</h4>
+            </div>
+            <div class="modal-body">
+               <p>Before erasing the selected devices, please provide your password below and confirm this action.</p>
+               <p><b>Erasing a device can not be undone. You must be an adminstrator to perform this action.</b></p>
+               <div class="row">
+                  <div class="col-md-12">
+                     <div class="form-group">
+                        <label>Password</label>
+                        <input class="form-control" id="erase-devices-confirm-password" type="password"
+                           placeholder="jamf1234">
+                     </div>
+                  </div>
                </div>
             </div>
-            <!-- /.modal-content -->
+            <div class="modal-footer">
+               <button onclick="verifyEraseDevices();" class="btn btn-danger">I really want to wipe these
+                  devices.</button>
+            </div>
          </div>
-         <!-- /.modal-dialog -->
+         <!-- /.modal-content -->
       </div>
+      <!-- /.modal-dialog -->
+   </div>
 
-      <div class="modal fade in" id="mdm-error-message" tabindex="-1" role="dialog" aria-labelledby="MDM Commands" aria-hidden="true">
-         <div class="modal-dialog">
-            <div class="modal-content">
-               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                  <h4 class="modal-title">MDM Command Error</h4>
-               </div>
-               <div class="modal-body">
-                 <p>An error was returned from the Jamf Pro Server when attempting to send these commands. Some more details about the request are listed below. Please open a Github issue with the details of this request and it will be evaluated in a a reasonable time frame. <b>Take out any identifying or sensitive information, like your server url or device names before posting the issue</b>.</p>
-                 <p><h4>Server Url: </h4></p>
-                 <p id="mdm-error-server-url"></p>
-                 <p><h4>Request Data: </h4></p>
-                 <p id="mdm-error-req-data"></p>
-                 <p><h4>Response Data: </h4></p>
-                 <p id="mdm-error-res-data"></p>
-               </div>
+   <div class="modal fade in" id="update-server-modal" tabindex="-1" role="dialog" aria-labelledby="Update Server"
+      aria-hidden="true">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+               <h4 class="modal-title" id="myModalLabel">Update Jamf Pro Server</h4>
+            </div>
+            <div class="modal-body">
+               <p>This menu will allow you to update the frequency this server is updated, as well the username and
+                  password used to reach the server. If you need to change the url, you'll have to delete the server and
+                  readd it. </p>
+               <div class="row">
+                  <div class="col-md-12">
+                     <div class="form-group">
+                        <label>Server URL</label>
+                        <input class="form-control" id="update-server-url" type="text" disabled
+                           placeholder="https://jamfcloud.com">
+                     </div>
+                     <div class="form-group">
+                        <label>Admin Username</label>
+                        <input class="form-control" id="update-server-username" type="text" placeholder="admin">
+                     </div>
+                     <div class="form-group">
+                        <label>Password</label>
+                        <input class="form-control" id="update-server-password" type="password" placeholder="jamf">
+                     </div>
+                     <div id="update-cron-selector-limited" class="form-group">
 
-               <div class="modal-footer">
-                 <button class="btn btn-default" data-dismiss="modal" >Close</button>
+                     </div>
+                     <div class="form-group">
+                        <label>Update Frequency (Basic Inventory)</label>
+                        <input class="form-control" id="update-server-limited-cron" type="text" placeholder="* * * * *">
+                     </div>
+                     <div id="update-cron-selector-expanded" class="form-group">
+
+                     </div>
+                     <div class="form-group">
+                        <label>Update Frequency (Expanded Inventory)</label>
+                        <input class="form-control" id="update-server-expanded-cron" type="text"
+                           placeholder="* * * * *">
+                     </div>
+                  </div>
+                  <input id="update-server-id" style="display:none;" type="number" id="update-server-id" />
                </div>
             </div>
-            <!-- /.modal-content -->
+            <div class="modal-footer">
+               <button id="update-server-button" onclick="doUpdateServer();" class="btn btn-primary">Update
+                  Server</button>
+            </div>
          </div>
-         <!-- /.modal-dialog -->
+         <!-- /.modal-content -->
       </div>
-      <!-- jQuery -->
-      <script src="sbadmin/jquery.min.js"></script>
-      <!-- Bootstrap Core JavaScript -->
-      <script src="sbadmin/bootstrap.min.js"></script>
-      <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-      <!-- Custom Theme JavaScript -->
-      <script src="sbadmin/sb-admin-2.min.js"></script>
-      <script src="sbadmin/jquery.dataTables.js"></script>
-      <script src="sbadmin/dataTables.bootstrap.js"></script>
-      <script src="sbadmin/dataTables.responsive.js"></script>
-      <script src="https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
-      <script src="https://cdn.datatables.net/select/1.2.7/js/dataTables.select.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.8.1/js/bootstrap-select.js"></script>
-      <script src="sbadmin/metismenu.js"></script>
-      <script type="text/javascript" src="js/jquery-cron-min.js"></script>
-      <script src="js/server-url.js"></script>
-      <script src="js/common.js"></script>
-      <script src="js/scripts.js"></script>
-      <script src="sbadmin/jquery.toast.js"></script>
+      <!-- /.modal-dialog -->
+   </div>
+
+   <div class="modal fade in" id="add-server-modal" tabindex="-1" role="dialog" aria-labelledby="Add Server"
+      aria-hidden="true">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+               <h4 class="modal-title" id="myModalLabel">Add Jamf Pro Server</h4>
+            </div>
+            <div class="modal-body">
+               <p>A sample request will be made to the JSS to verify that credentials are valid and to get the Org Name
+                  and Activation Code. A 'ScoutAdmin' user will also be added to this JPS for emergency server access.
+                  This user's password is changed every time Scout pulls inventory, and is randomly set.</p>
+               <p>It is recommended basic inventory is taken roughly once every day, while expanded inventory should be
+                  taken on a weekly basis. Limited inventory will perform one API call per Jamf Pro Server, while
+                  expanded access will peform a call for every single device, in every single server. It's high
+                  recommended these updates are spread throughout the week for more efficent batch processing.</p>
+               <div class="row">
+                  <div class="col-md-12">
+                     <div class="form-group">
+                        <label>Server URL</label>
+                        <input class="form-control" id="add-server-url" type="text" placeholder="https://jamfcloud.com">
+                     </div>
+                     <div class="form-group">
+                        <label>Admin Username</label>
+                        <input class="form-control" id="add-server-username" type="text" placeholder="admin">
+                     </div>
+                     <div class="form-group">
+                        <label>Password</label>
+                        <input class="form-control" id="add-server-password" type="password" placeholder="jamf">
+                     </div>
+                     <div id="cron-selector-limited" class="form-group">
+
+                     </div>
+                     <div class="form-group">
+                        <label>Update Frequency (Basic Inventory)</label>
+                        <input class="form-control" id="add-server-limited-cron" type="text" placeholder="* * * * *">
+                     </div>
+                     <div id="cron-selector-expanded" class="form-group">
+
+                     </div>
+                     <div class="form-group">
+                        <label>Update Frequency (Expanded Inventory)</label>
+                        <input class="form-control" id="add-server-expanded-cron" type="text" placeholder="* * * * *">
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="modal-footer">
+               <button id="add-server-button" class="btn btn-success">Add Server</button>
+            </div>
+         </div>
+         <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+   </div>
+   <div class="modal fade in" id="get-server-access-key" tabindex="-1" role="dialog"
+      aria-labelledby="Get emergency server access" aria-hidden="true">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+               <h4 class="modal-title" id="myModalLabel">Get Emergency Server Access</h4>
+            </div>
+            <div class="modal-body">
+               If your user has access to get emergency server passwords, you can use the following button to have it
+               returned.
+               <ul>
+                  <li>This password will be <b>destroyed from the database after being returned in this application one
+                        time.</b></li>
+                  <li>The next time this server is scheduled to update, it will update the ScoutAdmin password to a new
+                     random password. At that point, this will not longer be valid.</li>
+                  <li>If you loose this returned password, you will <b>not</b> be able to get emergency access to this
+                     server again until next time it updates. </li>
+                  <li>This password is only good for around 24 hours</li>
+               </ul>
+               <br />
+               <span id="get_backup_password" onclick="doBackupPasswordRequest();"><a href="#">If you have read and
+                     understand the above conditions, click here to get the password.</a></span>
+               <input type="text" id="backup_password_url" style="display:none;" />
+            </div>
+
+            <div class="modal-footer">
+               <button class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+         </div>
+         <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+   </div>
+
+   <div class="modal fade in" id="mdm-command-prompt" tabindex="-1" role="dialog" aria-labelledby="MDM Commands"
+      aria-hidden="true">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+               <h4 class="modal-title"><span class="mdm-command-prompt-title"></span></h4>
+            </div>
+            <div class="modal-body">
+               <p> Please provide the following information to send this MDM Command: <b><span
+                        class="mdm-command-prompt-title"></span></b>.
+                  After you have specified this, the commands will be sent to the server. This can not be undone. </p>
+               <p> The device type that these commands are being sent to is: <i><span
+                        id="mdm-command-prompt-device-type"></span></i>.</p>
+               <br />
+               <input type="text" class="form-control" id="mdm-prompt-input-value" />
+            </div>
+
+            <div class="modal-footer">
+               <button class="btn btn-default" data-dismiss="modal">Close</button>
+               <button class="btn btn-success" data-dismiss="modal" id="send-command-button">Send Command</button>
+
+            </div>
+         </div>
+         <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+   </div>
+
+   <div class="modal fade in" id="mdm-error-message" tabindex="-1" role="dialog" aria-labelledby="MDM Commands"
+      aria-hidden="true">
+      <div class="modal-dialog">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+               <h4 class="modal-title">MDM Command Error</h4>
+            </div>
+            <div class="modal-body">
+               <p>An error was returned from the Jamf Pro Server when attempting to send these commands. Some more
+                  details about the request are listed below. Please open a Github issue with the details of this
+                  request and it will be evaluated in a a reasonable time frame. <b>Take out any identifying or
+                     sensitive information, like your server url or device names before posting the issue</b>.</p>
+               <p>
+                  <h4>Server Url: </h4>
+               </p>
+               <p id="mdm-error-server-url"></p>
+               <p>
+                  <h4>Request Data: </h4>
+               </p>
+               <p id="mdm-error-req-data"></p>
+               <p>
+                  <h4>Response Data: </h4>
+               </p>
+               <p id="mdm-error-res-data"></p>
+            </div>
+
+            <div class="modal-footer">
+               <button class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+         </div>
+         <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+   </div>
 
 
-   </body>
+</body>
+
 </html>

@@ -1,0 +1,12 @@
+.card {
+    border-radius: 5px;
+    border: solid 1px #eeeeee;
+    box-shadow: 5px 5px 5px rgba(0,0,0,0.2);
+    margin: 10px;
+}
+#userCountCard{
+    display: none;
+}
+.userCard {
+    text-align: center;
+}

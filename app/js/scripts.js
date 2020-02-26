@@ -229,6 +229,10 @@ function createChart(){
               }
           }
         });
+    }).catch(err => {
+      if (err.status === 500) {
+        swal('Looks like there\'s a problem', "The reports in the dashboard couldn't be loaded. This is probably because the SQL database hasn't been updated. Please make sure the TINYINT(1) show_in_dashboard column is added to the reports table.", 'error');
+      }
     });
 
     loadAllUsers().then(data => {

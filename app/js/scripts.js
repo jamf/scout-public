@@ -172,11 +172,18 @@ async function calculateReportResultCount() {
   var reportObject = await asyncGetRequestObject('/reports/dashboard/', null, 'GET'); //gets all reports in mySQL
   var outputObj = reportObject;
   var reportCalls = [];
+  var reportResults = [];
   for (var i = 0; i < reportObject.length; i++) { //for each report
-    reportCalls = await asyncGetRequestObject('/reports/' + reportObject[i].id + '/count', null, 'GET');
-    outputObj[i].size = reportCalls.count;
+    reportCalls.push(asyncGetRequestObject('/reports/' + reportObject[i].id + '/count', null, 'GET'));
   }
-  return outputObj;
+  // non blocking call for all report results
+  return Promise.all(reportCalls).then(results => {
+    results.forEach((report, index) => {
+      outputObj[index].size = report.count;
+    })
+    return outputObj
+  })
+  
 }
 
 async function loadReportsWithDashboard() { 
@@ -233,8 +240,7 @@ function createChart(){
 }
 
 async function loadAllUsers() {
-  var users = await asyncGetRequestObject('/users/all', null, 'GET');
-  return users
+  return await asyncGetRequestObject('/users/all', null, 'GET');
 }
 
 function runExistingReportByUrl() {
